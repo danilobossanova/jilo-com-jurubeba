@@ -1,0 +1,56 @@
+# EditorConfig - Configuração de formatação para editores/IDEs
+# https://editorconfig.org
+# @author Danilo Fernando
+
+root = true
+
+# Configuração padrão para todos os arquivos
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Java
+[*.java]
+indent_size = 4
+max_line_length = 120
+
+# XML (pom.xml, etc)
+[*.xml]
+indent_size = 4
+
+# YAML
+[*.{yml,yaml}]
+indent_size = 2
+
+# JSON
+[*.json]
+indent_size = 2
+
+# Properties
+[*.properties]
+indent_size = 4
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Shell scripts
+[*.sh]
+end_of_line = lf
+
+# Windows batch/cmd
+[*.{cmd,bat}]
+end_of_line = crlf
+
+# Makefiles
+[Makefile]
+indent_style = tab
+
+# Dockerfile
+[Dockerfile*]
+indent_size = 4
