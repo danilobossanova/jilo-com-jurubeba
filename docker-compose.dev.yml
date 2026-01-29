@@ -1,0 +1,80 @@
+# ==========================================
+# Docker Compose - Desenvolvimento Local
+# ==========================================
+# Apenas serviços de infraestrutura (banco de dados)
+# A aplicação roda localmente via IDE ou mvn spring-boot:run
+# @author Danilo Fernando
+#
+# Uso:
+#   PostgreSQL: docker-compose -f docker-compose.dev.yml up
+#   MySQL:      docker-compose -f docker-compose.dev.yml --profile mysql up
+#   MongoDB:    docker-compose -f docker-compose.dev.yml --profile mongodb up
+
+services:
+  # -----------------------------------------
+  # PostgreSQL (Banco Padrão)
+  # -----------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: jilo-com-jurubeba-postgres-dev
+    environment:
+      POSTGRES_DB: jilocomjurubeba
+      POSTGRES_USER: jilocomjurubeba
+      POSTGRES_PASSWORD: jilocomjurubeba123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jilocomjurubeba -d jilocomjurubeba"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -----------------------------------------
+  # MySQL (Alternativo)
+  # -----------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: jilo-com-jurubeba-mysql-dev
+    profiles:
+      - mysql
+    environment:
+      MYSQL_DATABASE: jilocomjurubeba
+      MYSQL_USER: jilocomjurubeba
+      MYSQL_PASSWORD: jilocomjurubeba123
+      MYSQL_ROOT_PASSWORD: root123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "jilocomjurubeba", "-pjilocomjurubeba123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -----------------------------------------
+  # MongoDB (NoSQL)
+  # -----------------------------------------
+  mongodb:
+    image: mongo:7.0
+    container_name: jilo-com-jurubeba-mongodb-dev
+    profiles:
+      - mongodb
+    environment:
+      MONGO_INITDB_DATABASE: jilocomjurubeba
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_dev_data:
+  mysql_dev_data:
+  mongodb_dev_data:

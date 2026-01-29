@@ -1,0 +1,66 @@
+# ==========================================
+# Docker Ignore
+# ==========================================
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+*.iml
+.vscode
+*.swp
+*.swo
+.project
+.classpath
+.settings
+
+# Build
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+
+# Logs
+logs/
+*.log
+
+# Documentação local
+docs/
+
+# Arquivos de teste
+*.test
+*.spec
+
+# Arquivos temporários
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+.docker/
+
+# Maven wrapper (será recriado no build)
+# Comentado para usar no build multi-stage
+# .mvn/
+# mvnw
+# mvnw.cmd
+
+# Variáveis de ambiente locais
+.env
+.env.local
+*.env
+
+# Testes
+src/test/
+
+# README e docs
+README.md
+CONTRIBUTING.md
+LICENSE

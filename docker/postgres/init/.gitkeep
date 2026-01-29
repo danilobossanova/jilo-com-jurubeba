@@ -1,0 +1,2 @@
+# Pasta para scripts de inicialização do PostgreSQL
+# Arquivos .sql aqui serão executados na criação do container

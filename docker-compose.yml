@@ -1,0 +1,184 @@
+# ==========================================
+# Docker Compose - jilo-com-jurubeba
+# ==========================================
+# Suporta PostgreSQL, MySQL e MongoDB
+# @author Danilo Fernando
+#
+# Uso:
+#   PostgreSQL (padrão): docker-compose up
+#   MySQL:               docker-compose --profile mysql up
+#   MongoDB:             docker-compose --profile mongodb up
+#   Todos os bancos:     docker-compose --profile mysql --profile mongodb up
+
+services:
+  # -----------------------------------------
+  # Aplicação jilo-com-jurubeba
+  # -----------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jilo-com-jurubeba-app
+    ports:
+      - "8080:8080"
+    environment:
+      # Configuração de banco padrão (PostgreSQL)
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-postgres}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/jilocomjurubeba
+      - SPRING_DATASOURCE_USERNAME=jilocomjurubeba
+      - SPRING_DATASOURCE_PASSWORD=jilocomjurubeba123
+      # MongoDB (quando ativo)
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/jilocomjurubeba
+      # JPA
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - SPRING_FLYWAY_ENABLED=false
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - jilo-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # -----------------------------------------
+  # PostgreSQL (Banco Padrão)
+  # -----------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: jilo-com-jurubeba-postgres
+    environment:
+      POSTGRES_DB: jilocomjurubeba
+      POSTGRES_USER: jilocomjurubeba
+      POSTGRES_PASSWORD: jilocomjurubeba123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - jilo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jilocomjurubeba -d jilocomjurubeba"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # -----------------------------------------
+  # MySQL (Alternativo)
+  # -----------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: jilo-com-jurubeba-mysql
+    profiles:
+      - mysql
+    environment:
+      MYSQL_DATABASE: jilocomjurubeba
+      MYSQL_USER: jilocomjurubeba
+      MYSQL_PASSWORD: jilocomjurubeba123
+      MYSQL_ROOT_PASSWORD: root123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - jilo-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "jilocomjurubeba", "-pjilocomjurubeba123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # -----------------------------------------
+  # MongoDB (NoSQL)
+  # -----------------------------------------
+  mongodb:
+    image: mongo:7.0
+    container_name: jilo-com-jurubeba-mongodb
+    profiles:
+      - mongodb
+    environment:
+      MONGO_INITDB_DATABASE: jilocomjurubeba
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./docker/mongodb/init:/docker-entrypoint-initdb.d
+    networks:
+      - jilo-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # -----------------------------------------
+  # PgAdmin (Opcional - Gerenciamento PostgreSQL)
+  # -----------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: jilo-com-jurubeba-pgadmin
+    profiles:
+      - tools
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@grupo3.postech.com.br
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - jilo-network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # -----------------------------------------
+  # Mongo Express (Opcional - Gerenciamento MongoDB)
+  # -----------------------------------------
+  mongo-express:
+    image: mongo-express:latest
+    container_name: jilo-com-jurubeba-mongo-express
+    profiles:
+      - tools
+      - mongodb
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+    ports:
+      - "8081:8081"
+    networks:
+      - jilo-network
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+# -----------------------------------------
+# Volumes Persistentes
+# -----------------------------------------
+volumes:
+  postgres_data:
+    driver: local
+  mysql_data:
+    driver: local
+  mongodb_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+# -----------------------------------------
+# Rede Compartilhada
+# -----------------------------------------
+networks:
+  jilo-network:
+    driver: bridge
