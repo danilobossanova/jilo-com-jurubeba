@@ -1,16 +1,14 @@
 /**
  * Entidades JPA (mapeamento de banco de dados).
  *
- * Classes anotadas com @Entity que representam tabelas no banco.
- * São diferentes das entidades de domínio (que não têm anotações JPA).
+ * <p>Classes anotadas com @Entity que representam tabelas no banco. São diferentes das entidades de
+ * domínio (que não têm anotações JPA).
  *
- * Convenções:
- * - [Entidade]JpaEntity.java (ex: UsuarioJpaEntity)
- * - Usar @Entity, @Table, @Column
- * - Não colocar lógica de negócio aqui
- * - Mapear relacionamentos com JPA
+ * <p>Convenções: - [Entidade]JpaEntity.java (ex: UsuarioJpaEntity) - Usar @Entity, @Table, @Column
+ * - Não colocar lógica de negócio aqui - Mapear relacionamentos com JPA
  *
- * Exemplo:
+ * <p>Exemplo:
+ *
  * <pre>
  * {@literal @}Entity
  * {@literal @}Table(name = "usuarios")

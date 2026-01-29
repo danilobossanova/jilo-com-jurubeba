@@ -1,15 +1,14 @@
 /**
  * Mappers REST - Conversores entre DTOs.
  *
- * Convertem entre DTOs da API REST e DTOs da camada Application.
- * Utilizamos MapStruct para geração automática de código.
+ * <p>Convertem entre DTOs da API REST e DTOs da camada Application. Utilizamos MapStruct para
+ * geração automática de código.
  *
- * Convenções:
- * - [Entidade]RestMapper.java (ex: UsuarioRestMapper)
- * - Interface com @Mapper(componentModel = "spring")
- * - Métodos: toInput(), toResponse()
+ * <p>Convenções: - [Entidade]RestMapper.java (ex: UsuarioRestMapper) - Interface
+ * com @Mapper(componentModel = "spring") - Métodos: toInput(), toResponse()
  *
- * Exemplo:
+ * <p>Exemplo:
+ *
  * <pre>
  * {@literal @}Mapper(componentModel = "spring")
  * public interface UsuarioRestMapper {

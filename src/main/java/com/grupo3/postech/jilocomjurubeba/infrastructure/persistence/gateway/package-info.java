@@ -1,20 +1,17 @@
 /**
  * Implementações dos Gateways de Domínio.
  *
- * Classes que implementam as interfaces de Gateway definidas no domínio,
- * utilizando os repositórios Spring Data.
+ * <p>Classes que implementam as interfaces de Gateway definidas no domínio, utilizando os
+ * repositórios Spring Data.
  *
- * Convenções:
- * - [Entidade]GatewayJpa.java (ex: UsuarioGatewayJpa)
- * - Implementa interface do domínio (ex: UsuarioGateway)
- * - Anotado com @Component ou @Repository
+ * <p>Convenções: - [Entidade]GatewayJpa.java (ex: UsuarioGatewayJpa) - Implementa interface do
+ * domínio (ex: UsuarioGateway) - Anotado com @Component ou @Repository
  *
- * Responsabilidades:
- * - Converter Domain Entity -> JPA Entity (para salvar)
- * - Converter JPA Entity -> Domain Entity (para retornar)
- * - Usar repositório para operações de banco
+ * <p>Responsabilidades: - Converter Domain Entity -> JPA Entity (para salvar) - Converter JPA
+ * Entity -> Domain Entity (para retornar) - Usar repositório para operações de banco
  *
- * Exemplo:
+ * <p>Exemplo:
+ *
  * <pre>
  * {@literal @}Component
  * public class UsuarioGatewayJpa implements UsuarioGateway {

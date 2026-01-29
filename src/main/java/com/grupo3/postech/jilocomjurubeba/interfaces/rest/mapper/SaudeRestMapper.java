@@ -1,13 +1,14 @@
 package com.grupo3.postech.jilocomjurubeba.interfaces.rest.mapper;
 
+import org.mapstruct.Mapper;
+
 import com.grupo3.postech.jilocomjurubeba.application.dto.saude.SaudeOutput;
 import com.grupo3.postech.jilocomjurubeba.interfaces.rest.dto.saude.SaudeResponse;
-import org.mapstruct.Mapper;
 
 /**
  * Mapper para conversão entre DTOs de saúde.
  *
- * Converte SaudeOutput (application) para SaudeResponse (interfaces/rest).
+ * <p>Converte SaudeOutput (application) para SaudeResponse (interfaces/rest).
  *
  * @author Danilo Fernando
  */

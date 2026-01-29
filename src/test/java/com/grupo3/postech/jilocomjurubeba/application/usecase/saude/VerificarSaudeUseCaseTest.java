@@ -1,17 +1,18 @@
 package com.grupo3.postech.jilocomjurubeba.application.usecase.saude;
 
-import com.grupo3.postech.jilocomjurubeba.application.dto.saude.SaudeOutput;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.grupo3.postech.jilocomjurubeba.application.dto.saude.SaudeOutput;
 
 /**
  * Testes unitários para VerificarSaudeUseCase.
  *
- * Estes testes NÃO usam Spring - demonstram que a camada
- * de application é independente de frameworks.
+ * <p>Estes testes NÃO usam Spring - demonstram que a camada de application é independente de
+ * frameworks.
  *
  * @author Danilo Fernando
  */
@@ -65,10 +66,11 @@ class VerificarSaudeUseCaseTest {
         // Then
         assertThat(resultado)
                 .isNotNull()
-                .satisfies(saude -> {
-                    assertThat(saude.status()).isEqualTo("UP");
-                    assertThat(saude.versao()).isEqualTo(VERSAO_TESTE);
-                    assertThat(saude.timestamp()).isNotNull();
-                });
+                .satisfies(
+                        saude -> {
+                            assertThat(saude.status()).isEqualTo("UP");
+                            assertThat(saude.versao()).isEqualTo(VERSAO_TESTE);
+                            assertThat(saude.timestamp()).isNotNull();
+                        });
     }
 }

@@ -1,9 +1,10 @@
 package com.grupo3.postech.jilocomjurubeba.interfaces.rest.handler;
 
-import com.grupo3.postech.jilocomjurubeba.domain.exception.DominioException;
-import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
-import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
-import com.grupo3.postech.jilocomjurubeba.domain.exception.ValidacaoException;
+import java.net.URI;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,18 +14,19 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.net.URI;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import com.grupo3.postech.jilocomjurubeba.domain.exception.DominioException;
+import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
+import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
+import com.grupo3.postech.jilocomjurubeba.domain.exception.ValidacaoException;
 
 /**
  * Tratamento centralizado de exceções da API.
  *
- * Converte exceções em respostas HTTP padronizadas seguindo RFC 7807 (Problem Detail).
- * Todas as respostas de erro seguem o mesmo formato para consistência.
+ * <p>Converte exceções em respostas HTTP padronizadas seguindo RFC 7807 (Problem Detail). Todas as
+ * respostas de erro seguem o mesmo formato para consistência.
  *
- * Formato de resposta:
+ * <p>Formato de resposta:
+ *
  * <pre>
  * {
  *   "type": "https://api.jilo-com-jurubeba.com.br/erros/validacao",

@@ -1,15 +1,14 @@
 /**
  * Repositórios Spring Data.
  *
- * Interfaces que estendem JpaRepository ou MongoRepository.
- * O Spring Data gera a implementação automaticamente.
+ * <p>Interfaces que estendem JpaRepository ou MongoRepository. O Spring Data gera a implementação
+ * automaticamente.
  *
- * Convenções:
- * - [Entidade]Repository.java (ex: UsuarioRepository)
- * - Estender JpaRepository<Entity, ID>
- * - Métodos de query personalizados quando necessário
+ * <p>Convenções: - [Entidade]Repository.java (ex: UsuarioRepository) - Estender
+ * JpaRepository<Entity, ID> - Métodos de query personalizados quando necessário
  *
- * Exemplo:
+ * <p>Exemplo:
+ *
  * <pre>
  * public interface UsuarioRepository extends JpaRepository<UsuarioJpaEntity, Long> {
  *     Optional<UsuarioJpaEntity> findByEmail(String email);

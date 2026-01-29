@@ -5,17 +5,12 @@ import java.time.LocalDateTime;
 /**
  * Output do caso de uso de verificação de saúde.
  *
- * @param status    Status atual da aplicação (ex: "UP", "DOWN")
- * @param versao    Versão da aplicação
+ * @param status Status atual da aplicação (ex: "UP", "DOWN")
+ * @param versao Versão da aplicação
  * @param timestamp Data/hora da verificação
- *
  * @author Danilo Fernando
  */
-public record SaudeOutput(
-        String status,
-        String versao,
-        LocalDateTime timestamp
-) {
+public record SaudeOutput(String status, String versao, LocalDateTime timestamp) {
     /**
      * Cria um SaudeOutput com status UP.
      *

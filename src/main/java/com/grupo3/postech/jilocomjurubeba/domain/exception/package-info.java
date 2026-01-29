@@ -1,16 +1,13 @@
 /**
  * Exceções de Domínio.
  *
- * Exceções específicas do domínio que representam violações de regras de negócio.
- * Todas as exceções de domínio devem estender DominioException.
+ * <p>Exceções específicas do domínio que representam violações de regras de negócio. Todas as
+ * exceções de domínio devem estender DominioException.
  *
- * Hierarquia:
- * - DominioException (base)
- *   - EntidadeNaoEncontradaException
- *   - RegraDeNegocioException
- *   - ValidacaoException
+ * <p>Hierarquia: - DominioException (base) - EntidadeNaoEncontradaException -
+ * RegraDeNegocioException - ValidacaoException
  *
- * Estas exceções são capturadas pelo ControllerAdvice e convertidas em ProblemDetail.
+ * <p>Estas exceções são capturadas pelo ControllerAdvice e convertidas em ProblemDetail.
  *
  * @author Danilo Fernando
  */

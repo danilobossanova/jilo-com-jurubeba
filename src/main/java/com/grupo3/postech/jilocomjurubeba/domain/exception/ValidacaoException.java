@@ -7,10 +7,11 @@ import java.util.Map;
 /**
  * Exceção lançada quando dados de entrada são inválidos.
  *
- * Mapeada para HTTP 400 (Bad Request) no ControllerAdvice.
- * Suporta múltiplos erros de validação por campo.
+ * <p>Mapeada para HTTP 400 (Bad Request) no ControllerAdvice. Suporta múltiplos erros de validação
+ * por campo.
  *
- * Exemplo de uso:
+ * <p>Exemplo de uso:
+ *
  * <pre>
  * Map<String, String> erros = new HashMap<>();
  * erros.put("email", "Email inválido");

@@ -1,15 +1,14 @@
 /**
  * Mappers de Persistência.
  *
- * Conversores entre entidades JPA e entidades de domínio.
- * Utilizamos MapStruct para geração automática.
+ * <p>Conversores entre entidades JPA e entidades de domínio. Utilizamos MapStruct para geração
+ * automática.
  *
- * Convenções:
- * - [Entidade]PersistenceMapper.java (ex: UsuarioPersistenceMapper)
- * - Interface com @Mapper(componentModel = "spring")
- * - Métodos: toDomain(), toJpaEntity()
+ * <p>Convenções: - [Entidade]PersistenceMapper.java (ex: UsuarioPersistenceMapper) - Interface
+ * com @Mapper(componentModel = "spring") - Métodos: toDomain(), toJpaEntity()
  *
- * Exemplo:
+ * <p>Exemplo:
+ *
  * <pre>
  * {@literal @}Mapper(componentModel = "spring")
  * public interface UsuarioPersistenceMapper {
@@ -18,9 +17,7 @@
  * }
  * </pre>
  *
- * Importante:
- * - Lidar com Value Objects na conversão
- * - Mapear relacionamentos corretamente
+ * Importante: - Lidar com Value Objects na conversão - Mapear relacionamentos corretamente
  *
  * @author Danilo Fernando
  */

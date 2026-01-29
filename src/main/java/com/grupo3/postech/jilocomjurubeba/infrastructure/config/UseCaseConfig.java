@@ -1,20 +1,19 @@
 package com.grupo3.postech.jilocomjurubeba.infrastructure.config;
 
-import com.grupo3.postech.jilocomjurubeba.application.usecase.saude.VerificarSaudeUseCase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.grupo3.postech.jilocomjurubeba.application.usecase.saude.VerificarSaudeUseCase;
+
 /**
  * Configuração de beans para casos de uso.
  *
- * Esta classe é responsável por registrar os casos de uso como beans Spring,
- * injetando suas dependências (Gateways, configs, etc).
+ * <p>Esta classe é responsável por registrar os casos de uso como beans Spring, injetando suas
+ * dependências (Gateways, configs, etc).
  *
- * Por que não usar @Component nos UseCases?
- * - Manter a camada application livre de anotações Spring
- * - Centralizar a criação de beans
- * - Facilitar testes unitários sem Spring
+ * <p>Por que não usar @Component nos UseCases? - Manter a camada application livre de anotações
+ * Spring - Centralizar a criação de beans - Facilitar testes unitários sem Spring
  *
  * @author Danilo Fernando
  */

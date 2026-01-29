@@ -3,14 +3,13 @@ package com.grupo3.postech.jilocomjurubeba.application.usecase;
 /**
  * Interface base para todos os casos de uso.
  *
- * Define o contrato padrão para execução de casos de uso,
- * seguindo o padrão Command com entrada e saída tipadas.
+ * <p>Define o contrato padrão para execução de casos de uso, seguindo o padrão Command com entrada
+ * e saída tipadas.
  *
  * @param <I> Tipo do objeto de entrada (Input)
  * @param <O> Tipo do objeto de saída (Output)
- *
- * Exemplo de implementação:
- * <pre>
+ *     <p>Exemplo de implementação:
+ *     <pre>
  * public class CriarUsuarioUseCase implements UseCase<CriarUsuarioInput, UsuarioOutput> {
  *
  *     private final UsuarioGateway usuarioGateway;
