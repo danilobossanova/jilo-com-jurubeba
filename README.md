@@ -189,16 +189,41 @@ docker-compose up -d --build
 
 ### Desativar Spring Security (Desenvolvimento)
 
-Para desenvolvimento sem autenticacao:
-
-```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=nosecurity
-```
-
-Ou adicione ao `application.properties`:
+Para desenvolvimento sem autenticacao, adicione ao `application.properties`:
 ```properties
 spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 ```
+
+---
+
+## Variaveis de Ambiente
+
+As configuracoes de banco de dados sao parametrizaveis via variaveis de ambiente:
+
+| Variavel       | Padrao               | Descricao                          |
+|----------------|----------------------|------------------------------------|
+| `DB_HOST`      | `localhost`          | Host do banco de dados             |
+| `DB_PORT`      | `5432` / `3306`      | Porta (PostgreSQL / MySQL)         |
+| `DB_NAME`      | `jilocomjurubeba`    | Nome do banco de dados             |
+| `DB_USER`      | `jilocomjurubeba`    | Usuario do banco                   |
+| `DB_PASSWORD`  | `jilocomjurubeba123` | Senha do banco                     |
+| `MONGO_HOST`   | `localhost`          | Host do MongoDB                    |
+| `MONGO_PORT`   | `27017`              | Porta do MongoDB                   |
+| `MONGO_DB`     | `jilocomjurubeba`    | Nome do banco MongoDB              |
+
+---
+
+## Credenciais de Desenvolvimento
+
+| Servico        | Usuario              | Senha                 | Porta |
+|----------------|----------------------|-----------------------|-------|
+| Aplicacao      | `admin`              | `admin123`            | 8080  |
+| PostgreSQL     | `jilocomjurubeba`    | `jilocomjurubeba123`  | 5432  |
+| MySQL          | `jilocomjurubeba`    | `jilocomjurubeba123`  | 3306  |
+| MySQL (root)   | `root`               | `root123`             | 3306  |
+| H2 Console     | `sa`                 | _(vazio)_             | 8080  |
+| PgAdmin        | `admin@grupo3.postech.com.br` | `admin123`  | 5050  |
+| Mongo Express  | `admin`              | `admin123`            | 8081  |
 
 ---
 
@@ -334,6 +359,18 @@ docker-compose down -v
 | mysql     | PostgreSQL + MySQL    | `docker-compose -f docker-compose.dev.yml --profile mysql up` |
 | mongodb   | PostgreSQL + MongoDB  | `docker-compose -f docker-compose.dev.yml --profile mongodb up` |
 
+### Ferramentas de Gerenciamento
+
+Para subir ferramentas de administracao de banco:
+
+```bash
+# PgAdmin (PostgreSQL) - http://localhost:5050
+docker-compose --profile tools up -d
+
+# Mongo Express (MongoDB) - http://localhost:8081
+docker-compose --profile tools --profile mongodb up -d
+```
+
 ---
 
 ## Documentacao da API
@@ -386,6 +423,43 @@ Apos iniciar a aplicacao, acesse:
 |---------------------|---------------------------------------------------------|
 | DONO_RESTAURANTE    | CRUD completo de restaurantes e itens de cardapio       |
 | CLIENTE             | Consulta de restaurantes e visualizacao de produtos     |
+
+---
+
+## Documentacao Complementar
+
+| Documento                                              | Descricao                                    |
+|--------------------------------------------------------|----------------------------------------------|
+| [docs/architecture/README.md](docs/architecture/README.md) | Arquitetura detalhada com diagramas Mermaid |
+| [docs/adr/ADR-0001-clean-architecture.md](docs/adr/ADR-0001-clean-architecture.md) | Decisao arquitetural (ADR) |
+| [docs/standards/conventions.md](docs/standards/conventions.md) | Convencoes de codigo e nomenclatura     |
+| [CONTRIBUTING.md](CONTRIBUTING.md)                     | Guia de contribuicao, branches, commits, PRs |
+| [CLAUDE.md](CLAUDE.md)                                 | Guia rapido para assistentes de IA           |
+
+---
+
+## Troubleshooting
+
+### Build falha na fase `validate`
+O Spotless verifica formatacao automaticamente. Corrija com:
+```bash
+./mvnw spotless:apply
+```
+
+### Erro de conexao com banco de dados
+Verifique se o container Docker esta rodando:
+```bash
+docker-compose -f docker-compose.dev.yml ps
+```
+
+### Testes de arquitetura falhando
+Verifique se nao ha imports proibidos entre camadas:
+```bash
+./mvnw test -Dtest=CleanArchitectureTest
+```
+
+### H2 Console nao acessivel
+O H2 Console so funciona no profile padrao (sem postgres/mysql). Acesse em http://localhost:8080/h2-console com JDBC URL `jdbc:h2:mem:jilocomjurubeba`.
 
 ---
 

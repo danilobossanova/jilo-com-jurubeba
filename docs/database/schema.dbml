@@ -1,0 +1,225 @@
+// =====================================================================
+// jilo-com-jurubeba - Modelo de Dados (DBML)
+// Tech Challenge FIAP Pos-Tech Fase 2 - 11ADJT
+// =====================================================================
+// Importar em: https://dbdiagram.io
+// Cole o conteudo deste arquivo na aba esquerda do dbdiagram.io
+// =====================================================================
+
+Project jilo_com_jurubeba {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # Sistema de Gestao de Restaurantes
+    Tech Challenge FIAP Pos-Tech Fase 2 - 11ADJT
+    Grupo 3 - Data Guardian
+  '''
+}
+
+// =====================================================================
+// ENUMS
+// =====================================================================
+
+Enum tipo_usuario {
+  DONO_RESTAURANTE [note: 'Gerencia restaurantes e cardapios']
+  CLIENTE [note: 'Consulta restaurantes e visualiza cardapios']
+}
+
+Enum tipo_cozinha {
+  BRASILEIRA
+  ITALIANA
+  JAPONESA
+  CHINESA
+  MEXICANA
+  FRANCESA
+  ARABE
+  INDIANA
+  TAILANDESA
+  PORTUGUESA
+  AMERICANA
+  COREANA
+  VEGANA
+  VEGETARIANA
+  CONTEMPORANEA
+  FRUTOS_DO_MAR
+  CHURRASCARIA
+  PIZZARIA
+  OUTRA
+}
+
+Enum dia_semana {
+  SEGUNDA
+  TERCA
+  QUARTA
+  QUINTA
+  SEXTA
+  SABADO
+  DOMINGO
+}
+
+Enum status_reserva {
+  PENDENTE
+  CONFIRMADA
+  CANCELADA
+  CONCLUIDA
+}
+
+// =====================================================================
+// TABELAS
+// =====================================================================
+
+Table usuarios {
+  id              bigserial       [pk, increment, note: 'Identificador unico']
+  nome            varchar(150)    [not null, note: 'Nome completo do usuario']
+  email           varchar(255)    [not null, unique, note: 'Email unico para login']
+  cpf             varchar(11)     [not null, unique, note: 'CPF sem formatacao (11 digitos)']
+  senha           varchar(255)    [not null, note: 'Senha criptografada (BCrypt)']
+  tipo            tipo_usuario    [not null, note: 'DONO_RESTAURANTE ou CLIENTE']
+  ativo           boolean         [not null, default: true, note: 'Soft delete']
+  criado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em   timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    tipo [name: 'idx_usuarios_tipo']
+    email [name: 'idx_usuarios_email']
+    nome [name: 'idx_usuarios_nome']
+  }
+
+  Note: 'Usuarios do sistema - donos de restaurante e clientes'
+}
+
+Table enderecos {
+  id              bigserial       [pk, increment, note: 'Identificador unico']
+  logradouro      varchar(255)    [not null, note: 'Rua, avenida, etc.']
+  numero          varchar(20)     [not null, note: 'Numero do endereco']
+  complemento     varchar(100)    [note: 'Apartamento, sala, bloco, etc.']
+  bairro          varchar(100)    [not null, note: 'Bairro']
+  cidade          varchar(100)    [not null, note: 'Cidade']
+  estado          varchar(2)      [not null, note: 'Sigla UF (ex: SP, RJ)']
+  cep             varchar(8)      [not null, note: 'CEP sem formatacao (8 digitos)']
+  latitude        decimal(10,8)   [note: 'Latitude para geolocalizacao']
+  longitude       decimal(11,8)   [note: 'Longitude para geolocalizacao']
+  criado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em   timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    cep [name: 'idx_enderecos_cep']
+    cidade [name: 'idx_enderecos_cidade']
+  }
+
+  Note: 'Enderecos dos restaurantes'
+}
+
+Table restaurantes {
+  id              bigserial       [pk, increment, note: 'Identificador unico']
+  nome            varchar(200)    [not null, note: 'Nome do restaurante']
+  descricao       text            [note: 'Descricao do restaurante']
+  tipo_cozinha    tipo_cozinha    [not null, note: 'Tipo de culinaria']
+  capacidade      integer         [note: 'Capacidade maxima de pessoas']
+  dono_id         bigint          [not null, ref: > usuarios.id, note: 'FK - Dono (DONO_RESTAURANTE)']
+  endereco_id     bigint          [not null, ref: - enderecos.id, note: 'FK - Endereco do restaurante']
+  ativo           boolean         [not null, default: true, note: 'Soft delete']
+  criado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em   timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    dono_id [name: 'idx_restaurantes_dono_id']
+    tipo_cozinha [name: 'idx_restaurantes_tipo_cozinha']
+    nome [name: 'idx_restaurantes_nome']
+    ativo [name: 'idx_restaurantes_ativo']
+  }
+
+  Note: 'Restaurantes gerenciados pelos donos'
+}
+
+Table horarios_funcionamento {
+  id              bigserial       [pk, increment, note: 'Identificador unico']
+  restaurante_id  bigint          [not null, ref: > restaurantes.id, note: 'FK - Restaurante']
+  dia_semana      dia_semana      [not null, note: 'Dia da semana']
+  hora_abertura   time            [not null, note: 'Horario de abertura']
+  hora_fechamento time            [not null, note: 'Horario de fechamento']
+  fechado         boolean         [not null, default: false, note: 'TRUE = nao abre neste dia']
+
+  indexes {
+    restaurante_id [name: 'idx_horarios_restaurante_id']
+    (restaurante_id, dia_semana) [unique, name: 'uk_horarios_restaurante_dia']
+  }
+
+  Note: 'Horarios de funcionamento por dia da semana'
+}
+
+Table itens_cardapio {
+  id              bigserial       [pk, increment, note: 'Identificador unico']
+  restaurante_id  bigint          [not null, ref: > restaurantes.id, note: 'FK - Restaurante dono do item']
+  nome            varchar(200)    [not null, note: 'Nome do prato/produto']
+  descricao       text            [note: 'Descricao detalhada do prato']
+  preco           decimal(10,2)   [not null, note: 'Preco em BRL (deve ser > 0)']
+  foto_caminho    varchar(500)    [note: 'Caminho/URL da foto do prato']
+  disponivel      boolean         [not null, default: true, note: 'Disponivel para pedido']
+  apenas_local    boolean         [not null, default: true, note: 'Apenas consumo no local']
+  ordem_exibicao  integer         [not null, default: 0, note: 'Ordem no cardapio (menor = primeiro)']
+  ativo           boolean         [not null, default: true, note: 'Soft delete']
+  criado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em   timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    restaurante_id [name: 'idx_itens_cardapio_restaurante_id']
+    disponivel [name: 'idx_itens_cardapio_disponivel']
+    ativo [name: 'idx_itens_cardapio_ativo']
+  }
+
+  Note: 'Produtos do cardapio de cada restaurante'
+}
+
+Table avaliacoes {
+  id              bigserial       [pk, increment, note: 'Identificador unico']
+  restaurante_id  bigint          [not null, ref: > restaurantes.id, note: 'FK - Restaurante avaliado']
+  cliente_id      bigint          [not null, ref: > usuarios.id, note: 'FK - Cliente que avaliou']
+  nota            integer         [not null, note: 'Nota de 1 a 5 estrelas']
+  comentario      text            [note: 'Comentario opcional do cliente']
+  criado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em   timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    restaurante_id [name: 'idx_avaliacoes_restaurante_id']
+    cliente_id [name: 'idx_avaliacoes_cliente_id']
+    nota [name: 'idx_avaliacoes_nota']
+    (restaurante_id, cliente_id) [unique, name: 'uk_avaliacoes_restaurante_cliente']
+  }
+
+  Note: 'Avaliacoes dos clientes (1 a 5 estrelas) - fase futura'
+}
+
+Table reservas {
+  id                  bigserial       [pk, increment, note: 'Identificador unico']
+  restaurante_id      bigint          [not null, ref: > restaurantes.id, note: 'FK - Restaurante']
+  cliente_id          bigint          [not null, ref: > usuarios.id, note: 'FK - Cliente que reservou']
+  data_reserva        date            [not null, note: 'Data da reserva']
+  hora_reserva        time            [not null, note: 'Hora da reserva']
+  quantidade_pessoas  integer         [not null, note: 'Numero de pessoas (> 0)']
+  status              status_reserva  [not null, default: 'PENDENTE', note: 'Status da reserva']
+  observacao          text            [note: 'Observacoes do cliente']
+  criado_em           timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    restaurante_id [name: 'idx_reservas_restaurante_id']
+    cliente_id [name: 'idx_reservas_cliente_id']
+    data_reserva [name: 'idx_reservas_data']
+    status [name: 'idx_reservas_status']
+  }
+
+  Note: 'Reservas de mesas - fase futura'
+}
+
+// =====================================================================
+// RELACIONAMENTOS (resumo visual)
+// =====================================================================
+// usuarios     1 ---< restaurantes      (dono_id)
+// enderecos    1 ---1 restaurantes      (endereco_id)
+// restaurantes 1 ---< horarios_func     (restaurante_id)
+// restaurantes 1 ---< itens_cardapio    (restaurante_id)
+// restaurantes 1 ---< avaliacoes        (restaurante_id)
+// usuarios     1 ---< avaliacoes        (cliente_id)
+// restaurantes 1 ---< reservas          (restaurante_id)
+// usuarios     1 ---< reservas          (cliente_id)
+// =====================================================================
