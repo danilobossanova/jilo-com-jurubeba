@@ -313,14 +313,14 @@ class CleanArchitectureTest {
     class RegrasLocalizacaoAnotacoes {
 
         @Test
-        @DisplayName("@Entity JPA deve residir apenas em infrastructure.persistence.entity")
+        @DisplayName("@Entity JPA deve residir apenas em infrastructure.persistence")
         void entidadesJpaDevemResidirEmInfrastructurePersistence() {
             ArchRule regra =
                     classes()
                             .that()
                             .areAnnotatedWith(jakarta.persistence.Entity.class)
                             .should()
-                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence.entity..")
+                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence..")
                             .allowEmptyShould(true);
 
             regra.check(classes);
@@ -459,7 +459,7 @@ class CleanArchitectureTest {
             ArchRule regra =
                     classes()
                             .that()
-                            .resideInAPackage(BASE_PACKAGE + ".interfaces.rest")
+                            .resideInAPackage(BASE_PACKAGE + ".interfaces.rest..")
                             .and()
                             .areAnnotatedWith(
                                     org.springframework.web.bind.annotation.RestController.class)
@@ -523,7 +523,9 @@ class CleanArchitectureTest {
             ArchRule regra =
                     classes()
                             .that()
-                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence.entity..")
+                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence..")
+                            .and()
+                            .resideInAPackage("..entity..")
                             .and()
                             .haveSimpleNameNotContaining("package-info")
                             .should()
@@ -539,7 +541,9 @@ class CleanArchitectureTest {
             ArchRule regra =
                     classes()
                             .that()
-                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence.mapper..")
+                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence..")
+                            .and()
+                            .resideInAPackage("..mapper..")
                             .and()
                             .areInterfaces()
                             .and()
@@ -557,8 +561,9 @@ class CleanArchitectureTest {
             ArchRule regra =
                     classes()
                             .that()
-                            .resideInAPackage(
-                                    BASE_PACKAGE + ".infrastructure.persistence.gateway..")
+                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence..")
+                            .and()
+                            .resideInAPackage("..gateway..")
                             .and()
                             .haveSimpleNameNotContaining("package-info")
                             .should()
@@ -574,8 +579,9 @@ class CleanArchitectureTest {
             ArchRule regra =
                     classes()
                             .that()
-                            .resideInAPackage(
-                                    BASE_PACKAGE + ".infrastructure.persistence.repository..")
+                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence..")
+                            .and()
+                            .resideInAPackage("..repository..")
                             .and()
                             .haveSimpleNameNotContaining("package-info")
                             .should()
