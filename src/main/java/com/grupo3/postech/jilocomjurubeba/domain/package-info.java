@@ -11,7 +11,9 @@
  *
  * @author Danilo Fernando
  * @see com.grupo3.postech.jilocomjurubeba.domain.entity Entidades de negócio
+ * @see com.grupo3.postech.jilocomjurubeba.domain.valueobject Value Objects do domínio
  * @see com.grupo3.postech.jilocomjurubeba.domain.gateway Interfaces para acesso externo
  * @see com.grupo3.postech.jilocomjurubeba.domain.exception Exceções de domínio
+ * @see com.grupo3.postech.jilocomjurubeba.domain.event Eventos de domínio
  */
 package com.grupo3.postech.jilocomjurubeba.domain;

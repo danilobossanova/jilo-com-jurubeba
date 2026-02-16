@@ -17,13 +17,18 @@ import com.tngtech.archunit.lang.ArchRule;
 /**
  * Testes de arquitetura usando ArchUnit.
  *
- * <p>Garante que as regras de dependência da Clean Architecture são respeitadas.
+ * <p>Garante que as regras de dependência da Clean Architecture são respeitadas com rigor purista.
  *
- * <p>Regras principais: - domain: não depende de nenhuma outra camada - application: depende apenas
- * de domain - interfaces: depende de application e domain - infrastructure: depende de application
- * e domain
+ * <p>Regras principais:
  *
- * <p>Execução: - mvn test -Dtest=CleanArchitectureTest
+ * <ul>
+ *   <li>domain: não depende de nenhuma outra camada nem de frameworks
+ *   <li>application: depende apenas de domain, sem frameworks
+ *   <li>interfaces: depende de application e domain
+ *   <li>infrastructure: depende de application e domain
+ * </ul>
+ *
+ * <p>Execução: {@code mvn test -Dtest=CleanArchitectureTest}
  *
  * @author Danilo Fernando
  */
@@ -40,6 +45,10 @@ class CleanArchitectureTest {
                         .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
                         .importPackages(BASE_PACKAGE);
     }
+
+    // ========================================================================
+    // GRUPO 1: Regras de Dependência entre Camadas (Dependency Rule)
+    // ========================================================================
 
     @Nested
     @DisplayName("Regras de Dependência entre Camadas")
@@ -134,9 +143,15 @@ class CleanArchitectureTest {
         }
     }
 
+    // ========================================================================
+    // GRUPO 2: Independência de Frameworks nas Camadas Internas
+    // ========================================================================
+
     @Nested
     @DisplayName("Regras de Independência de Frameworks")
     class RegrasIndependenciaFrameworks {
+
+        // --- DOMAIN: Zero dependência de qualquer framework ---
 
         @Test
         @DisplayName("Domain não deve usar Spring Framework")
@@ -171,8 +186,52 @@ class CleanArchitectureTest {
         }
 
         @Test
-        @DisplayName("Application não deve usar Spring Web")
-        void applicationNaoDeveUsarSpringWeb() {
+        @DisplayName("Domain não deve usar Lombok")
+        void domainNaoDeveUsarLombok() {
+            ArchRule regra =
+                    noClasses()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".domain..")
+                            .should()
+                            .dependOnClassesThat()
+                            .resideInAPackage("lombok..");
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Domain não deve usar Jackson (serialização)")
+        void domainNaoDeveUsarJackson() {
+            ArchRule regra =
+                    noClasses()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".domain..")
+                            .should()
+                            .dependOnClassesThat()
+                            .resideInAPackage("com.fasterxml.jackson..");
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Domain não deve usar Bean Validation (jakarta.validation)")
+        void domainNaoDeveUsarBeanValidation() {
+            ArchRule regra =
+                    noClasses()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".domain..")
+                            .should()
+                            .dependOnClassesThat()
+                            .resideInAnyPackage("jakarta.validation..", "javax.validation..");
+
+            regra.check(classes);
+        }
+
+        // --- APPLICATION: Sem Spring, JPA, Lombok, Jackson ---
+
+        @Test
+        @DisplayName("Application não deve usar Spring Framework (nenhum pacote)")
+        void applicationNaoDeveUsarSpring() {
             ArchRule regra =
                     noClasses()
                             .that()
@@ -180,7 +239,7 @@ class CleanArchitectureTest {
                             .should()
                             .dependOnClassesThat()
                             .resideInAnyPackage(
-                                    "org.springframework.web..", "org.springframework.http..");
+                                    "org.springframework..", "org.springframework.boot..");
 
             regra.check(classes);
         }
@@ -201,7 +260,177 @@ class CleanArchitectureTest {
 
             regra.check(classes);
         }
+
+        @Test
+        @DisplayName("Application não deve usar Lombok")
+        void applicationNaoDeveUsarLombok() {
+            ArchRule regra =
+                    noClasses()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".application..")
+                            .should()
+                            .dependOnClassesThat()
+                            .resideInAPackage("lombok..");
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Application não deve usar Jackson (serialização)")
+        void applicationNaoDeveUsarJackson() {
+            ArchRule regra =
+                    noClasses()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".application..")
+                            .should()
+                            .dependOnClassesThat()
+                            .resideInAPackage("com.fasterxml.jackson..");
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Application não deve usar Bean Validation (jakarta.validation)")
+        void applicationNaoDeveUsarBeanValidation() {
+            ArchRule regra =
+                    noClasses()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".application..")
+                            .should()
+                            .dependOnClassesThat()
+                            .resideInAnyPackage("jakarta.validation..", "javax.validation..");
+
+            regra.check(classes);
+        }
     }
+
+    // ========================================================================
+    // GRUPO 3: Localização Correta de Anotações de Framework
+    // ========================================================================
+
+    @Nested
+    @DisplayName("Regras de Localização de Anotações")
+    class RegrasLocalizacaoAnotacoes {
+
+        @Test
+        @DisplayName("@Entity JPA deve residir apenas em infrastructure.persistence.entity")
+        void entidadesJpaDevemResidirEmInfrastructurePersistence() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .areAnnotatedWith(jakarta.persistence.Entity.class)
+                            .should()
+                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence.entity..")
+                            .allowEmptyShould(true);
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("@Configuration deve residir apenas em infrastructure")
+        void configuracoesDevemResidirEmInfrastructure() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .areAnnotatedWith(
+                                    org.springframework.context.annotation.Configuration.class)
+                            .should()
+                            .resideInAPackage(BASE_PACKAGE + ".infrastructure..");
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("@RestController deve residir apenas em interfaces.rest")
+        void restControllersDevemResidirEmInterfacesRest() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .areAnnotatedWith(
+                                    org.springframework.web.bind.annotation.RestController.class)
+                            .should()
+                            .resideInAPackage(BASE_PACKAGE + ".interfaces.rest..");
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("@RestControllerAdvice deve residir apenas em interfaces.rest")
+        void restControllerAdviceDevemResidirEmInterfacesRest() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .areAnnotatedWith(
+                                    org.springframework.web.bind.annotation.RestControllerAdvice
+                                            .class)
+                            .should()
+                            .resideInAPackage(BASE_PACKAGE + ".interfaces.rest..");
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("@Repository Spring deve residir apenas em infrastructure.persistence")
+        void repositoriesDevemResidirEmInfrastructurePersistence() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .areAnnotatedWith(org.springframework.stereotype.Repository.class)
+                            .should()
+                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence..")
+                            .allowEmptyShould(true);
+
+            regra.check(classes);
+        }
+    }
+
+    // ========================================================================
+    // GRUPO 4: Regras Estruturais do Domain
+    // ========================================================================
+
+    @Nested
+    @DisplayName("Regras Estruturais do Domain")
+    class RegrasEstruturaisDomain {
+
+        @Test
+        @DisplayName("Gateways do domain devem ser interfaces")
+        void gatewaysDevemSerInterfaces() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".domain.gateway..")
+                            .and()
+                            .haveSimpleNameNotContaining("package-info")
+                            .should()
+                            .beInterfaces()
+                            .allowEmptyShould(true);
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Exceções de domínio devem estender DominioException")
+        void excecoesDevemEstenderDominioException() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".domain.exception..")
+                            .and()
+                            .haveSimpleNameNotContaining("package-info")
+                            .and()
+                            .doNotHaveSimpleName("DominioException")
+                            .should()
+                            .beAssignableTo(
+                                    com.grupo3.postech.jilocomjurubeba.domain.exception
+                                            .DominioException.class);
+
+            regra.check(classes);
+        }
+    }
+
+    // ========================================================================
+    // GRUPO 5: Convenções de Nomenclatura
+    // ========================================================================
 
     @Nested
     @DisplayName("Convenções de Nomenclatura")
@@ -268,6 +497,160 @@ class CleanArchitectureTest {
                             .haveSimpleNameNotContaining("package-info")
                             .should()
                             .haveSimpleNameEndingWith("RestMapper");
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Gateways do domain devem terminar com 'Gateway'")
+        void gatewaysDevemTerminarComGateway() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".domain.gateway..")
+                            .and()
+                            .haveSimpleNameNotContaining("package-info")
+                            .should()
+                            .haveSimpleNameEndingWith("Gateway")
+                            .allowEmptyShould(true);
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Entidades JPA devem terminar com 'JpaEntity'")
+        void entidadesJpaDevemTerminarComJpaEntity() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence.entity..")
+                            .and()
+                            .haveSimpleNameNotContaining("package-info")
+                            .should()
+                            .haveSimpleNameEndingWith("JpaEntity")
+                            .allowEmptyShould(true);
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Mappers de persistência devem terminar com 'PersistenceMapper'")
+        void mappersPersistenciaDevemTerminarComPersistenceMapper() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence.mapper..")
+                            .and()
+                            .areInterfaces()
+                            .and()
+                            .haveSimpleNameNotContaining("package-info")
+                            .should()
+                            .haveSimpleNameEndingWith("PersistenceMapper")
+                            .allowEmptyShould(true);
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Implementações de Gateway devem conter 'Gateway' no nome")
+        void implementacoesGatewayDevemConterGateway() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .resideInAPackage(
+                                    BASE_PACKAGE + ".infrastructure.persistence.gateway..")
+                            .and()
+                            .haveSimpleNameNotContaining("package-info")
+                            .should()
+                            .haveSimpleNameContaining("Gateway")
+                            .allowEmptyShould(true);
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Repositories Spring Data devem terminar com 'Repository'")
+        void repositoriesDevemTerminarComRepository() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .resideInAPackage(
+                                    BASE_PACKAGE + ".infrastructure.persistence.repository..")
+                            .and()
+                            .haveSimpleNameNotContaining("package-info")
+                            .should()
+                            .haveSimpleNameEndingWith("Repository")
+                            .allowEmptyShould(true);
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Outputs da application devem terminar com 'Output'")
+        void outputsDevemTerminarComOutput() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".application.dto..")
+                            .and()
+                            .haveSimpleNameNotContaining("package-info")
+                            .and()
+                            .haveSimpleNameNotContaining("Input")
+                            .should()
+                            .haveSimpleNameEndingWith("Output");
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Inputs da application devem terminar com 'Input'")
+        void inputsDevemTerminarComInput() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".application.dto..")
+                            .and()
+                            .haveSimpleNameNotContaining("package-info")
+                            .and()
+                            .haveSimpleNameNotContaining("Output")
+                            .should()
+                            .haveSimpleNameEndingWith("Input")
+                            .allowEmptyShould(true);
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Responses REST devem terminar com 'Response'")
+        void responsesDevemTerminarComResponse() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".interfaces.rest.dto..")
+                            .and()
+                            .haveSimpleNameNotContaining("package-info")
+                            .and()
+                            .haveSimpleNameNotContaining("Request")
+                            .should()
+                            .haveSimpleNameEndingWith("Response");
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("Requests REST devem terminar com 'Request'")
+        void requestsDevemTerminarComRequest() {
+            ArchRule regra =
+                    classes()
+                            .that()
+                            .resideInAPackage(BASE_PACKAGE + ".interfaces.rest.dto..")
+                            .and()
+                            .haveSimpleNameNotContaining("package-info")
+                            .and()
+                            .haveSimpleNameNotContaining("Response")
+                            .should()
+                            .haveSimpleNameEndingWith("Request")
+                            .allowEmptyShould(true);
 
             regra.check(classes);
         }
