@@ -5,6 +5,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.grupo3.postech.jilocomjurubeba.application.usecase.saude.VerificarSaudeUseCase;
+import com.grupo3.postech.jilocomjurubeba.application.usecase.tipousuario.AtualizarTipoUsuarioUseCase;
+import com.grupo3.postech.jilocomjurubeba.application.usecase.tipousuario.BuscarTipoUsuarioPorIdUseCase;
+import com.grupo3.postech.jilocomjurubeba.application.usecase.tipousuario.CriarTipoUsuarioUseCase;
+import com.grupo3.postech.jilocomjurubeba.application.usecase.tipousuario.DeletarTipoUsuarioUseCase;
+import com.grupo3.postech.jilocomjurubeba.application.usecase.tipousuario.ListarTiposUsuarioUseCase;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuarioGateway;
 
 /**
  * Configuração de beans para casos de uso.
@@ -33,15 +39,30 @@ public class UseCaseConfig {
         return new VerificarSaudeUseCase(versaoAplicacao);
     }
 
-    // Futuros casos de uso serão registrados aqui:
-    //
-    // @Bean
-    // public CriarUsuarioUseCase criarUsuarioUseCase(UsuarioGateway gateway) {
-    //     return new CriarUsuarioUseCase(gateway);
-    // }
-    //
-    // @Bean
-    // public BuscarRestauranteUseCase buscarRestauranteUseCase(RestauranteGateway gateway) {
-    //     return new BuscarRestauranteUseCase(gateway);
-    // }
+    // ========== TipoUsuario Use Cases ==========
+
+    @Bean
+    public CriarTipoUsuarioUseCase criarTipoUsuarioUseCase(TipoUsuarioGateway gateway) {
+        return new CriarTipoUsuarioUseCase(gateway);
+    }
+
+    @Bean
+    public BuscarTipoUsuarioPorIdUseCase buscarTipoUsuarioPorIdUseCase(TipoUsuarioGateway gateway) {
+        return new BuscarTipoUsuarioPorIdUseCase(gateway);
+    }
+
+    @Bean
+    public ListarTiposUsuarioUseCase listarTiposUsuarioUseCase(TipoUsuarioGateway gateway) {
+        return new ListarTiposUsuarioUseCase(gateway);
+    }
+
+    @Bean
+    public AtualizarTipoUsuarioUseCase atualizarTipoUsuarioUseCase(TipoUsuarioGateway gateway) {
+        return new AtualizarTipoUsuarioUseCase(gateway);
+    }
+
+    @Bean
+    public DeletarTipoUsuarioUseCase deletarTipoUsuarioUseCase(TipoUsuarioGateway gateway) {
+        return new DeletarTipoUsuarioUseCase(gateway);
+    }
 }
