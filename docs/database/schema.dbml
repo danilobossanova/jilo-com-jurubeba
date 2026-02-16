@@ -5,6 +5,10 @@
 // Importar em: https://dbdiagram.io
 // Cole o conteudo deste arquivo na aba esquerda do dbdiagram.io
 // =====================================================================
+// IMPORTANTE: Este arquivo e a referencia visual do modelo de dados.
+// As migrations Flyway em src/main/resources/db/migration/ sao a fonte
+// da verdade para DDL executavel.
+// =====================================================================
 
 Project jilo_com_jurubeba {
   database_type: 'PostgreSQL'
@@ -18,11 +22,9 @@ Project jilo_com_jurubeba {
 // =====================================================================
 // ENUMS
 // =====================================================================
-
-Enum tipo_usuario {
-  DONO_RESTAURANTE [note: 'Gerencia restaurantes e cardapios']
-  CLIENTE [note: 'Consulta restaurantes e visualiza cardapios']
-}
+// NOTA: tipo_usuario foi promovido de enum para tabela (tipos_usuario)
+// para permitir CRUD e extensibilidade sem alterar schema.
+// =====================================================================
 
 Enum tipo_cozinha {
   BRASILEIRA
@@ -67,24 +69,45 @@ Enum status_reserva {
 // TABELAS
 // =====================================================================
 
-Table usuarios {
+Table tipos_usuario {
   id              bigserial       [pk, increment, note: 'Identificador unico']
-  nome            varchar(150)    [not null, note: 'Nome completo do usuario']
-  email           varchar(255)    [not null, unique, note: 'Email unico para login']
-  cpf             varchar(11)     [not null, unique, note: 'CPF sem formatacao (11 digitos)']
-  senha           varchar(255)    [not null, note: 'Senha criptografada (BCrypt)']
-  tipo            tipo_usuario    [not null, note: 'DONO_RESTAURANTE ou CLIENTE']
+  nome            varchar(50)     [not null, unique, note: 'Nome unico (MASTER, DONO_RESTAURANTE, CLIENTE)']
+  descricao       varchar(255)    [not null, note: 'Descricao legivel do tipo']
   ativo           boolean         [not null, default: true, note: 'Soft delete']
   criado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
-  atualizado_em   timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em   timestamp
 
   indexes {
-    tipo [name: 'idx_usuarios_tipo']
+    nome [name: 'idx_tipos_usuario_nome']
+    ativo [name: 'idx_tipos_usuario_ativo']
+  }
+
+  Note: '''
+    Tipos/papeis de usuario no sistema.
+    Modelado como tabela (nao enum) para CRUD e extensibilidade.
+    Dados iniciais: MASTER, DONO_RESTAURANTE, CLIENTE.
+    Migration: V001__criar_tabela_tipos_usuario.sql
+  '''
+}
+
+Table usuarios {
+  id                  bigserial       [pk, increment, note: 'Identificador unico']
+  nome                varchar(150)    [not null, note: 'Nome completo do usuario']
+  email               varchar(255)    [not null, unique, note: 'Email unico para login']
+  cpf                 varchar(11)     [not null, unique, note: 'CPF sem formatacao (11 digitos)']
+  senha               varchar(255)    [not null, note: 'Senha criptografada (BCrypt)']
+  tipo_usuario_id     bigint          [not null, ref: > tipos_usuario.id, note: 'FK - Tipo/papel do usuario']
+  ativo               boolean         [not null, default: true, note: 'Soft delete']
+  criado_em           timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em       timestamp
+
+  indexes {
+    tipo_usuario_id [name: 'idx_usuarios_tipo_usuario_id']
     email [name: 'idx_usuarios_email']
     nome [name: 'idx_usuarios_nome']
   }
 
-  Note: 'Usuarios do sistema - donos de restaurante e clientes'
+  Note: 'Usuarios do sistema - administradores, donos de restaurante e clientes'
 }
 
 Table enderecos {
@@ -99,7 +122,7 @@ Table enderecos {
   latitude        decimal(10,8)   [note: 'Latitude para geolocalizacao']
   longitude       decimal(11,8)   [note: 'Longitude para geolocalizacao']
   criado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
-  atualizado_em   timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em   timestamp
 
   indexes {
     cep [name: 'idx_enderecos_cep']
@@ -119,7 +142,7 @@ Table restaurantes {
   endereco_id     bigint          [not null, ref: - enderecos.id, note: 'FK - Endereco do restaurante']
   ativo           boolean         [not null, default: true, note: 'Soft delete']
   criado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
-  atualizado_em   timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em   timestamp
 
   indexes {
     dono_id [name: 'idx_restaurantes_dono_id']
@@ -159,7 +182,7 @@ Table itens_cardapio {
   ordem_exibicao  integer         [not null, default: 0, note: 'Ordem no cardapio (menor = primeiro)']
   ativo           boolean         [not null, default: true, note: 'Soft delete']
   criado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
-  atualizado_em   timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em   timestamp
 
   indexes {
     restaurante_id [name: 'idx_itens_cardapio_restaurante_id']
@@ -177,7 +200,7 @@ Table avaliacoes {
   nota            integer         [not null, note: 'Nota de 1 a 5 estrelas']
   comentario      text            [note: 'Comentario opcional do cliente']
   criado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
-  atualizado_em   timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em   timestamp
 
   indexes {
     restaurante_id [name: 'idx_avaliacoes_restaurante_id']
@@ -199,7 +222,7 @@ Table reservas {
   status              status_reserva  [not null, default: 'PENDENTE', note: 'Status da reserva']
   observacao          text            [note: 'Observacoes do cliente']
   criado_em           timestamp       [not null, default: `CURRENT_TIMESTAMP`]
-  atualizado_em       timestamp       [not null, default: `CURRENT_TIMESTAMP`]
+  atualizado_em       timestamp
 
   indexes {
     restaurante_id [name: 'idx_reservas_restaurante_id']
@@ -214,12 +237,13 @@ Table reservas {
 // =====================================================================
 // RELACIONAMENTOS (resumo visual)
 // =====================================================================
-// usuarios     1 ---< restaurantes      (dono_id)
-// enderecos    1 ---1 restaurantes      (endereco_id)
-// restaurantes 1 ---< horarios_func     (restaurante_id)
-// restaurantes 1 ---< itens_cardapio    (restaurante_id)
-// restaurantes 1 ---< avaliacoes        (restaurante_id)
-// usuarios     1 ---< avaliacoes        (cliente_id)
-// restaurantes 1 ---< reservas          (restaurante_id)
-// usuarios     1 ---< reservas          (cliente_id)
+// tipos_usuario 1 ---< usuarios             (tipo_usuario_id)
+// usuarios      1 ---< restaurantes         (dono_id)
+// enderecos     1 ---1 restaurantes         (endereco_id)
+// restaurantes  1 ---< horarios_func        (restaurante_id)
+// restaurantes  1 ---< itens_cardapio       (restaurante_id)
+// restaurantes  1 ---< avaliacoes           (restaurante_id)
+// usuarios      1 ---< avaliacoes           (cliente_id)
+// restaurantes  1 ---< reservas             (restaurante_id)
+// usuarios      1 ---< reservas             (cliente_id)
 // =====================================================================
