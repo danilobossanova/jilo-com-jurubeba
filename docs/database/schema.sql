@@ -5,12 +5,15 @@
 -- Compativel com: PostgreSQL 16+
 -- Gerar MER/DER: DBeaver, pgAdmin, MySQL Workbench, dbdiagram.io
 -- =====================================================================
+-- IMPORTANTE: Este arquivo e a referencia do modelo de dados completo.
+-- As migrations Flyway em src/main/resources/db/migration/ sao a fonte
+-- da verdade para DDL executavel. Este arquivo serve para documentacao
+-- e geracao de diagramas MER/DER.
+-- =====================================================================
 
 -- =====================================================================
 -- ENUM TYPES
 -- =====================================================================
-
-CREATE TYPE tipo_usuario AS ENUM ('DONO_RESTAURANTE', 'CLIENTE');
 
 CREATE TYPE tipo_cozinha AS ENUM (
     'BRASILEIRA',
@@ -45,33 +48,70 @@ CREATE TYPE dia_semana AS ENUM (
 );
 
 -- =====================================================================
+-- TABELA: tipos_usuario
+-- Define os papeis dos usuarios no sistema (MASTER, DONO_RESTAURANTE,
+-- CLIENTE). Modelado como tabela (nao enum) para permitir CRUD e
+-- extensibilidade sem alterar schema.
+-- Migration: V001__criar_tabela_tipos_usuario.sql
+-- =====================================================================
+
+CREATE TABLE tipos_usuario (
+    id              BIGSERIAL       PRIMARY KEY,
+    nome            VARCHAR(50)     NOT NULL,
+    descricao       VARCHAR(255)    NOT NULL,
+    ativo           BOOLEAN         NOT NULL DEFAULT TRUE,
+    criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em   TIMESTAMP,
+
+    CONSTRAINT uk_tipos_usuario_nome UNIQUE (nome)
+);
+
+CREATE INDEX idx_tipos_usuario_nome ON tipos_usuario (nome);
+CREATE INDEX idx_tipos_usuario_ativo ON tipos_usuario (ativo);
+
+COMMENT ON TABLE tipos_usuario IS 'Tipos/papeis de usuario no sistema';
+COMMENT ON COLUMN tipos_usuario.nome IS 'Nome unico do tipo (MASTER, DONO_RESTAURANTE, CLIENTE)';
+COMMENT ON COLUMN tipos_usuario.descricao IS 'Descricao legivel do tipo de usuario';
+COMMENT ON COLUMN tipos_usuario.ativo IS 'Soft delete - FALSE significa tipo desativado';
+
+-- Dados iniciais (semeados pelo TipoUsuarioDataSeeder)
+-- INSERT INTO tipos_usuario (nome, descricao) VALUES
+--     ('MASTER', 'Administrador do sistema com acesso total'),
+--     ('DONO_RESTAURANTE', 'Proprietario de restaurante que gerencia cardapios'),
+--     ('CLIENTE', 'Cliente que consulta restaurantes e cardapios');
+
+-- =====================================================================
 -- TABELA: usuarios
 -- Armazena os usuarios do sistema (donos e clientes)
 -- =====================================================================
 
 CREATE TABLE usuarios (
-    id              BIGSERIAL       PRIMARY KEY,
-    nome            VARCHAR(150)    NOT NULL,
-    email           VARCHAR(255)    NOT NULL,
-    cpf             VARCHAR(11)     NOT NULL,
-    senha           VARCHAR(255)    NOT NULL,
-    tipo            tipo_usuario    NOT NULL,
-    ativo           BOOLEAN         NOT NULL DEFAULT TRUE,
-    criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id                  BIGSERIAL       PRIMARY KEY,
+    nome                VARCHAR(150)    NOT NULL,
+    email               VARCHAR(255)    NOT NULL,
+    cpf                 VARCHAR(11)     NOT NULL,
+    senha               VARCHAR(255)    NOT NULL,
+    tipo_usuario_id     BIGINT          NOT NULL,
+    ativo               BOOLEAN         NOT NULL DEFAULT TRUE,
+    criado_em           TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em       TIMESTAMP,
 
     CONSTRAINT uk_usuarios_email UNIQUE (email),
     CONSTRAINT uk_usuarios_cpf   UNIQUE (cpf),
-    CONSTRAINT ck_usuarios_cpf_length CHECK (LENGTH(cpf) = 11)
+    CONSTRAINT ck_usuarios_cpf_length CHECK (LENGTH(cpf) = 11),
+
+    CONSTRAINT fk_usuarios_tipo_usuario
+        FOREIGN KEY (tipo_usuario_id) REFERENCES tipos_usuario (id)
+        ON DELETE RESTRICT
 );
 
-CREATE INDEX idx_usuarios_tipo ON usuarios (tipo);
+CREATE INDEX idx_usuarios_tipo_usuario_id ON usuarios (tipo_usuario_id);
 CREATE INDEX idx_usuarios_email ON usuarios (email);
 CREATE INDEX idx_usuarios_nome ON usuarios (nome);
 
-COMMENT ON TABLE usuarios IS 'Usuarios do sistema - donos de restaurante e clientes';
+COMMENT ON TABLE usuarios IS 'Usuarios do sistema - administradores, donos de restaurante e clientes';
 COMMENT ON COLUMN usuarios.cpf IS 'CPF sem formatacao (apenas 11 digitos)';
-COMMENT ON COLUMN usuarios.tipo IS 'DONO_RESTAURANTE: gerencia restaurantes | CLIENTE: consulta cardapios';
+COMMENT ON COLUMN usuarios.tipo_usuario_id IS 'FK para tipos_usuario - define o papel do usuario';
 COMMENT ON COLUMN usuarios.senha IS 'Senha criptografada (BCrypt)';
 
 -- =====================================================================
@@ -91,7 +131,7 @@ CREATE TABLE enderecos (
     latitude        DECIMAL(10, 8),
     longitude       DECIMAL(11, 8),
     criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em   TIMESTAMP,
 
     CONSTRAINT ck_enderecos_cep_length CHECK (LENGTH(cep) = 8),
     CONSTRAINT ck_enderecos_estado_length CHECK (LENGTH(estado) = 2)
@@ -119,7 +159,7 @@ CREATE TABLE restaurantes (
     endereco_id         BIGINT          NOT NULL,
     ativo               BOOLEAN         NOT NULL DEFAULT TRUE,
     criado_em           TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em       TIMESTAMP,
 
     CONSTRAINT fk_restaurantes_dono
         FOREIGN KEY (dono_id) REFERENCES usuarios (id)
@@ -187,7 +227,7 @@ CREATE TABLE itens_cardapio (
     ordem_exibicao  INTEGER         NOT NULL DEFAULT 0,
     ativo           BOOLEAN         NOT NULL DEFAULT TRUE,
     criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em   TIMESTAMP,
 
     CONSTRAINT fk_itens_cardapio_restaurante
         FOREIGN KEY (restaurante_id) REFERENCES restaurantes (id)
@@ -218,7 +258,7 @@ CREATE TABLE avaliacoes (
     nota            INTEGER         NOT NULL,
     comentario      TEXT,
     criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em   TIMESTAMP,
 
     CONSTRAINT fk_avaliacoes_restaurante
         FOREIGN KEY (restaurante_id) REFERENCES restaurantes (id)
@@ -256,7 +296,7 @@ CREATE TABLE reservas (
     status              VARCHAR(20)     NOT NULL DEFAULT 'PENDENTE',
     observacao          TEXT,
     criado_em           TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em       TIMESTAMP,
 
     CONSTRAINT fk_reservas_restaurante
         FOREIGN KEY (restaurante_id) REFERENCES restaurantes (id)
