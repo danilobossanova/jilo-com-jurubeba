@@ -1,6 +1,7 @@
 package com.grupo3.postech.jilocomjurubeba.domain.valueobject;
 
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 

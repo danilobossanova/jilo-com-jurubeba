@@ -3,7 +3,7 @@ package com.grupo3.postech.jilocomjurubeba;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.grupo3.postech.jilocomjurubeba")
 public class JiloComJurubebaApplication {
 
     public static void main(String[] args) {

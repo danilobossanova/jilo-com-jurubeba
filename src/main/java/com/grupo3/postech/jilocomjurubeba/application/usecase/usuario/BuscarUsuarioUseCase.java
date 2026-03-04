@@ -16,17 +16,21 @@ public class BuscarUsuarioUseCase implements UseCase<Long, UsuarioOutput> {
 
     @Override
     public UsuarioOutput executar(Long id) {
-        Usuario usuario = usuarioGateway.findByIdUsuario(id)
+        Usuario usuario =
+            usuarioGateway.findByIdUsuario(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", id));
+
+        Long tipoId = usuario.getTipoUsuario() == null ? null : usuario.getTipoUsuario().getId();
+        String tipoNome = usuario.getTipoUsuario() == null ? null : usuario.getTipoUsuario().getNome();
 
         return new UsuarioOutput(
             usuario.getId(),
             usuario.getNome(),
-            usuario.getCpf(),
-            usuario.getEmail(),
+            usuario.getCpf().getNumero(),
+            usuario.getEmail().getEmail(),
             usuario.getTelefone(),
-            usuario.getTypeUsuario(),
-            usuario.getRestaurantes(),
+            tipoId,
+            tipoNome,
             usuario.isAtivo()
         );
     }

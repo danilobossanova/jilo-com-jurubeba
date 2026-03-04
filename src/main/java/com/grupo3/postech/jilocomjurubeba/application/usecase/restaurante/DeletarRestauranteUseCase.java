@@ -1,11 +1,7 @@
 package com.grupo3.postech.jilocomjurubeba.application.usecase.restaurante;
 
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCaseSemSaida;
-import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
-import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGatewayDomain;
-
-import java.util.Optional;
 
 public class DeletarRestauranteUseCase implements UseCaseSemSaida<Long> {
 
@@ -17,11 +13,7 @@ public class DeletarRestauranteUseCase implements UseCaseSemSaida<Long> {
 
     @Override
     public void executar(Long input) {
-        Restaurante restaurante = restauranteGatewayDomain.findByIdRestaurante(input)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Restaurante", input));
-
-        restaurante.desativar();
-        restauranteGatewayDomain.saveRestaurante(restaurante);
-
+        // ✅ o gateway já faz exclusão lógica e lança EntidadeNaoEncontradaException se não existir
+        restauranteGatewayDomain.deleteRestaurante(input);
     }
 }

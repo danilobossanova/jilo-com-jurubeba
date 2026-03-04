@@ -1,12 +1,11 @@
 package com.grupo3.postech.jilocomjurubeba.application.usecase.restaurante;
 
+import java.util.List;
+
 import com.grupo3.postech.jilocomjurubeba.application.dto.restaurante.RestauranteOutput;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCaseSemEntrada;
-import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCaseSemSaida;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGatewayDomain;
-
-import java.util.List;
 
 public class ListarRestauranteUseCase implements UseCaseSemEntrada<List<RestauranteOutput>> {
 
@@ -18,10 +17,14 @@ public class ListarRestauranteUseCase implements UseCaseSemEntrada<List<Restaura
 
     @Override
     public List<RestauranteOutput> executar() {
-        return restauranteGatewayDomain.findAllRestaurante().stream().map(this::toOutput).toList();
+        return restauranteGatewayDomain.findAllRestaurante().stream()
+            .map(this::toOutput)
+            .toList();
     }
 
-    private RestauranteOutput toOutput(Restaurante restaurante){
+    private RestauranteOutput toOutput(Restaurante restaurante) {
+        Long donoId = (restaurante.getDono() == null) ? null : restaurante.getDono().getId();
+
         return new RestauranteOutput(
             restaurante.getId(),
             restaurante.getNome(),
@@ -29,10 +32,8 @@ public class ListarRestauranteUseCase implements UseCaseSemEntrada<List<Restaura
             restaurante.getTypeCozinha(),
             restaurante.getHoraAbertura(),
             restaurante.getHoraFechamento(),
-            restaurante.getDono(),
+            donoId,
             restaurante.isAtivo()
         );
     }
-
-
 }

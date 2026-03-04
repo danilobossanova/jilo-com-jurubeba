@@ -15,21 +15,25 @@ public class BuscarCardapioUseCase implements UseCase<Long, CardapioOutput> {
     }
 
     public CardapioOutput executar(Long id) {
-        Cardapio cardapio = cardapioGatewayDomain.findByIdCardapio(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Cardapio", id));
+        Cardapio cardapio =
+                cardapioGatewayDomain
+                        .findByIdCardapio(id)
+                        .orElseThrow(() -> new EntidadeNaoEncontradaException("Cardapio", id));
         return toOutput(cardapio);
     }
 
     private CardapioOutput toOutput(Cardapio cardapio) {
+        Long restauranteId =
+                cardapio.getRestaurante() != null ? cardapio.getRestaurante().getId() : null;
+
         return new CardapioOutput(
-            cardapio.getId(),
-            cardapio.getNome(),
-            cardapio.getDescricao(),
-            cardapio.getPreco(),
-            cardapio.isApenasNoLocal(),
-            cardapio.getCaminhoFoto(),
-            cardapio.getRestaurante(),
-            cardapio.isAtivo()
-        );
+                cardapio.getId(),
+                cardapio.getNome(),
+                cardapio.getDescricao(),
+                cardapio.getPreco(),
+                cardapio.isApenasNoLocal(),
+                cardapio.getCaminhoFoto(),
+                restauranteId,
+                cardapio.isAtivo());
     }
 }

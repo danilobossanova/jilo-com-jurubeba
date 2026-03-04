@@ -1,12 +1,14 @@
 package com.grupo3.postech.jilocomjurubeba.domain.entity.cardapio;
 
-import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
-import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
-import lombok.*;
-
 import java.math.BigDecimal;
 
+import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
+import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
+
+import lombok.*;
+
 @Getter
+@Setter
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 public class Cardapio {
@@ -21,7 +23,15 @@ public class Cardapio {
     private boolean ativo;
 
     @Builder
-    public Cardapio(Long id, String nome, String descricao, BigDecimal preco, boolean apenasNoLocal, String caminhoFoto, Restaurante restaurante, boolean ativo) {
+    public Cardapio(
+            Long id,
+            String nome,
+            String descricao,
+            BigDecimal preco,
+            boolean apenasNoLocal,
+            String caminhoFoto,
+            Restaurante restaurante,
+            boolean ativo) {
 
         validar();
         atualizarPreco(preco);
@@ -37,7 +47,13 @@ public class Cardapio {
         this.ativo = ativo;
     }
 
-    public Cardapio(String nome, String descricao, BigDecimal preco, boolean apenasNoLocal, String caminhoFoto, Restaurante restaurante) {
+    public Cardapio(
+            String nome,
+            String descricao,
+            BigDecimal preco,
+            boolean apenasNoLocal,
+            String caminhoFoto,
+            Restaurante restaurante) {
         this.nome = nome;
         this.descricao = descricao;
         this.preco = preco;
@@ -46,8 +62,6 @@ public class Cardapio {
         this.restaurante = restaurante;
         this.ativo = true;
     }
-
-
 
     public void desativar() {
         this.ativo = false;
@@ -82,7 +96,13 @@ public class Cardapio {
         this.apenasNoLocal = apenasNoLocal;
     }
 
-    public void atualizarDados(String nome, String descricao, BigDecimal preco, boolean apenasNoLocal, String caminhoFoto, Restaurante restaurante) {
+    public void atualizarDados(
+            String nome,
+            String descricao,
+            BigDecimal preco,
+            boolean apenasNoLocal,
+            String caminhoFoto,
+            Restaurante restaurante) {
         this.nome = nome.trim().toUpperCase();
         this.descricao = descricao.trim();
         this.preco = preco;

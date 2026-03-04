@@ -24,6 +24,7 @@ public class CriarTipoUsuarioUseCase implements UseCase<CriarTipoUsuarioInput, T
 
     @Override
     public TipoUsuarioOutput executar(CriarTipoUsuarioInput input) {
+
         if (tipoUsuarioGateway.existePorNome(input.nome().trim().toUpperCase())) {
             throw new RegraDeNegocioException(
                     "Ja existe um tipo de usuario com o nome '" + input.nome() + "'");

@@ -1,22 +1,18 @@
 # ==========================================
 # Docker Compose - Desenvolvimento Local
+# Infraestrutura apenas (Banco de Dados)
+# A aplicação roda localmente via IDE
 # ==========================================
-# Apenas serviços de infraestrutura (banco de dados)
-# A aplicação roda localmente via IDE ou mvn spring-boot:run
-# @author Danilo Fernando
-#
-# Uso:
-#   PostgreSQL: docker-compose -f docker-compose.dev.yml up
-#   MySQL:      docker-compose -f docker-compose.dev.yml --profile mysql up
-#   MongoDB:    docker-compose -f docker-compose.dev.yml --profile mongodb up
 
 services:
+
   # -----------------------------------------
   # PostgreSQL (Banco Padrão)
   # -----------------------------------------
   postgres:
     image: postgres:16-alpine
     container_name: jilo-com-jurubeba-postgres-dev
+    restart: unless-stopped
     environment:
       POSTGRES_DB: jilocomjurubeba
       POSTGRES_USER: jilocomjurubeba
@@ -37,6 +33,7 @@ services:
   mysql:
     image: mysql:8.0
     container_name: jilo-com-jurubeba-mysql-dev
+    restart: unless-stopped
     profiles:
       - mysql
     environment:
@@ -60,6 +57,7 @@ services:
   mongodb:
     image: mongo:7.0
     container_name: jilo-com-jurubeba-mongodb-dev
+    restart: unless-stopped
     profiles:
       - mongodb
     environment:
@@ -74,6 +72,9 @@ services:
       timeout: 5s
       retries: 5
 
+# -----------------------------------------
+# Volumes
+# -----------------------------------------
 volumes:
   postgres_dev_data:
   mysql_dev_data:

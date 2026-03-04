@@ -1,13 +1,11 @@
 package com.grupo3.postech.jilocomjurubeba.application.usecase.usuario;
 
-import com.grupo3.postech.jilocomjurubeba.application.dto.tipousuario.TipoUsuarioOutput;
+import java.util.List;
+
 import com.grupo3.postech.jilocomjurubeba.application.dto.usuario.UsuarioOutput;
-import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCase;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCaseSemEntrada;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.usuario.Usuario;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGatewayDomain;
-
-import java.util.List;
 
 public class ListarUsuarioUseCase implements UseCaseSemEntrada<List<UsuarioOutput>> {
 
@@ -19,20 +17,25 @@ public class ListarUsuarioUseCase implements UseCaseSemEntrada<List<UsuarioOutpu
 
     @Override
     public List<UsuarioOutput> executar() {
-        return usuarioGateway.findAllUsuario().stream().map(this::toOutput).toList();
+        return usuarioGateway.findAllUsuario()
+            .stream()
+            .map(this::toOutput)
+            .toList();
     }
 
     private UsuarioOutput toOutput(Usuario usuario) {
+        Long tipoId = usuario.getTipoUsuario() == null ? null : usuario.getTipoUsuario().getId();
+        String tipoNome = usuario.getTipoUsuario() == null ? null : usuario.getTipoUsuario().getNome();
+
         return new UsuarioOutput(
             usuario.getId(),
             usuario.getNome(),
-            usuario.getCpf(),
-            usuario.getEmail(),
+            usuario.getCpf().getNumero(),
+            usuario.getEmail().getEmail(),
             usuario.getTelefone(),
-            usuario.getTypeUsuario(),
-            usuario.getRestaurantes(),
+            tipoId,
+            tipoNome,
             usuario.isAtivo()
         );
-
     }
 }

@@ -1,6 +1,5 @@
 package com.grupo3.postech.jilocomjurubeba.application.usecase.usuario;
 
-import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCase;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCaseSemSaida;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.usuario.Usuario;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
@@ -16,14 +15,10 @@ public class DeletarUsuarioUseCase implements UseCaseSemSaida<Long> {
 
     @Override
     public void executar(Long id) {
-        Usuario usuario = usuarioGateway.findByIdUsuario(id)
+        Usuario usuario =
+            usuarioGateway.findByIdUsuario(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", id));
 
-        usuario.desativar();
-        usuarioGateway.saveUsuario(usuario);
-
+        usuarioGateway.deletarUsuario(usuario.getId());
     }
-
-
-
 }

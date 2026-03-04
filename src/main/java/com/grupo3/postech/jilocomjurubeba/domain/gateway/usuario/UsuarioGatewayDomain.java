@@ -1,9 +1,9 @@
 package com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario;
 
-import com.grupo3.postech.jilocomjurubeba.domain.entity.usuario.Usuario;
-
 import java.util.List;
 import java.util.Optional;
+
+import com.grupo3.postech.jilocomjurubeba.domain.entity.usuario.Usuario;
 
 public interface UsuarioGatewayDomain {
 
@@ -13,10 +13,11 @@ public interface UsuarioGatewayDomain {
 
     Optional<Usuario> findByCpf(String cpf);
 
+    Optional<Usuario> findByEmail(String email);
+
     List<Usuario> findAllUsuario();
 
-    void deleteUsuario();
+    void deleteUsuario(Long id);
 
-
-
+    void deletarUsuario(Long id);
 }

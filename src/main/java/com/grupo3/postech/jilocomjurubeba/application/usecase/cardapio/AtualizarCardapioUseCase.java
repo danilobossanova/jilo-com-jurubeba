@@ -18,34 +18,36 @@ public class AtualizarCardapioUseCase implements UseCase<AtualizarCardapioInput,
     @Override
     public CardapioOutput executar(AtualizarCardapioInput input) {
 
-        Cardapio cardapio = cardapioGatewayDomain.findByIdCardapio(input.id())
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Cardapio", input.id()));
+        Cardapio cardapio =
+                cardapioGatewayDomain
+                        .findByIdCardapio(input.id())
+                        .orElseThrow(
+                                () -> new EntidadeNaoEncontradaException("Cardapio", input.id()));
 
         cardapio.atualizarDados(
-            input.nome(),
-            input.descricao(),
-            input.preco(),
-            input.apenasNoLocal(),
-            input.caminhoFoto(),
-            input.restaurante()
-        );
+                input.nome(),
+                input.descricao(),
+                input.preco(),
+                input.apenasNoLocal(),
+                input.caminhoFoto(),
+                input.restaurante());
 
         Cardapio atualizado = cardapioGatewayDomain.saveCardapio(cardapio);
         return toOutput(atualizado);
     }
 
     private CardapioOutput toOutput(Cardapio cardapio) {
+        Long restauranteId =
+                cardapio.getRestaurante() != null ? cardapio.getRestaurante().getId() : null;
+
         return new CardapioOutput(
-            cardapio.getId(),
-            cardapio.getNome(),
-            cardapio.getDescricao(),
-            cardapio.getPreco(),
-            cardapio.isApenasNoLocal(),
-            cardapio.getCaminhoFoto(),
-            cardapio.getRestaurante(),
-            cardapio.isAtivo()
-        );
+                cardapio.getId(),
+                cardapio.getNome(),
+                cardapio.getDescricao(),
+                cardapio.getPreco(),
+                cardapio.isApenasNoLocal(),
+                cardapio.getCaminhoFoto(),
+                restauranteId,
+                cardapio.isAtivo());
     }
-
-
 }

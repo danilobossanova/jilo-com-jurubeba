@@ -6,7 +6,6 @@ import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGatewayDomain;
 
-
 public class BuscarRestauranteUseCase implements UseCase<Long, RestauranteOutput> {
 
     private final RestauranteGatewayDomain restauranteGatewayDomain;
@@ -17,13 +16,16 @@ public class BuscarRestauranteUseCase implements UseCase<Long, RestauranteOutput
 
     @Override
     public RestauranteOutput executar(Long input) {
-        Restaurante restaurante = restauranteGatewayDomain.findByIdRestaurante(input)
+        Restaurante restaurante = restauranteGatewayDomain
+            .findByIdRestaurante(input)
             .orElseThrow(() -> new EntidadeNaoEncontradaException("Restaurante", input));
 
         return toOutput(restaurante);
     }
 
-    private RestauranteOutput toOutput(Restaurante restaurante){
+    private RestauranteOutput toOutput(Restaurante restaurante) {
+        Long donoId = (restaurante.getDono() == null) ? null : restaurante.getDono().getId();
+
         return new RestauranteOutput(
             restaurante.getId(),
             restaurante.getNome(),
@@ -31,10 +33,8 @@ public class BuscarRestauranteUseCase implements UseCase<Long, RestauranteOutput
             restaurante.getTypeCozinha(),
             restaurante.getHoraAbertura(),
             restaurante.getHoraFechamento(),
-            restaurante.getDono(),
+            donoId,
             restaurante.isAtivo()
         );
     }
-
-
 }
