@@ -1,53 +1,70 @@
 package com.grupo3.postech.jilocomjurubeba.application.usecase.cardapio;
 
+import java.math.BigDecimal;
+
 import com.grupo3.postech.jilocomjurubeba.application.dto.cardapio.AtualizarCardapioInput;
 import com.grupo3.postech.jilocomjurubeba.application.dto.cardapio.CardapioOutput;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCase;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.cardapio.Cardapio;
+import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
+import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.cardapio.CardapioGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGatewayDomain;
 
 public class AtualizarCardapioUseCase implements UseCase<AtualizarCardapioInput, CardapioOutput> {
 
-    private final CardapioGatewayDomain cardapioGatewayDomain;
+    private final CardapioGatewayDomain cardapioGateway;
+    private final RestauranteGatewayDomain restauranteGateway;
 
-    public AtualizarCardapioUseCase(CardapioGatewayDomain cardapioGatewayDomain) {
-        this.cardapioGatewayDomain = cardapioGatewayDomain;
+    public AtualizarCardapioUseCase(
+            CardapioGatewayDomain cardapioGateway,
+            RestauranteGatewayDomain restauranteGateway
+    ) {
+        this.cardapioGateway = cardapioGateway;
+        this.restauranteGateway = restauranteGateway;
     }
 
     @Override
     public CardapioOutput executar(AtualizarCardapioInput input) {
+        if (input == null) {
+            throw new RegraDeNegocioException("Dados para atualização são obrigatórios");
+        }
 
-        Cardapio cardapio =
-                cardapioGatewayDomain
-                        .findByIdCardapio(input.id())
-                        .orElseThrow(
-                                () -> new EntidadeNaoEncontradaException("Cardapio", input.id()));
+        if (input.id() == null) {
+            throw new RegraDeNegocioException("id do cardápio é obrigatório");
+        }
 
-        cardapio.atualizarDados(
-                input.nome(),
-                input.descricao(),
-                input.preco(),
-                input.apenasNoLocal(),
-                input.caminhoFoto(),
-                input.restaurante());
+        Cardapio cardapio = cardapioGateway.findByIdCardapio(input.id())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Cardapio", input.id()));
 
-        Cardapio atualizado = cardapioGatewayDomain.saveCardapio(cardapio);
-        return toOutput(atualizado);
+        Cardapio.CardapioSnapshot atual = cardapio.snapshot();
+
+        String nomeNovo = hasText(input.nome()) ? input.nome() : atual.nome();
+        String descricaoNova = input.descricao() != null ? input.descricao() : atual.descricao();
+        BigDecimal precoNovo = input.preco() != null ? input.preco() : atual.preco();
+        boolean apenasNoLocalNovo = input.apenasNoLocal() != null ? input.apenasNoLocal() : atual.apenasNoLocal();
+        String caminhoFotoNovo = input.caminhoFoto() != null ? input.caminhoFoto() : atual.caminhoFoto();
+
+        Long restauranteId = input.restauranteId() != null ? input.restauranteId() : atual.restauranteId();
+
+        Restaurante restaurante = restauranteGateway.findByIdRestaurante(restauranteId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Restaurante", restauranteId));
+
+        cardapio.atualizarCadastro(
+                nomeNovo,
+                descricaoNova,
+                precoNovo,
+                apenasNoLocalNovo,
+                caminhoFotoNovo,
+                restaurante
+        );
+
+        Cardapio atualizado = cardapioGateway.saveCardapio(cardapio);
+        return atualizado.paraOutput();
     }
 
-    private CardapioOutput toOutput(Cardapio cardapio) {
-        Long restauranteId =
-                cardapio.getRestaurante() != null ? cardapio.getRestaurante().getId() : null;
-
-        return new CardapioOutput(
-                cardapio.getId(),
-                cardapio.getNome(),
-                cardapio.getDescricao(),
-                cardapio.getPreco(),
-                cardapio.isApenasNoLocal(),
-                cardapio.getCaminhoFoto(),
-                restauranteId,
-                cardapio.isAtivo());
+    private boolean hasText(String valor) {
+        return valor != null && !valor.trim().isEmpty();
     }
 }

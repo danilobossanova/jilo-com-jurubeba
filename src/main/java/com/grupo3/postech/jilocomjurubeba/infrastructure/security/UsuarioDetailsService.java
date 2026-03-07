@@ -19,7 +19,7 @@ public class UsuarioDetailsService implements UserDetailsService {
         var user = usuarioRepo.findByEmailFetchTipoUsuario(username)
             .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
 
-        String role = "ROLE_" + user.getTipoUsuario().getNome().trim().toUpperCase();
+        String role = toRoleName(user.getTipoUsuario().getNome());
 
         return org.springframework.security.core.userdetails.User
             .withUsername(user.getEmail())
@@ -27,5 +27,9 @@ public class UsuarioDetailsService implements UserDetailsService {
             .authorities(new SimpleGrantedAuthority(role))
             .disabled(!user.isAtivo())
             .build();
+    }
+
+    private String toRoleName(String nomeTipoUsuario) {
+        return "ROLE_" + nomeTipoUsuario.trim().toUpperCase().replace(' ', '_');
     }
 }

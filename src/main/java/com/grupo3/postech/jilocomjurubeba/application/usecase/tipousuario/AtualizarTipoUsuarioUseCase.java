@@ -8,13 +8,6 @@ import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontrada
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuarioGateway;
 
-/**
- * Caso de uso para atualizacao de TipoUsuario existente.
- *
- * <p>Orquestra a atualizacao verificando existencia e unicidade do nome antes de persistir.
- *
- * @author Danilo Fernando
- */
 public class AtualizarTipoUsuarioUseCase
         implements UseCase<AtualizarTipoUsuarioInput, TipoUsuarioOutput> {
 
@@ -29,24 +22,18 @@ public class AtualizarTipoUsuarioUseCase
         TipoUsuario tipoUsuario =
                 tipoUsuarioGateway
                         .buscarPorId(input.id())
-                        .orElseThrow(
-                                () ->
-                                        new EntidadeNaoEncontradaException(
-                                                "TipoUsuario", input.id()));
+                        .orElseThrow(() -> new EntidadeNaoEncontradaException("TipoUsuario", input.id()));
 
         String nomeNormalizado = input.nome().trim().toUpperCase();
+
         if (tipoUsuarioGateway.existePorNomeEIdDiferente(nomeNormalizado, input.id())) {
             throw new RegraDeNegocioException(
                     "Ja existe outro tipo de usuario com o nome '" + input.nome() + "'");
         }
 
-        tipoUsuario.atualizarDados(input.nome(), input.descricao());
+        tipoUsuario.atualizarCadastro(input.nome(), input.descricao());
         TipoUsuario atualizado = tipoUsuarioGateway.salvar(tipoUsuario);
 
-        return new TipoUsuarioOutput(
-                atualizado.getId(),
-                atualizado.getNome(),
-                atualizado.getDescricao(),
-                atualizado.isAtivo());
+        return atualizado.paraOutput();
     }
 }

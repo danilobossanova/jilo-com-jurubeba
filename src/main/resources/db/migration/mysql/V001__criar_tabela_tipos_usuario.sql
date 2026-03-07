@@ -1,171 +1,277 @@
 -- ============================================================
 -- SEED INICIAL DO SISTEMA
--- Tipos de Usuário + Usuário Master
--- ============================================================
-
--- 1) Tipos de usuário básicos do sistema
-INSERT INTO tipo_usuario (nome, ativo, descricao)
-VALUES ('MASTER', 1, 'Administrador do sistema');
-
-INSERT INTO tipo_usuario (nome, ativo, descricao)
-VALUES ('DONO_RESTAURANTE', 1, 'Dono de restaurante');
-
-INSERT INTO tipo_usuario (nome, ativo, descricao)
-VALUES ('CLIENTE', 1, 'Usuário cliente da plataforma');
-
--- 2) Usuário Master do sistema
--- OBS: senha já deve estar criptografada com BCrypt
-INSERT INTO usuario (nome, email, senha_hash, ativo, tipo_usuario_id, cpf)
-VALUES (
-    'Master',
-    'master@jilo.com',
-    '$2a$10$7QJ8m5zK9d1eGfWb3sL2uO8rP1aBcDeFgHiJkLmNoPqRsTuVwXyZa',
-    1,
-    1, -- MASTER
-    '000.000.000-000'
-);
-
--- ============================================================
--- SEED: 2 RESTAURANTES + 10 ITENS DE CARDÁPIO
+-- Tipos de Usuário + Usuário Master + Restaurantes + Cardápio
 -- ============================================================
 
 START TRANSACTION;
 
--- 1) Define um dono existente
--- Aqui pegamos o menor ID da tabela usuario (Master)
-SET @DONO_ID := (SELECT MIN(id) FROM usuario);
-
 -- ============================================================
--- 2) Criação dos Restaurantes
+-- 1) TIPOS DE USUÁRIO
 -- ============================================================
 
-INSERT INTO restaurante 
+INSERT INTO tipo_usuario (nome, ativo, descricao)
+SELECT 'MASTER', 1, 'Administrador do sistema'
+WHERE NOT EXISTS (
+    SELECT 1 FROM tipo_usuario WHERE nome = 'MASTER'
+);
+
+INSERT INTO tipo_usuario (nome, ativo, descricao)
+SELECT 'DONO_RESTAURANTE', 1, 'Dono de restaurante'
+WHERE NOT EXISTS (
+    SELECT 1 FROM tipo_usuario WHERE nome = 'DONO_RESTAURANTE'
+);
+
+INSERT INTO tipo_usuario (nome, ativo, descricao)
+SELECT 'CLIENTE', 1, 'Usuário cliente da plataforma'
+WHERE NOT EXISTS (
+    SELECT 1 FROM tipo_usuario WHERE nome = 'CLIENTE'
+);
+
+-- ============================================================
+-- 2) CAPTURA IDs DOS TIPOS
+-- ============================================================
+
+SET @TIPO_MASTER_ID := (
+    SELECT id FROM tipo_usuario WHERE nome = 'MASTER' LIMIT 1
+);
+
+SET @TIPO_DONO_ID := (
+    SELECT id FROM tipo_usuario WHERE nome = 'DONO_RESTAURANTE' LIMIT 1
+);
+
+SET @TIPO_CLIENTE_ID := (
+    SELECT id FROM tipo_usuario WHERE nome = 'CLIENTE' LIMIT 1
+);
+
+-- ============================================================
+-- 3) USUÁRIO MASTER
+-- IMPORTANTE:
+-- Gere um hash BCrypt válido e substitua abaixo.
+-- Ex.: senha = admin123
+-- ============================================================
+
+INSERT INTO usuario (nome, email, senha_hash, ativo, tipo_usuario_id, cpf, telefone)
+SELECT
+    'MASTER',
+    'master@jilo.com',
+    'COLOQUE_AQUI_UM_HASH_BCRYPT_VALIDO',
+    1,
+    @TIPO_MASTER_ID,
+    '00000000000',
+    '79999999999'
+WHERE NOT EXISTS (
+    SELECT 1 FROM usuario WHERE email = 'master@jilo.com'
+);
+
+-- ============================================================
+-- 4) DEFINE UM DONO EXISTENTE
+-- Preferência: usuário MASTER
+-- ============================================================
+
+SET @DONO_ID := (
+    SELECT id FROM usuario WHERE email = 'master@jilo.com' LIMIT 1
+);
+
+-- ============================================================
+-- 5) RESTAURANTES
+-- ============================================================
+
+INSERT INTO restaurante
 (nome, endereco, type_cozinha, hora_abertura, hora_fechamento, dono_id, ativo)
-VALUES
-('Jiló & Jurubeba - Centro', 
- 'Av. Principal, 123 - Centro', 
- 'BRASILEIRA', 
- '11:00:00', 
- '22:00:00', 
- @DONO_ID, 
- 1),
+SELECT
+    'JILÓ & JURUBEBA - CENTRO',
+    'Av. Principal, 123 - Centro',
+    'BRASILEIRA',
+    '11:00:00',
+    '22:00:00',
+    @DONO_ID,
+    1
+WHERE NOT EXISTS (
+    SELECT 1 FROM restaurante WHERE nome = 'JILÓ & JURUBEBA - CENTRO'
+);
 
-('Jiló & Jurubeba - Praia',  
- 'Rua da Orla, 45 - Praia',     
- 'ITALIANA',   
- '10:00:00', 
- '23:00:00', 
- @DONO_ID, 
- 1);
-
--- Captura dos IDs gerados
-SET @REST2_ID := LAST_INSERT_ID();
-SET @REST1_ID := @REST2_ID - 1;
-
--- ============================================================
--- 3) Cardápio Restaurante 1 (Centro)
--- ============================================================
-
-INSERT INTO cardapio
-(nome, descricao, preco, apenas_no_local, caminho_foto, ativo, restaurante_id)
-VALUES
-('Jiló Grelhado', 
- 'Jiló grelhado com alho e ervas', 
- 18.90, 
- 0, 
- NULL, 
- 1, 
- @REST1_ID),
-
-('Jurubeba na Brasa', 
- 'Jurubeba assada com azeite e sal grosso', 
- 21.50, 
- 0, 
- NULL, 
- 1, 
- @REST1_ID),
-
-('Escondidinho de Carne', 
- 'Purê com carne bem temperada', 
- 29.90, 
- 0, 
- NULL, 
- 1, 
- @REST1_ID),
-
-('Baião do Sertão', 
- 'Arroz, feijão, queijo coalho e carne de sol', 
- 32.00, 
- 0, 
- NULL, 
- 1, 
- @REST1_ID),
-
-('Suco da Casa', 
- 'Suco natural 400ml', 
- 9.50, 
- 1, 
- NULL, 
- 1, 
- @REST1_ID);
+INSERT INTO restaurante
+(nome, endereco, type_cozinha, hora_abertura, hora_fechamento, dono_id, ativo)
+SELECT
+    'JILÓ & JURUBEBA - PRAIA',
+    'Rua da Orla, 45 - Praia',
+    'ITALIANA',
+    '10:00:00',
+    '23:00:00',
+    @DONO_ID,
+    1
+WHERE NOT EXISTS (
+    SELECT 1 FROM restaurante WHERE nome = 'JILÓ & JURUBEBA - PRAIA'
+);
 
 -- ============================================================
--- 4) Cardápio Restaurante 2 (Praia)
+-- 6) CAPTURA IDs DOS RESTAURANTES
+-- ============================================================
+
+SET @REST1_ID := (
+    SELECT id FROM restaurante WHERE nome = 'JILÓ & JURUBEBA - CENTRO' LIMIT 1
+);
+
+SET @REST2_ID := (
+    SELECT id FROM restaurante WHERE nome = 'JILÓ & JURUBEBA - PRAIA' LIMIT 1
+);
+
+-- ============================================================
+-- 7) CARDÁPIO RESTAURANTE 1
 -- ============================================================
 
 INSERT INTO cardapio
 (nome, descricao, preco, apenas_no_local, caminho_foto, ativo, restaurante_id)
-VALUES
-('Bruschetta da Orla', 
- 'Tomate, manjericão e azeite no pão', 
- 16.90, 
- 0, 
- NULL, 
- 1, 
- @REST2_ID),
+SELECT
+    'JILÓ GRELHADO',
+    'Jiló grelhado com alho e ervas',
+    18.90,
+    0,
+    NULL,
+    1,
+    @REST1_ID
+WHERE NOT EXISTS (
+    SELECT 1 FROM cardapio
+    WHERE nome = 'JILÓ GRELHADO' AND restaurante_id = @REST1_ID
+);
 
-('Pasta al Pomodoro', 
- 'Massa ao molho de tomate artesanal', 
- 34.90, 
- 0, 
- NULL, 
- 1, 
- @REST2_ID),
+INSERT INTO cardapio
+(nome, descricao, preco, apenas_no_local, caminho_foto, ativo, restaurante_id)
+SELECT
+    'JURUBEBA NA BRASA',
+    'Jurubeba assada com azeite e sal grosso',
+    21.50,
+    0,
+    NULL,
+    1,
+    @REST1_ID
+WHERE NOT EXISTS (
+    SELECT 1 FROM cardapio
+    WHERE nome = 'JURUBEBA NA BRASA' AND restaurante_id = @REST1_ID
+);
 
-('Frango à Parmegiana', 
- 'Frango empanado com queijo e molho', 
- 38.50, 
- 0, 
- NULL, 
- 1, 
- @REST2_ID),
+INSERT INTO cardapio
+(nome, descricao, preco, apenas_no_local, caminho_foto, ativo, restaurante_id)
+SELECT
+    'ESCONDIDINHO DE CARNE',
+    'Purê com carne bem temperada',
+    29.90,
+    0,
+    NULL,
+    1,
+    @REST1_ID
+WHERE NOT EXISTS (
+    SELECT 1 FROM cardapio
+    WHERE nome = 'ESCONDIDINHO DE CARNE' AND restaurante_id = @REST1_ID
+);
 
-('Pizza Margherita', 
- 'Molho, muçarela e manjericão', 
- 42.00, 
- 0, 
- NULL, 
- 1, 
- @REST2_ID),
+INSERT INTO cardapio
+(nome, descricao, preco, apenas_no_local, caminho_foto, ativo, restaurante_id)
+SELECT
+    'BAIÃO DO SERTÃO',
+    'Arroz, feijão, queijo coalho e carne de sol',
+    32.00,
+    0,
+    NULL,
+    1,
+    @REST1_ID
+WHERE NOT EXISTS (
+    SELECT 1 FROM cardapio
+    WHERE nome = 'BAIÃO DO SERTÃO' AND restaurante_id = @REST1_ID
+);
 
-('Refrigerante Lata', 
- 'Lata 350ml', 
- 6.50, 
- 1, 
- NULL, 
- 1, 
- @REST2_ID);
+INSERT INTO cardapio
+(nome, descricao, preco, apenas_no_local, caminho_foto, ativo, restaurante_id)
+SELECT
+    'SUCO DA CASA',
+    'Suco natural 400ml',
+    9.50,
+    1,
+    NULL,
+    1,
+    @REST1_ID
+WHERE NOT EXISTS (
+    SELECT 1 FROM cardapio
+    WHERE nome = 'SUCO DA CASA' AND restaurante_id = @REST1_ID
+);
+
+-- ============================================================
+-- 8) CARDÁPIO RESTAURANTE 2
+-- ============================================================
+
+INSERT INTO cardapio
+(nome, descricao, preco, apenas_no_local, caminho_foto, ativo, restaurante_id)
+SELECT
+    'BRUSCHETTA DA ORLA',
+    'Tomate, manjericão e azeite no pão',
+    16.90,
+    0,
+    NULL,
+    1,
+    @REST2_ID
+WHERE NOT EXISTS (
+    SELECT 1 FROM cardapio
+    WHERE nome = 'BRUSCHETTA DA ORLA' AND restaurante_id = @REST2_ID
+);
+
+INSERT INTO cardapio
+(nome, descricao, preco, apenas_no_local, caminho_foto, ativo, restaurante_id)
+SELECT
+    'PASTA AL POMODORO',
+    'Massa ao molho de tomate artesanal',
+    34.90,
+    0,
+    NULL,
+    1,
+    @REST2_ID
+WHERE NOT EXISTS (
+    SELECT 1 FROM cardapio
+    WHERE nome = 'PASTA AL POMODORO' AND restaurante_id = @REST2_ID
+);
+
+INSERT INTO cardapio
+(nome, descricao, preco, apenas_no_local, caminho_foto, ativo, restaurante_id)
+SELECT
+    'FRANGO À PARMEGIANA',
+    'Frango empanado com queijo e molho',
+    38.50,
+    0,
+    NULL,
+    1,
+    @REST2_ID
+WHERE NOT EXISTS (
+    SELECT 1 FROM cardapio
+    WHERE nome = 'FRANGO À PARMEGIANA' AND restaurante_id = @REST2_ID
+);
+
+INSERT INTO cardapio
+(nome, descricao, preco, apenas_no_local, caminho_foto, ativo, restaurante_id)
+SELECT
+    'PIZZA MARGHERITA',
+    'Molho, muçarela e manjericão',
+    42.00,
+    0,
+    NULL,
+    1,
+    @REST2_ID
+WHERE NOT EXISTS (
+    SELECT 1 FROM cardapio
+    WHERE nome = 'PIZZA MARGHERITA' AND restaurante_id = @REST2_ID
+);
+
+INSERT INTO cardapio
+(nome, descricao, preco, apenas_no_local, caminho_foto, ativo, restaurante_id)
+SELECT
+    'REFRIGERANTE LATA',
+    'Lata 350ml',
+    6.50,
+    1,
+    NULL,
+    1,
+    @REST2_ID
+WHERE NOT EXISTS (
+    SELECT 1 FROM cardapio
+    WHERE nome = 'REFRIGERANTE LATA' AND restaurante_id = @REST2_ID
+);
 
 COMMIT;
-
--- ============================================================
--- CONSULTAS DE CONFERÊNCIA
--- ============================================================
-
--- Restaurantes criados
--- SELECT * FROM restaurante ORDER BY id DESC LIMIT 2;
-
--- Itens criados
--- SELECT * FROM cardapio 
--- WHERE restaurante_id IN (@REST1_ID, @REST2_ID)
--- ORDER BY restaurante_id, id;

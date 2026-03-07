@@ -11,18 +11,20 @@ public class TipoUsuarioMapper {
     public TipoUsuarioJpaEntity toEntity(TipoUsuario domain) {
         if (domain == null) return null;
 
+        TipoUsuario.TipoUsuarioSnapshot dados = domain.snapshot();
+
         TipoUsuarioJpaEntity entity = new TipoUsuarioJpaEntity();
-        entity.setId(domain.getId());
-        entity.setNome(domain.getNome());
-        entity.setDescricao(domain.getDescricao());
-        entity.setAtivo(domain.isAtivo());
+        entity.setId(dados.id());
+        entity.setNome(dados.nome());
+        entity.setDescricao(dados.descricao());
+        entity.setAtivo(dados.ativo());
+
         return entity;
     }
 
     public TipoUsuario toDomain(TipoUsuarioJpaEntity entity) {
         if (entity == null) return null;
 
-        // ✅ Blindagem contra dado inválido do BD
         String nome = entity.getNome();
         if (nome == null || nome.isBlank()) {
             nome = "DESCONHECIDO";
@@ -33,6 +35,11 @@ public class TipoUsuarioMapper {
             descricao = "SEM_DESCRICAO";
         }
 
-        return new TipoUsuario(entity.getId(), nome, descricao, entity.isAtivo());
+        return new TipoUsuario(
+                entity.getId(),
+                nome,
+                descricao,
+                entity.isAtivo()
+        );
     }
 }

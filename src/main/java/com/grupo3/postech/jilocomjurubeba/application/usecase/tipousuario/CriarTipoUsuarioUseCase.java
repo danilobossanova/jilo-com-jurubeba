@@ -7,13 +7,6 @@ import com.grupo3.postech.jilocomjurubeba.domain.entity.tipousuario.TipoUsuario;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuarioGateway;
 
-/**
- * Caso de uso para criacao de um novo TipoUsuario.
- *
- * <p>Orquestra a criacao verificando unicidade do nome antes de persistir.
- *
- * @author Danilo Fernando
- */
 public class CriarTipoUsuarioUseCase implements UseCase<CriarTipoUsuarioInput, TipoUsuarioOutput> {
 
     private final TipoUsuarioGateway tipoUsuarioGateway;
@@ -24,8 +17,9 @@ public class CriarTipoUsuarioUseCase implements UseCase<CriarTipoUsuarioInput, T
 
     @Override
     public TipoUsuarioOutput executar(CriarTipoUsuarioInput input) {
+        String nomeNormalizado = input.nome().trim().toUpperCase();
 
-        if (tipoUsuarioGateway.existePorNome(input.nome().trim().toUpperCase())) {
+        if (tipoUsuarioGateway.existePorNome(nomeNormalizado)) {
             throw new RegraDeNegocioException(
                     "Ja existe um tipo de usuario com o nome '" + input.nome() + "'");
         }
@@ -33,14 +27,6 @@ public class CriarTipoUsuarioUseCase implements UseCase<CriarTipoUsuarioInput, T
         TipoUsuario tipoUsuario = new TipoUsuario(input.nome(), input.descricao());
         TipoUsuario salvo = tipoUsuarioGateway.salvar(tipoUsuario);
 
-        return toOutput(salvo);
-    }
-
-    private TipoUsuarioOutput toOutput(TipoUsuario tipoUsuario) {
-        return new TipoUsuarioOutput(
-                tipoUsuario.getId(),
-                tipoUsuario.getNome(),
-                tipoUsuario.getDescricao(),
-                tipoUsuario.isAtivo());
+        return salvo.paraOutput();
     }
 }

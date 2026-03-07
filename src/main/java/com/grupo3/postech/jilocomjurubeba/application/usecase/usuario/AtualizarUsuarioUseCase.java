@@ -39,21 +39,18 @@ public class AtualizarUsuarioUseCase implements UseCase<AtualizarUsuarioUseCase.
         Usuario atual = usuarioGateway.findByIdUsuario(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", id));
 
-        // Decide novos valores (se vier nulo, mantém o atual)
-        String nomeNovo = hasText(input.nome()) ? input.nome().trim() : atual.getNome();
+        Usuario.UsuarioSnapshot dadosAtuais = atual.snapshot();
 
-        String telefoneNovo = input.telefone() != null && hasText(input.telefone())
-                ? input.telefone().trim()
-                : atual.getTelefone();
+        String nomeNovo = hasText(input.nome()) ? input.nome().trim() : dadosAtuais.nome();
+        String telefoneNovo = hasText(input.telefone()) ? input.telefone().trim() : dadosAtuais.telefone();
 
-        Cpf cpfNovo = atual.getCpf();
-        if (input.cpf() != null && hasText(input.cpf())) {
+        Cpf cpfNovo = new Cpf(dadosAtuais.cpf());
+        if (hasText(input.cpf())) {
             String cpfStr = onlyDigits(input.cpf());
-            String cpfAtual = atual.getCpf() != null ? atual.getCpf().getNumero() : null;
 
-            if (cpfAtual == null || !cpfStr.equals(cpfAtual)) {
+            if (!atual.usaCpf(cpfStr)) {
                 usuarioGateway.findByCpf(cpfStr).ifPresent(outro -> {
-                    if (outro.getId() != null && !outro.getId().equals(atual.getId())) {
+                    if (!outro.representaMesmoUsuarioQue(atual)) {
                         throw new RegraDeNegocioException("cpf já cadastrado");
                     }
                 });
@@ -61,14 +58,13 @@ public class AtualizarUsuarioUseCase implements UseCase<AtualizarUsuarioUseCase.
             }
         }
 
-        Email emailNovo = atual.getEmail();
-        if (input.email() != null && hasText(input.email())) {
+        Email emailNovo = new Email(dadosAtuais.email());
+        if (hasText(input.email())) {
             String emailStr = input.email().trim().toLowerCase();
-            String emailAtual = atual.getEmail() != null ? atual.getEmail().getEmail() : null;
 
-            if (emailAtual == null || !emailStr.equalsIgnoreCase(emailAtual)) {
+            if (!atual.usaEmail(emailStr)) {
                 usuarioGateway.findByEmail(emailStr).ifPresent(outro -> {
-                    if (outro.getId() != null && !outro.getId().equals(atual.getId())) {
+                    if (!outro.representaMesmoUsuarioQue(atual)) {
                         throw new RegraDeNegocioException("email já cadastrado");
                     }
                 });
@@ -76,30 +72,21 @@ public class AtualizarUsuarioUseCase implements UseCase<AtualizarUsuarioUseCase.
             }
         }
 
-        TipoUsuario tipoNovo = atual.getTipoUsuario();
-        if (input.tipoUsuarioId() != null) {
+        TipoUsuario tipoNovo = atual.eDonoDeRestaurante() || atual.eCliente()
+                ? tipoUsuarioGateway.buscarPorId(dadosAtuais.tipoUsuarioId())
+                    .orElseThrow(() -> new RegraDeNegocioException("Tipo de usuário atual não encontrado"))
+                : tipoUsuarioGateway.buscarPorId(dadosAtuais.tipoUsuarioId())
+                    .orElseThrow(() -> new RegraDeNegocioException("Tipo de usuário atual não encontrado"));
+
+        if (input.tipoUsuarioId() != null && !input.tipoUsuarioId().equals(dadosAtuais.tipoUsuarioId())) {
             tipoNovo = tipoUsuarioGateway.buscarPorId(input.tipoUsuarioId())
                     .orElseThrow(() -> new RegraDeNegocioException("Tipo de usuário não encontrado"));
         }
 
-        // Atualiza NO DOMÍNIO (sem setters) :contentReference[oaicite:3]{index=3}
-        atual.atualizarDados(nomeNovo, cpfNovo, emailNovo, telefoneNovo, tipoNovo);
+        atual.atualizarCadastro(nomeNovo, cpfNovo, emailNovo, telefoneNovo, tipoNovo);
 
         Usuario salvo = usuarioGateway.saveUsuario(atual);
-
-        Long tipoId = salvo.getTipoUsuario() == null ? null : salvo.getTipoUsuario().getId();
-        String tipoNome = salvo.getTipoUsuario() == null ? null : salvo.getTipoUsuario().getNome();
-
-        return new UsuarioOutput(
-                salvo.getId(),
-                salvo.getNome(),
-                salvo.getCpf().getNumero(),
-                salvo.getEmail().getEmail(),
-                salvo.getTelefone(),
-                tipoId,
-                tipoNome,
-                salvo.isAtivo()
-        );
+        return salvo.paraOutput();
     }
 
     private boolean hasText(String s) {

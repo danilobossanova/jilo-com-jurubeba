@@ -15,10 +15,9 @@ public class DeletarUsuarioUseCase implements UseCaseSemSaida<Long> {
 
     @Override
     public void executar(Long id) {
-        Usuario usuario =
-            usuarioGateway.findByIdUsuario(id)
+        Usuario usuario = usuarioGateway.findByIdUsuario(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", id));
 
-        usuarioGateway.deletarUsuario(usuario.getId());
+        usuarioGateway.deletarUsuario(usuario.snapshot().id());
     }
 }

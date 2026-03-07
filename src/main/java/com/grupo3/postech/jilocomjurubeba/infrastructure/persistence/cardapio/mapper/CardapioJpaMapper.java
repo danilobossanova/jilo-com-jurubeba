@@ -10,38 +10,30 @@ public final class CardapioJpaMapper {
     private CardapioJpaMapper() {}
 
     public static CardapioJpaEntity toJpa(Cardapio domain, RestauranteJpaEntity restauranteJpa) {
+        Cardapio.CardapioSnapshot dados = domain.snapshot();
+
         CardapioJpaEntity e = new CardapioJpaEntity();
-
-        // ✅ ESSENCIAL: ID no JPA vindo do domínio
-        e.setId(domain.getId());
-
-        e.setNome(domain.getNome());
-        e.setDescricao(domain.getDescricao());
-        e.setPreco(domain.getPreco());
-        e.setApenasNoLocal(domain.isApenasNoLocal());
-        e.setCaminhoFoto(domain.getCaminhoFoto());
-
-        // ✅ ESSENCIAL: ativo coerente
-        e.setAtivo(domain.isAtivo());
-
+        e.setId(dados.id());
+        e.setNome(dados.nome());
+        e.setDescricao(dados.descricao());
+        e.setPreco(dados.preco());
+        e.setApenasNoLocal(dados.apenasNoLocal());
+        e.setCaminhoFoto(dados.caminhoFoto());
+        e.setAtivo(dados.ativo());
         e.setRestaurante(restauranteJpa);
         return e;
     }
 
     public static Cardapio toDomain(CardapioJpaEntity e, Restaurante restauranteDomain) {
-        Cardapio c = new Cardapio(
+        return new Cardapio(
+                e.getId(),
                 e.getNome(),
                 e.getDescricao(),
                 e.getPreco(),
                 e.isApenasNoLocal(),
                 e.getCaminhoFoto(),
-                restauranteDomain
+                restauranteDomain,
+                e.isAtivo()
         );
-
-        // ✅ ESSENCIAL: sem isso, UPDATE vira INSERT (duplica no delete/atualizar)
-        c.setId(e.getId());
-        c.setAtivo(e.isAtivo());
-
-        return c;
     }
 }

@@ -17,7 +17,7 @@ public class UsuarioJpaEntity {
     @Column(nullable = false, length = 120)
     private String nome;
 
-    @Column(nullable = false, length = 11, unique = true)
+    @Column(nullable = false, length = 14, unique = true)
     private String cpf;
 
     @Column(nullable = false, length = 120, unique = true)

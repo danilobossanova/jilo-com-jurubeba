@@ -29,70 +29,47 @@ public class CriarUsuarioUseCase implements UseCase<CriarUsuarioInput, UsuarioOu
 
     @Override
     public UsuarioOutput executar(CriarUsuarioInput input) {
-
-        // 1) validação de payload
         Map<String, String> erros = new HashMap<>();
 
-        String cpfRaw = input.cpf();
-        if (cpfRaw == null || cpfRaw.isBlank()) erros.put("cpf", "cpf é obrigatório");
-
-        String emailRaw = input.email();
-        if (emailRaw == null || emailRaw.isBlank()) erros.put("email", "email é obrigatório");
-
-        String nomeRaw = input.nome();
-        if (nomeRaw == null || nomeRaw.isBlank()) erros.put("nome", "nome é obrigatório");
-
-        String senhaRaw = input.senha();
-        if (senhaRaw == null || senhaRaw.isBlank()) erros.put("senha", "senha é obrigatória");
+        if (input.cpf() == null || input.cpf().isBlank()) erros.put("cpf", "cpf é obrigatório");
+        if (input.email() == null || input.email().isBlank()) erros.put("email", "email é obrigatório");
+        if (input.nome() == null || input.nome().isBlank()) erros.put("nome", "nome é obrigatório");
+        if (input.senha() == null || input.senha().isBlank()) erros.put("senha", "senha é obrigatória");
 
         if (!erros.isEmpty()) {
             throw new ValidacaoException("Dados inválidos", erros);
         }
 
-        // 2) normalizações
-        String cpfNormalizado = cpfRaw.replaceAll("\\D", "");
-        String emailNormalizado = emailRaw.trim().toLowerCase();
+        String cpfNormalizado = input.cpf().replaceAll("\\D", "");
+        String emailNormalizado = input.email().trim().toLowerCase();
 
         if (cpfNormalizado.length() != 11) {
             throw new ValidacaoException("Dados inválidos", Map.of("cpf", "cpf deve conter 11 dígitos"));
         }
 
-        // 3) regras de negócio
         if (usuarioGateway.findByCpf(cpfNormalizado).isPresent()) {
             throw new RegraDeNegocioException("Usuário já cadastrado");
         }
 
+        if (usuarioGateway.findByEmail(emailNormalizado).isPresent()) {
+            throw new RegraDeNegocioException("Email já cadastrado");
+        }
+
         TipoUsuario tipoUsuario = tipoUsuarioGateway
-            .buscarPorId(input.tipoUsuarioId())
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("TipoUsuario", input.tipoUsuarioId()));
+                .buscarPorId(input.tipoUsuarioId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("TipoUsuario", input.tipoUsuarioId()));
 
         Usuario usuario = new Usuario(
-            nomeRaw.trim(),
-            new Cpf(cpfNormalizado),
-            new Email(emailNormalizado),
-            input.telefone(),
-            tipoUsuario,
-            new ArrayList<>(),
-            senhaRaw
+                input.nome(),
+                new Cpf(cpfNormalizado),
+                new Email(emailNormalizado),
+                input.telefone(),
+                tipoUsuario,
+                new ArrayList<>(),
+                input.senha()
         );
 
         Usuario salvo = usuarioGateway.saveUsuario(usuario);
-        return toOutput(salvo);
-    }
-
-    private UsuarioOutput toOutput(Usuario usuario) {
-        Long tipoId = usuario.getTipoUsuario() == null ? null : usuario.getTipoUsuario().getId();
-        String tipoNome = usuario.getTipoUsuario() == null ? null : usuario.getTipoUsuario().getNome();
-
-        return new UsuarioOutput(
-            usuario.getId(),
-            usuario.getNome(),
-            usuario.getCpf().getNumero(),
-            usuario.getEmail().getEmail(),
-            usuario.getTelefone(),
-            tipoId,
-            tipoNome,
-            usuario.isAtivo()
-        );
+        return salvo.paraOutput();
     }
 }

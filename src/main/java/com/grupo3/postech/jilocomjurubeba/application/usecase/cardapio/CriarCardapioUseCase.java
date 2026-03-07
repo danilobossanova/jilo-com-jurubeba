@@ -4,49 +4,53 @@ import com.grupo3.postech.jilocomjurubeba.application.dto.cardapio.CardapioOutpu
 import com.grupo3.postech.jilocomjurubeba.application.dto.cardapio.CriarCardapioInput;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCase;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.cardapio.Cardapio;
+import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
+import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.cardapio.CardapioGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGatewayDomain;
 
 public class CriarCardapioUseCase implements UseCase<CriarCardapioInput, CardapioOutput> {
 
-    private final CardapioGatewayDomain cardapioGatewayDomain;
+    private final CardapioGatewayDomain cardapioGateway;
+    private final RestauranteGatewayDomain restauranteGateway;
 
-    public CriarCardapioUseCase(CardapioGatewayDomain cardapioGatewayDomain) {
-        this.cardapioGatewayDomain = cardapioGatewayDomain;
+    public CriarCardapioUseCase(
+            CardapioGatewayDomain cardapioGateway,
+            RestauranteGatewayDomain restauranteGateway
+    ) {
+        this.cardapioGateway = cardapioGateway;
+        this.restauranteGateway = restauranteGateway;
     }
 
     @Override
     public CardapioOutput executar(CriarCardapioInput input) {
-        if (cardapioGatewayDomain.findByNome(input.nome().trim().toUpperCase()).isPresent()) {
-            throw new RegraDeNegocioException("Cardapio ja cadastrado");
+        if (input == null) {
+            throw new RegraDeNegocioException("Dados do cardápio são obrigatórios");
         }
 
-        Cardapio cardapio =
-                new Cardapio(
-                        input.nome(),
-                        input.descricao(),
-                        input.preco(),
-                        input.apenasNoLocal(),
-                        input.caminhoFoto(),
-                        input.restaurante());
+        if (input.restauranteId() == null) {
+            throw new RegraDeNegocioException("restauranteId é obrigatório");
+        }
 
-        Cardapio salvo = cardapioGatewayDomain.saveCardapio(cardapio);
+        if (cardapioGateway.findByNome(input.nome().trim()).isPresent()) {
+            throw new RegraDeNegocioException("Item de cardápio já cadastrado");
+        }
 
-        return toOutput(salvo);
-    }
+        Restaurante restaurante = restauranteGateway
+                .findByIdRestaurante(input.restauranteId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Restaurante", input.restauranteId()));
 
-    private CardapioOutput toOutput(Cardapio cardapio) {
-        Long restauranteId =
-                cardapio.getRestaurante() != null ? cardapio.getRestaurante().getId() : null;
+        Cardapio cardapio = new Cardapio(
+                input.nome(),
+                input.descricao(),
+                input.preco(),
+                input.apenasNoLocal(),
+                input.caminhoFoto(),
+                restaurante
+        );
 
-        return new CardapioOutput(
-                cardapio.getId(),
-                cardapio.getNome(),
-                cardapio.getDescricao(),
-                cardapio.getPreco(),
-                cardapio.isApenasNoLocal(),
-                cardapio.getCaminhoFoto(),
-                restauranteId,
-                cardapio.isAtivo());
+        Cardapio salvo = cardapioGateway.saveCardapio(cardapio);
+        return salvo.paraOutput();
     }
 }

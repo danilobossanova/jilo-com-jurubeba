@@ -5,14 +5,6 @@ import com.grupo3.postech.jilocomjurubeba.domain.entity.tipousuario.TipoUsuario;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuarioGateway;
 
-/**
- * Caso de uso para desativacao (soft delete) de TipoUsuario.
- *
- * <p>Nao remove fisicamente o registro. Marca como inativo atraves do metodo {@code desativar()} da
- * entidade de dominio, preservando o historico.
- *
- * @author Danilo Fernando
- */
 public class DeletarTipoUsuarioUseCase implements UseCaseSemSaida<Long> {
 
     private final TipoUsuarioGateway tipoUsuarioGateway;

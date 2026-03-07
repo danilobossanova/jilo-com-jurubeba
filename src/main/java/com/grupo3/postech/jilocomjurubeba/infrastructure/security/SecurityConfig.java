@@ -35,7 +35,11 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final ObjectMapper objectMapper;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, UserDetailsService userDetailsService, ObjectMapper objectMapper) {
+    public SecurityConfig(
+            JwtAuthFilter jwtAuthFilter,
+            UserDetailsService userDetailsService,
+            ObjectMapper objectMapper
+    ) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
         this.objectMapper = objectMapper;
@@ -50,20 +54,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD).permitAll()
 
-                        // Públicos
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
-                        // Auth público
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers("/auth/**").permitAll()
 
-                        // ✅ Cardápio público (LEITURA) - rota antiga e rota nova
                         .requestMatchers(HttpMethod.GET, "/cardapios/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/restaurantes/*/cardapio/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/restaurantes/**").permitAll()
 
-                        // 🔒 Cardápio restrito (ESCRITA) - rota antiga e rota nova
+                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/cardapios/**").hasAnyRole("DONO_RESTAURANTE", "MASTER")
                         .requestMatchers(HttpMethod.PUT, "/cardapios/**").hasAnyRole("DONO_RESTAURANTE", "MASTER")
                         .requestMatchers(HttpMethod.PATCH, "/cardapios/**").hasAnyRole("DONO_RESTAURANTE", "MASTER")
@@ -74,7 +77,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/restaurantes/*/cardapio/**").hasAnyRole("DONO_RESTAURANTE", "MASTER")
                         .requestMatchers(HttpMethod.DELETE, "/restaurantes/*/cardapio/**").hasAnyRole("DONO_RESTAURANTE", "MASTER")
 
-                        // Usuários e tipos de usuário restritos
                         .requestMatchers("/usuarios/**", "/tipos-usuario/**").hasAnyRole("DONO_RESTAURANTE", "MASTER")
 
                         .anyRequest().authenticated()
@@ -88,7 +90,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
@@ -131,8 +135,8 @@ public class SecurityConfig {
             HttpStatus status,
             String title,
             String detail,
-            String type) throws IOException {
-
+            String type
+    ) throws IOException {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(status, detail);
         pd.setTitle(title);
         pd.setType(URI.create(type));

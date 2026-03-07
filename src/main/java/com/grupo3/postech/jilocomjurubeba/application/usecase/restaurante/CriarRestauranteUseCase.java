@@ -15,8 +15,10 @@ public class CriarRestauranteUseCase implements UseCase<CriarRestauranteInput, R
     private final RestauranteGatewayDomain restauranteGatewayDomain;
     private final UsuarioGatewayDomain usuarioGatewayDomain;
 
-    public CriarRestauranteUseCase(RestauranteGatewayDomain restauranteGatewayDomain,
-                                   UsuarioGatewayDomain usuarioGatewayDomain) {
+    public CriarRestauranteUseCase(
+            RestauranteGatewayDomain restauranteGatewayDomain,
+            UsuarioGatewayDomain usuarioGatewayDomain
+    ) {
         this.restauranteGatewayDomain = restauranteGatewayDomain;
         this.usuarioGatewayDomain = usuarioGatewayDomain;
     }
@@ -29,33 +31,18 @@ public class CriarRestauranteUseCase implements UseCase<CriarRestauranteInput, R
 
         Long donoId = input.donoId();
         Usuario dono = usuarioGatewayDomain.findByIdUsuario(donoId)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", donoId));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", donoId));
 
         Restaurante restaurante = new Restaurante(
-            input.nome(),
-            input.endereco(),
-            input.typeCozinha(),
-            input.horaAbertura(),
-            input.horaFechamento(),
-            dono
+                input.nome(),
+                input.endereco(),
+                input.typeCozinha(),
+                input.horaAbertura(),
+                input.horaFechamento(),
+                dono
         );
 
         Restaurante salvo = restauranteGatewayDomain.saveRestaurante(restaurante);
-        return toOutput(salvo);
-    }
-
-    private RestauranteOutput toOutput(Restaurante restaurante) {
-        Long donoId = (restaurante.getDono() == null) ? null : restaurante.getDono().getId();
-
-        return new RestauranteOutput(
-            restaurante.getId(),
-            restaurante.getNome(),
-            restaurante.getEndereco(),
-            restaurante.getTypeCozinha(),
-            restaurante.getHoraAbertura(),
-            restaurante.getHoraFechamento(),
-            donoId,
-            restaurante.isAtivo()
-        );
+        return salvo.paraOutput();
     }
 }

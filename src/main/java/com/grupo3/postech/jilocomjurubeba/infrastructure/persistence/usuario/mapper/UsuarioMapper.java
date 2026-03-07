@@ -22,19 +22,20 @@ public class UsuarioMapper {
     public UsuarioJpaEntity toEntity(Usuario domain) {
         if (domain == null) return null;
 
+        Usuario.UsuarioSnapshot dados = domain.snapshot();
+
         UsuarioJpaEntity entity = new UsuarioJpaEntity();
+        entity.setId(dados.id());
+        entity.setNome(dados.nome());
+        entity.setCpf(dados.cpf());
+        entity.setEmail(dados.email());
+        entity.setTelefone(dados.telefone());
+        entity.setAtivo(dados.ativo());
+        entity.setSenhaHash(dados.senhaHash());
 
-        entity.setId(domain.getId());
-        entity.setNome(domain.getNome());
-        entity.setCpf(domain.getCpf() != null ? domain.getCpf().getNumero() : null);
-        entity.setEmail(domain.getEmail() != null ? domain.getEmail().getEmail() : null);
-        entity.setTelefone(domain.getTelefone());
-        entity.setAtivo(domain.isAtivo());
-        entity.setSenhaHash(domain.getSenha());
-
-        if (domain.getTipoUsuario() != null && domain.getTipoUsuario().getId() != null) {
+        if (dados.tipoUsuarioId() != null) {
             TipoUsuarioJpaEntity tipoRef = new TipoUsuarioJpaEntity();
-            tipoRef.setId(domain.getTipoUsuario().getId());
+            tipoRef.setId(dados.tipoUsuarioId());
             entity.setTipoUsuario(tipoRef);
         }
 
@@ -45,15 +46,15 @@ public class UsuarioMapper {
         if (entity == null) return null;
 
         return new Usuario(
-            entity.getId(),
-            entity.getNome(),
-            entity.getCpf() != null ? new Cpf(entity.getCpf()) : null,
-            entity.getEmail() != null ? new Email(entity.getEmail()) : null,
-            entity.getTelefone(),
-            tipoUsuarioMapper.toDomain(entity.getTipoUsuario()),
-            entity.isAtivo(),
-            new ArrayList<>(),
-            entity.getSenhaHash()
+                entity.getId(),
+                entity.getNome(),
+                entity.getCpf() != null ? new Cpf(entity.getCpf()) : null,
+                entity.getEmail() != null ? new Email(entity.getEmail()) : null,
+                entity.getTelefone(),
+                tipoUsuarioMapper.toDomain(entity.getTipoUsuario()),
+                entity.isAtivo(),
+                new ArrayList<>(),
+                entity.getSenhaHash()
         );
     }
 }

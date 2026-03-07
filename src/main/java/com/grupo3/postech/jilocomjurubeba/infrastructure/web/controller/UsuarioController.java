@@ -30,7 +30,6 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<UsuarioOutput> criar(@RequestBody CriarUsuarioInput input) {
-        System.out.println("DEBUG controller cpf=" + input.cpf() + " email=" + input.email());
         UsuarioOutput criado = criarUsuarioUseCase.executar(input);
         return ResponseEntity.created(URI.create("/usuarios/" + criado.id())).body(criado);
     }
@@ -43,14 +42,14 @@ public class UsuarioController {
 
     @GetMapping
     public ResponseEntity<List<UsuarioOutput>> listar() {
-        System.out.println("CHEGUEI NO LISTAR /usuarios");
         return ResponseEntity.ok(listarUsuarioUseCase.executar());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioOutput> atualizar(
-            @PathVariable Long id, @RequestBody AtualizarUsuarioInput input) {
-
+            @PathVariable Long id,
+            @RequestBody AtualizarUsuarioInput input
+    ) {
         UsuarioOutput atualizado = atualizarUsuarioUseCase.executar(id, input);
         return ResponseEntity.ok(atualizado);
     }
