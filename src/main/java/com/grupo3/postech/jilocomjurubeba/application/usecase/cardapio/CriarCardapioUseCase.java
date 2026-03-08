@@ -2,22 +2,23 @@ package com.grupo3.postech.jilocomjurubeba.application.usecase.cardapio;
 
 import com.grupo3.postech.jilocomjurubeba.application.dto.cardapio.CardapioOutput;
 import com.grupo3.postech.jilocomjurubeba.application.dto.cardapio.CriarCardapioInput;
+import com.grupo3.postech.jilocomjurubeba.application.mapper.cardapio.CardapioMapper;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCase;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.cardapio.Cardapio;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.cardapio.CardapioGatewayDomain;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.cardapio.CardapioGateway;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGateway;
 
 public class CriarCardapioUseCase implements UseCase<CriarCardapioInput, CardapioOutput> {
 
-    private final CardapioGatewayDomain cardapioGateway;
-    private final RestauranteGatewayDomain restauranteGateway;
+    private final CardapioGateway cardapioGateway;
+    private final RestauranteGateway restauranteGateway;
 
     public CriarCardapioUseCase(
-            CardapioGatewayDomain cardapioGateway,
-            RestauranteGatewayDomain restauranteGateway
+            CardapioGateway cardapioGateway,
+            RestauranteGateway restauranteGateway
     ) {
         this.cardapioGateway = cardapioGateway;
         this.restauranteGateway = restauranteGateway;
@@ -51,6 +52,6 @@ public class CriarCardapioUseCase implements UseCase<CriarCardapioInput, Cardapi
         );
 
         Cardapio salvo = cardapioGateway.saveCardapio(cardapio);
-        return salvo.paraOutput();
+        return CardapioMapper.toOutput(salvo);
     }
 }

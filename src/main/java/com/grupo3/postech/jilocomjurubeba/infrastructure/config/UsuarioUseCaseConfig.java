@@ -9,35 +9,35 @@ import com.grupo3.postech.jilocomjurubeba.application.usecase.usuario.CriarUsuar
 import com.grupo3.postech.jilocomjurubeba.application.usecase.usuario.DeletarUsuarioUseCase;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.usuario.ListarUsuarioUseCase;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuarioGateway;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGateway;
 
 @Configuration
 public class UsuarioUseCaseConfig {
 
     @Bean
     public CriarUsuarioUseCase criarUsuarioUseCase(
-            UsuarioGatewayDomain usuarioGateway, TipoUsuarioGateway tipoUsuarioGateway) {
+        UsuarioGateway usuarioGateway, TipoUsuarioGateway tipoUsuarioGateway) {
         return new CriarUsuarioUseCase(usuarioGateway, tipoUsuarioGateway);
     }
 
     @Bean
     public AtualizarUsuarioUseCase atualizarUsuarioUseCase(
-            UsuarioGatewayDomain usuarioGateway, TipoUsuarioGateway tipoUsuarioGateway) {
+        UsuarioGateway usuarioGateway, TipoUsuarioGateway tipoUsuarioGateway) {
         return new AtualizarUsuarioUseCase(usuarioGateway, tipoUsuarioGateway);
     }
 
     @Bean
-    public BuscarUsuarioUseCase buscarUsuarioUseCase(UsuarioGatewayDomain usuarioGateway) {
+    public BuscarUsuarioUseCase buscarUsuarioUseCase(UsuarioGateway usuarioGateway) {
         return new BuscarUsuarioUseCase(usuarioGateway);
     }
 
     @Bean
-    public ListarUsuarioUseCase listarUsuarioUseCase(UsuarioGatewayDomain usuarioGateway) {
+    public ListarUsuarioUseCase listarUsuarioUseCase(UsuarioGateway usuarioGateway) {
         return new ListarUsuarioUseCase(usuarioGateway);
     }
 
     @Bean
-    public DeletarUsuarioUseCase deletarUsuarioUseCase(UsuarioGatewayDomain usuarioGateway) {
+    public DeletarUsuarioUseCase deletarUsuarioUseCase(UsuarioGateway usuarioGateway) {
         return new DeletarUsuarioUseCase(usuarioGateway);
     }
 }

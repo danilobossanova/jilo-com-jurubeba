@@ -6,12 +6,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGateway;
 import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.restaurante.mapper.RestauranteMapper;
 import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.restaurante.repository.RestauranteJpaRepository;
 
 @Component
-public class RestauranteGatewayJpa implements RestauranteGatewayDomain {
+public class RestauranteGatewayJpa implements RestauranteGateway {
 
     private final RestauranteJpaRepository repository;
     private final RestauranteMapper mapper;

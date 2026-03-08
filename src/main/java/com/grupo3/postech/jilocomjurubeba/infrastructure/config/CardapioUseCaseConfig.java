@@ -8,40 +8,40 @@ import com.grupo3.postech.jilocomjurubeba.application.usecase.cardapio.BuscarCar
 import com.grupo3.postech.jilocomjurubeba.application.usecase.cardapio.CriarCardapioUseCase;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.cardapio.DeletarCardapioUseCase;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.cardapio.ListarCardapioUseCase;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.cardapio.CardapioGatewayDomain;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.cardapio.CardapioGateway;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGateway;
 
 @Configuration
 public class CardapioUseCaseConfig {
 
     @Bean
     public CriarCardapioUseCase criarCardapioUseCase(
-            CardapioGatewayDomain cardapioGateway,
-            RestauranteGatewayDomain restauranteGateway
+            CardapioGateway cardapioGateway,
+            RestauranteGateway restauranteGateway
     ) {
         return new CriarCardapioUseCase(cardapioGateway, restauranteGateway);
     }
 
     @Bean
-    public ListarCardapioUseCase listarCardapioUseCase(CardapioGatewayDomain gateway) {
+    public ListarCardapioUseCase listarCardapioUseCase(CardapioGateway gateway) {
         return new ListarCardapioUseCase(gateway);
     }
 
     @Bean
-    public BuscarCardapioUseCase buscarCardapioUseCase(CardapioGatewayDomain gateway) {
+    public BuscarCardapioUseCase buscarCardapioUseCase(CardapioGateway gateway) {
         return new BuscarCardapioUseCase(gateway);
     }
 
     @Bean
     public AtualizarCardapioUseCase atualizarCardapioUseCase(
-            CardapioGatewayDomain cardapioGateway,
-            RestauranteGatewayDomain restauranteGateway
+            CardapioGateway cardapioGateway,
+            RestauranteGateway restauranteGateway
     ) {
         return new AtualizarCardapioUseCase(cardapioGateway, restauranteGateway);
     }
 
     @Bean
-    public DeletarCardapioUseCase deletarCardapioUseCase(CardapioGatewayDomain gateway) {
+    public DeletarCardapioUseCase deletarCardapioUseCase(CardapioGateway gateway) {
         return new DeletarCardapioUseCase(gateway);
     }
 }

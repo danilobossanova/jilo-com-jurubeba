@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
 
-public interface RestauranteGatewayDomain {
+public interface RestauranteGateway {
 
     Restaurante saveRestaurante(Restaurante restaurante);
 

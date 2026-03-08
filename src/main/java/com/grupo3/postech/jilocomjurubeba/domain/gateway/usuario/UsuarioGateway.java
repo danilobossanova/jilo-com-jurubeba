@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.grupo3.postech.jilocomjurubeba.domain.entity.usuario.Usuario;
 
-public interface UsuarioGatewayDomain {
+public interface UsuarioGateway {
 
     Usuario saveUsuario(Usuario usuario);
 

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.grupo3.postech.jilocomjurubeba.application.dto.usuario.CriarUsuarioInput;
 import com.grupo3.postech.jilocomjurubeba.application.dto.usuario.UsuarioOutput;
+import com.grupo3.postech.jilocomjurubeba.application.mapper.usuario.UsuarioMapper;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCase;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.tipousuario.TipoUsuario;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.usuario.Usuario;
@@ -13,16 +14,16 @@ import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontrada
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.ValidacaoException;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuarioGateway;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGateway;
 import com.grupo3.postech.jilocomjurubeba.domain.valueobject.Cpf;
 import com.grupo3.postech.jilocomjurubeba.domain.valueobject.Email;
 
 public class CriarUsuarioUseCase implements UseCase<CriarUsuarioInput, UsuarioOutput> {
 
-    private final UsuarioGatewayDomain usuarioGateway;
+    private final UsuarioGateway usuarioGateway;
     private final TipoUsuarioGateway tipoUsuarioGateway;
 
-    public CriarUsuarioUseCase(UsuarioGatewayDomain usuarioGateway, TipoUsuarioGateway tipoUsuarioGateway) {
+    public CriarUsuarioUseCase(UsuarioGateway usuarioGateway, TipoUsuarioGateway tipoUsuarioGateway) {
         this.usuarioGateway = usuarioGateway;
         this.tipoUsuarioGateway = tipoUsuarioGateway;
     }
@@ -70,6 +71,6 @@ public class CriarUsuarioUseCase implements UseCase<CriarUsuarioInput, UsuarioOu
         );
 
         Usuario salvo = usuarioGateway.saveUsuario(usuario);
-        return salvo.paraOutput();
+        return UsuarioMapper.toOutput(salvo);
     }
 }

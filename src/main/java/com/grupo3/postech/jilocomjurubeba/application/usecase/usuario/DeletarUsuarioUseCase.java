@@ -3,13 +3,13 @@ package com.grupo3.postech.jilocomjurubeba.application.usecase.usuario;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCaseSemSaida;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.usuario.Usuario;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGateway;
 
 public class DeletarUsuarioUseCase implements UseCaseSemSaida<Long> {
 
-    private final UsuarioGatewayDomain usuarioGateway;
+    private final UsuarioGateway usuarioGateway;
 
-    public DeletarUsuarioUseCase(UsuarioGatewayDomain usuarioGateway) {
+    public DeletarUsuarioUseCase(UsuarioGateway usuarioGateway) {
         this.usuarioGateway = usuarioGateway;
     }
 

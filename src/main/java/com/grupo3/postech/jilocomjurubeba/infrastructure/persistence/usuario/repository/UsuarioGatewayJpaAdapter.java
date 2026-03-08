@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.grupo3.postech.jilocomjurubeba.domain.entity.usuario.Usuario;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGateway;
 import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.usuario.mapper.UsuarioMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @Primary
 @Repository
 @RequiredArgsConstructor
-public class UsuarioGatewayJpaAdapter implements UsuarioGatewayDomain {
+public class UsuarioGatewayJpaAdapter implements UsuarioGateway {
 
     private final UsuarioJpaRepository repository;
     private final UsuarioMapper mapper;

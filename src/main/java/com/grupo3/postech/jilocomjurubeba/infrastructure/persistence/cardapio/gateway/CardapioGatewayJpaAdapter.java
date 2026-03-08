@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.grupo3.postech.jilocomjurubeba.domain.entity.cardapio.Cardapio;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.cardapio.CardapioGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.cardapio.CardapioGateway;
 import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.cardapio.entity.CardapioJpaEntity;
 import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.cardapio.mapper.CardapioJpaMapper;
 import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.cardapio.repository.CardapioJpaRepository;
@@ -16,7 +16,7 @@ import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.restaurante
 import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.restaurante.repository.RestauranteJpaRepository;
 
 @Component
-public class CardapioGatewayJpaAdapter implements CardapioGatewayDomain {
+public class CardapioGatewayJpaAdapter implements CardapioGateway {
 
     private final CardapioJpaRepository cardapioRepo;
     private final RestauranteJpaRepository restauranteRepo;

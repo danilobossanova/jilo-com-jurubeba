@@ -4,30 +4,32 @@ import java.time.LocalTime;
 
 import com.grupo3.postech.jilocomjurubeba.application.dto.restaurante.AtualizarRestauranteInput;
 import com.grupo3.postech.jilocomjurubeba.application.dto.restaurante.RestauranteOutput;
+import com.grupo3.postech.jilocomjurubeba.application.mapper.restaurante.RestauranteMapper;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCase;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.usuario.Usuario;
 import com.grupo3.postech.jilocomjurubeba.domain.enumroles.TypeCozinha;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGatewayDomain;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGateway;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGateway;
 
 public class AtualizarRestauranteUseCase implements UseCase<AtualizarRestauranteInput, RestauranteOutput> {
 
-    private final RestauranteGatewayDomain restauranteGatewayDomain;
-    private final UsuarioGatewayDomain usuarioGatewayDomain;
+    private final RestauranteGateway restauranteGateway;
+    private final UsuarioGateway usuarioGateway;
 
     public AtualizarRestauranteUseCase(
-            RestauranteGatewayDomain restauranteGatewayDomain,
-            UsuarioGatewayDomain usuarioGatewayDomain
+        RestauranteGateway restauranteGateway,
+        UsuarioGateway usuarioGateway
     ) {
-        this.restauranteGatewayDomain = restauranteGatewayDomain;
-        this.usuarioGatewayDomain = usuarioGatewayDomain;
+        this.restauranteGateway = restauranteGateway;
+        this.usuarioGateway = usuarioGateway;
     }
 
     @Override
     public RestauranteOutput executar(AtualizarRestauranteInput input) {
+
         if (input == null) {
             throw new RegraDeNegocioException("Input é obrigatório");
         }
@@ -36,9 +38,9 @@ public class AtualizarRestauranteUseCase implements UseCase<AtualizarRestaurante
             throw new RegraDeNegocioException("Id do restaurante é obrigatório");
         }
 
-        Restaurante restaurante = restauranteGatewayDomain
-                .findByIdRestaurante(input.id())
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Restaurante", input.id()));
+        Restaurante restaurante = restauranteGateway
+            .findByIdRestaurante(input.id())
+            .orElseThrow(() -> new EntidadeNaoEncontradaException("Restaurante", input.id()));
 
         Restaurante.RestauranteSnapshot dadosAtuais = restaurante.snapshot();
 
@@ -49,25 +51,27 @@ public class AtualizarRestauranteUseCase implements UseCase<AtualizarRestaurante
         LocalTime horaFechamento = input.horaFechamento() != null ? input.horaFechamento() : dadosAtuais.horaFechamento();
 
         Usuario dono;
+
         if (input.donoId() != null) {
-            dono = usuarioGatewayDomain.findByIdUsuario(input.donoId())
-                    .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", input.donoId()));
+            dono = usuarioGateway.findByIdUsuario(input.donoId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", input.donoId()));
         } else {
-            dono = usuarioGatewayDomain.findByIdUsuario(dadosAtuais.donoId())
-                    .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", dadosAtuais.donoId()));
+            dono = usuarioGateway.findByIdUsuario(dadosAtuais.donoId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", dadosAtuais.donoId()));
         }
 
         restaurante.atualizarCadastro(
-                nome,
-                endereco,
-                typeCozinha,
-                horaAbertura,
-                horaFechamento,
-                dono
+            nome,
+            endereco,
+            typeCozinha,
+            horaAbertura,
+            horaFechamento,
+            dono
         );
 
-        Restaurante atualizado = restauranteGatewayDomain.saveRestaurante(restaurante);
-        return atualizado.paraOutput();
+        Restaurante atualizado = restauranteGateway.saveRestaurante(restaurante);
+
+        return RestauranteMapper.paraOutput(atualizado);
     }
 
     private String valorOuAtual(String valor, String atual) {

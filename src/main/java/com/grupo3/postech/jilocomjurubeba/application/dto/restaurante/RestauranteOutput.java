@@ -13,4 +13,6 @@ public record RestauranteOutput(
     LocalTime horaFechamento,
     Long donoId,
     boolean ativo
-) {}
+) {
+
+}

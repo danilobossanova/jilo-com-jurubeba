@@ -1,16 +1,11 @@
 package com.grupo3.postech.jilocomjurubeba.domain.entity.cardapio;
 
-import java.math.BigDecimal;
-
-import com.grupo3.postech.jilocomjurubeba.application.dto.cardapio.CardapioOutput;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
 
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+import java.util.Objects;
 
-@EqualsAndHashCode(of = "id")
-@NoArgsConstructor
 public class Cardapio {
 
     private Long id;
@@ -21,6 +16,9 @@ public class Cardapio {
     private String caminhoFoto;
     private Restaurante restaurante;
     private boolean ativo;
+
+    public Cardapio() {
+    }
 
     public Cardapio(
             Long id,
@@ -127,20 +125,6 @@ public class Cardapio {
         );
     }
 
-    public CardapioOutput paraOutput() {
-        CardapioSnapshot dados = snapshot();
-        return new CardapioOutput(
-                dados.id(),
-                dados.nome(),
-                dados.descricao(),
-                dados.preco(),
-                dados.apenasNoLocal(),
-                dados.caminhoFoto(),
-                dados.restauranteId(),
-                dados.ativo()
-        );
-    }
-
     public record CardapioSnapshot(
             Long id,
             String nome,
@@ -187,5 +171,80 @@ public class Cardapio {
 
     private String normalizarCaminhoFoto(String caminhoFoto) {
         return caminhoFoto == null || caminhoFoto.isBlank() ? null : caminhoFoto.trim();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Cardapio cardapio)) return false;
+        return Objects.equals(id, cardapio.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public BigDecimal getPreco() {
+        return preco;
+    }
+
+    public boolean isApenasNoLocal() {
+        return apenasNoLocal;
+    }
+
+    public String getCaminhoFoto() {
+        return caminhoFoto;
+    }
+
+    public Restaurante getRestaurante() {
+        return restaurante;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public void setPreco(BigDecimal preco) {
+        this.preco = preco;
+    }
+
+    public void setApenasNoLocal(boolean apenasNoLocal) {
+        this.apenasNoLocal = apenasNoLocal;
+    }
+
+    public void setCaminhoFoto(String caminhoFoto) {
+        this.caminhoFoto = caminhoFoto;
+    }
+
+    public void setRestaurante(Restaurante restaurante) {
+        this.restaurante = restaurante;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
     }
 }

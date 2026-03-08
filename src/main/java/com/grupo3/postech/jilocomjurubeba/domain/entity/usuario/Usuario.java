@@ -1,21 +1,16 @@
 package com.grupo3.postech.jilocomjurubeba.domain.entity.usuario;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.grupo3.postech.jilocomjurubeba.application.dto.usuario.UsuarioOutput;
-import com.grupo3.postech.jilocomjurubeba.application.dto.usuario.UsuarioResumoOutput;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.tipousuario.TipoUsuario;
+import com.grupo3.postech.jilocomjurubeba.domain.enumroles.TypeUsuario;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
 import com.grupo3.postech.jilocomjurubeba.domain.valueobject.Cpf;
 import com.grupo3.postech.jilocomjurubeba.domain.valueobject.Email;
 
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
-@EqualsAndHashCode(of = "id")
-@NoArgsConstructor
 public class Usuario {
 
     private Long id;
@@ -27,6 +22,9 @@ public class Usuario {
     private String senha;
     private boolean ativo;
     private List<Restaurante> restaurantes = new ArrayList<>();
+
+    public Usuario() {
+    }
 
     public Usuario(
             Long id,
@@ -79,6 +77,9 @@ public class Usuario {
         this.ativo = true;
         this.senha = senha;
         this.restaurantes = restaurantes != null ? new ArrayList<>(restaurantes) : new ArrayList<>();
+    }
+
+    public Usuario(String usuarioTeste, Cpf cpf, Email email, String number, TypeUsuario typeUsuario, Object restaurantes, String number1) {
     }
 
     public void atualizarCadastro(
@@ -154,29 +155,6 @@ public class Usuario {
         );
     }
 
-    public UsuarioOutput paraOutput() {
-        UsuarioSnapshot dados = snapshot();
-        return new UsuarioOutput(
-                dados.id(),
-                dados.nome(),
-                dados.cpf(),
-                dados.email(),
-                dados.telefone(),
-                dados.tipoUsuarioId(),
-                dados.tipoUsuarioNome(),
-                dados.ativo()
-        );
-    }
-
-    public UsuarioResumoOutput paraResumo() {
-        UsuarioSnapshot dados = snapshot();
-        return new UsuarioResumoOutput(
-                dados.id(),
-                dados.nome(),
-                dados.email()
-        );
-    }
-
     public record UsuarioSnapshot(
             Long id,
             String nome,
@@ -225,5 +203,88 @@ public class Usuario {
 
     private String normalizarTelefone(String telefone) {
         return telefone == null || telefone.isBlank() ? null : telefone.trim();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Usuario usuario)) return false;
+        return Objects.equals(id, usuario.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public Cpf getCpf() {
+        return cpf;
+    }
+
+    public Email getEmail() {
+        return email;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public TipoUsuario getTipoUsuario() {
+        return tipoUsuario;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public List<Restaurante> getRestaurantes() {
+        return restaurantes;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setCpf(Cpf cpf) {
+        this.cpf = cpf;
+    }
+
+    public void setEmail(Email email) {
+        this.email = email;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public void setTipoUsuario(TipoUsuario tipoUsuario) {
+        this.tipoUsuario = tipoUsuario;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
+    }
+
+    public void setRestaurantes(List<Restaurante> restaurantes) {
+        this.restaurantes = restaurantes;
     }
 }

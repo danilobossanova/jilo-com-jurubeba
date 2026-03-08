@@ -1,18 +1,12 @@
 package com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante;
 
-import java.time.LocalTime;
-import java.util.Objects;
-
-import com.grupo3.postech.jilocomjurubeba.application.dto.restaurante.RestauranteOutput;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.usuario.Usuario;
 import com.grupo3.postech.jilocomjurubeba.domain.enumroles.TypeCozinha;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
 
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import java.time.LocalTime;
+import java.util.Objects;
 
-@EqualsAndHashCode(of = "id")
-@NoArgsConstructor
 public class Restaurante {
 
     private Long id;
@@ -23,6 +17,9 @@ public class Restaurante {
     private LocalTime horaFechamento;
     private Usuario dono;
     private boolean ativo;
+
+    public Restaurante() {
+    }
 
     public Restaurante(
             Long id,
@@ -156,20 +153,6 @@ public class Restaurante {
         );
     }
 
-    public RestauranteOutput paraOutput() {
-        RestauranteSnapshot dados = snapshot();
-        return new RestauranteOutput(
-                dados.id(),
-                dados.nome(),
-                dados.endereco(),
-                dados.typeCozinha(),
-                dados.horaAbertura(),
-                dados.horaFechamento(),
-                dados.donoId(),
-                dados.ativo()
-        );
-    }
-
     public record RestauranteSnapshot(
             Long id,
             String nome,
@@ -226,5 +209,80 @@ public class Restaurante {
 
     private String normalizarEndereco(String endereco) {
         return endereco.trim();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Restaurante that)) return false;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public TypeCozinha getTypeCozinha() {
+        return typeCozinha;
+    }
+
+    public LocalTime getHoraAbertura() {
+        return horaAbertura;
+    }
+
+    public LocalTime getHoraFechamento() {
+        return horaFechamento;
+    }
+
+    public Usuario getDono() {
+        return dono;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+
+    public void setTypeCozinha(TypeCozinha typeCozinha) {
+        this.typeCozinha = typeCozinha;
+    }
+
+    public void setHoraAbertura(LocalTime horaAbertura) {
+        this.horaAbertura = horaAbertura;
+    }
+
+    public void setHoraFechamento(LocalTime horaFechamento) {
+        this.horaFechamento = horaFechamento;
+    }
+
+    public void setDono(Usuario dono) {
+        this.dono = dono;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
     }
 }

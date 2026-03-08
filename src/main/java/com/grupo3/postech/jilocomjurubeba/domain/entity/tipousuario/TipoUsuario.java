@@ -1,9 +1,8 @@
 package com.grupo3.postech.jilocomjurubeba.domain.entity.tipousuario;
 
-import java.util.Objects;
-
-import com.grupo3.postech.jilocomjurubeba.application.dto.tipousuario.TipoUsuarioOutput;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.ValidacaoException;
+
+import java.util.Objects;
 
 public class TipoUsuario {
 
@@ -57,16 +56,6 @@ public class TipoUsuario {
         return new TipoUsuarioSnapshot(id, nome, descricao, ativo);
     }
 
-    public TipoUsuarioOutput paraOutput() {
-        TipoUsuarioSnapshot dados = snapshot();
-        return new TipoUsuarioOutput(
-                dados.id(),
-                dados.nome(),
-                dados.descricao(),
-                dados.ativo()
-        );
-    }
-
     public record TipoUsuarioSnapshot(
             Long id,
             String nome,
@@ -102,5 +91,25 @@ public class TipoUsuario {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+    @Override
+    public String toString() {
+        return "TipoUsuario{id=" + id + ", nome='" + nome + "', descricao='" + descricao + "', ativo=" + ativo + "}";
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
     }
 }

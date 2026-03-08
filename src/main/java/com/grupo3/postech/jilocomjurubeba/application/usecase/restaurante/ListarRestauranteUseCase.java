@@ -3,22 +3,24 @@ package com.grupo3.postech.jilocomjurubeba.application.usecase.restaurante;
 import java.util.List;
 
 import com.grupo3.postech.jilocomjurubeba.application.dto.restaurante.RestauranteOutput;
+import com.grupo3.postech.jilocomjurubeba.application.mapper.restaurante.RestauranteMapper;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCaseSemEntrada;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGatewayDomain;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGateway;
 
 public class ListarRestauranteUseCase implements UseCaseSemEntrada<List<RestauranteOutput>> {
 
-    private final RestauranteGatewayDomain restauranteGatewayDomain;
+    private final RestauranteGateway restauranteGateway;
 
-    public ListarRestauranteUseCase(RestauranteGatewayDomain restauranteGatewayDomain) {
-        this.restauranteGatewayDomain = restauranteGatewayDomain;
+    public ListarRestauranteUseCase(RestauranteGateway restauranteGateway) {
+        this.restauranteGateway = restauranteGateway;
     }
 
     @Override
     public List<RestauranteOutput> executar() {
-        return restauranteGatewayDomain.findAllRestaurante()
-                .stream()
-                .map(restaurante -> restaurante.paraOutput())
-                .toList();
+        return restauranteGateway
+            .findAllRestaurante()
+            .stream()
+            .map(RestauranteMapper::paraOutput)
+            .toList();
     }
 }

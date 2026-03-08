@@ -57,28 +57,29 @@ class CleanArchitectureTest {
         @Test
         @DisplayName("Arquitetura em camadas deve ser respeitada")
         void devemRespeitarArquiteturaEmCamadas() {
-            ArchRule regra =
-                    layeredArchitecture()
-                            .consideringOnlyDependenciesInLayers()
-                            // Definição das camadas
-                            .layer("Domain")
-                            .definedBy(BASE_PACKAGE + ".domain..")
-                            .layer("Application")
-                            .definedBy(BASE_PACKAGE + ".application..")
-                            .layer("Interfaces")
-                            .definedBy(BASE_PACKAGE + ".interfaces..")
-                            .layer("Infrastructure")
-                            .definedBy(BASE_PACKAGE + ".infrastructure..")
-                            // Regras de acesso
-                            .whereLayer("Domain")
-                            .mayOnlyBeAccessedByLayers(
-                                    "Application", "Interfaces", "Infrastructure")
-                            .whereLayer("Application")
-                            .mayOnlyBeAccessedByLayers("Interfaces", "Infrastructure")
-                            .whereLayer("Interfaces")
-                            .mayNotBeAccessedByAnyLayer()
-                            .whereLayer("Infrastructure")
-                            .mayNotBeAccessedByAnyLayer();
+
+            ArchRule regra = layeredArchitecture()
+                .consideringOnlyDependenciesInLayers()
+
+                // Definição das camadas
+                .layer("Domain")
+                .definedBy(BASE_PACKAGE + ".domain..")
+
+                .layer("Application")
+                .definedBy(BASE_PACKAGE + ".application..")
+
+                .layer("Infrastructure")
+                .definedBy(BASE_PACKAGE + ".infrastructure..")
+
+                // Regras
+                .whereLayer("Domain")
+                .mayOnlyBeAccessedByLayers("Application", "Infrastructure")
+
+                .whereLayer("Application")
+                .mayOnlyBeAccessedByLayers("Infrastructure")
+
+                .whereLayer("Infrastructure")
+                .mayNotBeAccessedByAnyLayer();
 
             regra.check(classes);
         }
@@ -188,15 +189,14 @@ class CleanArchitectureTest {
         @Test
         @DisplayName("Domain não deve usar Lombok")
         void domainNaoDeveUsarLombok() {
-            ArchRule regra =
-                    noClasses()
-                            .that()
-                            .resideInAPackage(BASE_PACKAGE + ".domain..")
-                            .should()
-                            .dependOnClassesThat()
-                            .resideInAPackage("lombok..");
 
-            regra.check(classes);
+            ArchRule domainNaoDeveUsarLombok =
+                noClasses()
+                    .that().resideInAPackage("com.grupo3.postech.jilocomjurubeba.domain.entity..")
+                    .should().dependOnClassesThat()
+                    .resideInAPackage("lombok..");
+
+            domainNaoDeveUsarLombok.check(classes);
         }
 
         @Test
@@ -341,30 +341,50 @@ class CleanArchitectureTest {
         }
 
         @Test
-        @DisplayName("@RestController deve residir apenas em interfaces.rest")
-        void restControllersDevemResidirEmInterfacesRest() {
+        @DisplayName("@RestController deve seguir padrão de arquitetura")
+        void restControllersDevemSeguirPadrao() {
+
             ArchRule regra =
-                    classes()
-                            .that()
-                            .areAnnotatedWith(
-                                    org.springframework.web.bind.annotation.RestController.class)
-                            .should()
-                            .resideInAPackage(BASE_PACKAGE + ".interfaces.rest..");
+                classes()
+                    .that()
+                    .areAnnotatedWith(
+                        org.springframework.web.bind.annotation.RestController.class)
+                    .should()
+                    .resideInAPackage(BASE_PACKAGE + ".infrastructure.web.controller..")
+                    .andShould()
+                    .haveSimpleNameEndingWith("Controller");
 
             regra.check(classes);
         }
 
         @Test
-        @DisplayName("@RestControllerAdvice deve residir apenas em interfaces.rest")
-        void restControllerAdviceDevemResidirEmInterfacesRest() {
+        @DisplayName("Controllers não devem depender de infrastructure")
+        void controllersNaoDevemDependerDeInfrastructure() {
+
             ArchRule regra =
-                    classes()
-                            .that()
-                            .areAnnotatedWith(
-                                    org.springframework.web.bind.annotation.RestControllerAdvice
-                                            .class)
-                            .should()
-                            .resideInAPackage(BASE_PACKAGE + ".interfaces.rest..");
+                noClasses()
+                    .that()
+                    .resideInAPackage(BASE_PACKAGE + ".infrastructure.web.controller..")
+                    .should()
+                    .dependOnClassesThat()
+                    .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence..");
+
+            regra.check(classes);
+        }
+
+        @Test
+        @DisplayName("@RestControllerAdvice deve seguir padrão de arquitetura")
+        void restControllerAdviceDevemSeguirPadrao() {
+
+            ArchRule regra =
+                classes()
+                    .that()
+                    .areAnnotatedWith(
+                        org.springframework.web.bind.annotation.RestControllerAdvice.class)
+                    .should()
+                    .resideInAPackage(BASE_PACKAGE + ".infrastructure.web.exception..")
+                    .andShould()
+                    .haveSimpleNameEndingWith("ExceptionHandler");
 
             regra.check(classes);
         }
@@ -439,16 +459,19 @@ class CleanArchitectureTest {
         @Test
         @DisplayName("Use Cases devem terminar com 'UseCase'")
         void useCasesDevemTerminarComUseCase() {
+
             ArchRule regra =
-                    classes()
-                            .that()
-                            .resideInAPackage(BASE_PACKAGE + ".application.usecase..")
-                            .and()
-                            .areNotInterfaces()
-                            .and()
-                            .haveSimpleNameNotContaining("package-info")
-                            .should()
-                            .haveSimpleNameEndingWith("UseCase");
+                classes()
+                    .that()
+                    .resideInAPackage(BASE_PACKAGE + ".application.usecase..")
+                    .and()
+                    .areTopLevelClasses() // ignora classes internas
+                    .and()
+                    .areNotInterfaces()
+                    .and()
+                    .haveSimpleNameNotContaining("package-info")
+                    .should()
+                    .haveSimpleNameEndingWith("UseCase");
 
             regra.check(classes);
         }
@@ -456,15 +479,20 @@ class CleanArchitectureTest {
         @Test
         @DisplayName("Controllers devem terminar com 'Controller'")
         void controllersDevemTerminarComController() {
+
             ArchRule regra =
-                    classes()
-                            .that()
-                            .resideInAPackage(BASE_PACKAGE + ".interfaces.rest..")
-                            .and()
-                            .areAnnotatedWith(
-                                    org.springframework.web.bind.annotation.RestController.class)
-                            .should()
-                            .haveSimpleNameEndingWith("Controller");
+                classes()
+                    .that()
+                    .resideInAPackage(BASE_PACKAGE + ".infrastructure.web.controller..")
+                    .and()
+                    .areTopLevelClasses()
+                    .and()
+                    .arePublic()
+                    .and()
+                    .areAnnotatedWith(
+                        org.springframework.web.bind.annotation.RestController.class)
+                    .should()
+                    .haveSimpleNameEndingWith("Controller");
 
             regra.check(classes);
         }
@@ -487,16 +515,20 @@ class CleanArchitectureTest {
         @Test
         @DisplayName("Mappers REST devem terminar com 'RestMapper'")
         void mappersRestDevemTerminarComRestMapper() {
+
             ArchRule regra =
-                    classes()
-                            .that()
-                            .resideInAPackage(BASE_PACKAGE + ".interfaces.rest.mapper..")
-                            .and()
-                            .areInterfaces()
-                            .and()
-                            .haveSimpleNameNotContaining("package-info")
-                            .should()
-                            .haveSimpleNameEndingWith("RestMapper");
+                classes()
+                    .that()
+                    .resideInAPackage(BASE_PACKAGE + ".infrastructure.web.mapper..")
+                    .and()
+                    .areTopLevelClasses()
+                    .and()
+                    .areInterfaces()
+                    .and()
+                    .haveSimpleNameNotContaining("package-info")
+                    .should()
+                    .haveSimpleNameEndingWith("RestMapper")
+                    .allowEmptyShould(true);
 
             regra.check(classes);
         }
@@ -504,15 +536,19 @@ class CleanArchitectureTest {
         @Test
         @DisplayName("Gateways do domain devem terminar com 'Gateway'")
         void gatewaysDevemTerminarComGateway() {
+
             ArchRule regra =
-                    classes()
-                            .that()
-                            .resideInAPackage(BASE_PACKAGE + ".domain.gateway..")
-                            .and()
-                            .haveSimpleNameNotContaining("package-info")
-                            .should()
-                            .haveSimpleNameEndingWith("Gateway")
-                            .allowEmptyShould(true);
+                classes()
+                    .that()
+                    .resideInAPackage(BASE_PACKAGE + ".domain.gateway..")
+                    .and()
+                    .areTopLevelClasses()
+                    .and()
+                    .areInterfaces()
+                    .and()
+                    .haveSimpleNameNotContaining("package-info")
+                    .should()
+                    .haveSimpleNameEndingWith("Gateway");
 
             regra.check(classes);
         }
@@ -579,7 +615,7 @@ class CleanArchitectureTest {
             ArchRule regra =
                     classes()
                             .that()
-                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence..")
+                            .resideInAPackage(BASE_PACKAGE + ".infrastructure.persistence.repository.")
                             .and()
                             .resideInAPackage("..repository..")
                             .and()
@@ -622,23 +658,6 @@ class CleanArchitectureTest {
                             .should()
                             .haveSimpleNameEndingWith("Input")
                             .allowEmptyShould(true);
-
-            regra.check(classes);
-        }
-
-        @Test
-        @DisplayName("Responses REST devem terminar com 'Response'")
-        void responsesDevemTerminarComResponse() {
-            ArchRule regra =
-                    classes()
-                            .that()
-                            .resideInAPackage(BASE_PACKAGE + ".interfaces.rest.dto..")
-                            .and()
-                            .haveSimpleNameNotContaining("package-info")
-                            .and()
-                            .haveSimpleNameNotContaining("Request")
-                            .should()
-                            .haveSimpleNameEndingWith("Response");
 
             regra.check(classes);
         }

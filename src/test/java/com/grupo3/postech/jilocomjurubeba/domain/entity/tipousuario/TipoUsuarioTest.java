@@ -9,14 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import com.grupo3.postech.jilocomjurubeba.domain.exception.ValidacaoException;
 
-/**
- * Testes unitarios para a entidade de dominio TipoUsuario.
- *
- * <p>Testes PUROS — sem Spring, sem mocks de framework. Validam regras de negocio encapsuladas na
- * entidade.
- *
- * @author Danilo Fernando
- */
 class TipoUsuarioTest {
 
     @Nested
@@ -27,70 +19,74 @@ class TipoUsuarioTest {
         @DisplayName("Deve criar tipo de usuario com dados validos")
         void deveCriarComDadosValidos() {
             TipoUsuario tipo = new TipoUsuario("MASTER", "Administrador do sistema");
+            TipoUsuario.TipoUsuarioSnapshot snap = tipo.snapshot();
 
-            assertThat(tipo.getId()).isNull();
-            assertThat(tipo.getNome()).isEqualTo("MASTER");
-            assertThat(tipo.getDescricao()).isEqualTo("Administrador do sistema");
-            assertThat(tipo.isAtivo()).isTrue();
+            assertThat(snap.id()).isNull();
+            assertThat(snap.nome()).isEqualTo("MASTER");
+            assertThat(snap.descricao()).isEqualTo("Administrador do sistema");
+            assertThat(snap.ativo()).isTrue();
         }
 
         @Test
         @DisplayName("Deve converter nome para uppercase e trim")
         void deveConverterNomeParaUppercase() {
             TipoUsuario tipo = new TipoUsuario("  cliente  ", "Consumidor");
+            TipoUsuario.TipoUsuarioSnapshot snap = tipo.snapshot();
 
-            assertThat(tipo.getNome()).isEqualTo("CLIENTE");
+            assertThat(snap.nome()).isEqualTo("CLIENTE");
         }
 
         @Test
         @DisplayName("Deve aplicar trim na descricao")
         void deveAplicarTrimNaDescricao() {
             TipoUsuario tipo = new TipoUsuario("MASTER", "  Administrador  ");
+            TipoUsuario.TipoUsuarioSnapshot snap = tipo.snapshot();
 
-            assertThat(tipo.getDescricao()).isEqualTo("Administrador");
+            assertThat(snap.descricao()).isEqualTo("Administrador");
         }
 
         @Test
         @DisplayName("Deve criar tipo de usuario com construtor completo")
         void deveCriarComConstrutorCompleto() {
             TipoUsuario tipo = new TipoUsuario(1L, "DONO_RESTAURANTE", "Proprietario", true);
+            TipoUsuario.TipoUsuarioSnapshot snap = tipo.snapshot();
 
-            assertThat(tipo.getId()).isEqualTo(1L);
-            assertThat(tipo.getNome()).isEqualTo("DONO_RESTAURANTE");
-            assertThat(tipo.getDescricao()).isEqualTo("Proprietario");
-            assertThat(tipo.isAtivo()).isTrue();
+            assertThat(snap.id()).isEqualTo(1L);
+            assertThat(snap.nome()).isEqualTo("DONO_RESTAURANTE");
+            assertThat(snap.descricao()).isEqualTo("Proprietario");
+            assertThat(snap.ativo()).isTrue();
         }
 
         @Test
         @DisplayName("Deve lancar excecao quando nome for nulo")
         void deveLancarExcecaoQuandoNomeNulo() {
             assertThatThrownBy(() -> new TipoUsuario(null, "Descricao"))
-                    .isInstanceOf(ValidacaoException.class)
-                    .hasMessageContaining("Nome");
+                .isInstanceOf(ValidacaoException.class)
+                .hasMessageContaining("Nome");
         }
 
         @Test
         @DisplayName("Deve lancar excecao quando nome for vazio")
         void deveLancarExcecaoQuandoNomeVazio() {
             assertThatThrownBy(() -> new TipoUsuario("  ", "Descricao"))
-                    .isInstanceOf(ValidacaoException.class)
-                    .hasMessageContaining("Nome");
+                .isInstanceOf(ValidacaoException.class)
+                .hasMessageContaining("Nome");
         }
 
         @Test
         @DisplayName("Deve lancar excecao quando descricao for nula")
         void deveLancarExcecaoQuandoDescricaoNula() {
             assertThatThrownBy(() -> new TipoUsuario("MASTER", null))
-                    .isInstanceOf(ValidacaoException.class)
-                    .hasMessageContaining("Descricao");
+                .isInstanceOf(ValidacaoException.class)
+                .hasMessageContaining("Descricao");
         }
 
         @Test
         @DisplayName("Deve lancar excecao quando descricao for vazia")
         void deveLancarExcecaoQuandoDescricaoVazia() {
             assertThatThrownBy(() -> new TipoUsuario("MASTER", ""))
-                    .isInstanceOf(ValidacaoException.class)
-                    .hasMessageContaining("Descricao");
+                .isInstanceOf(ValidacaoException.class)
+                .hasMessageContaining("Descricao");
         }
     }
 
@@ -103,10 +99,11 @@ class TipoUsuarioTest {
         void deveAtualizarDados() {
             TipoUsuario tipo = new TipoUsuario(1L, "MASTER", "Administrador", true);
 
-            tipo.atualizarDados("SUPER_ADMIN", "Super administrador");
+            tipo.atualizarCadastro("SUPER_ADMIN", "Super administrador");
+            TipoUsuario.TipoUsuarioSnapshot snap = tipo.snapshot();
 
-            assertThat(tipo.getNome()).isEqualTo("SUPER_ADMIN");
-            assertThat(tipo.getDescricao()).isEqualTo("Super administrador");
+            assertThat(snap.nome()).isEqualTo("SUPER_ADMIN");
+            assertThat(snap.descricao()).isEqualTo("Super administrador");
         }
 
         @Test
@@ -114,8 +111,8 @@ class TipoUsuarioTest {
         void deveLancarExcecaoAoAtualizarComNomeNulo() {
             TipoUsuario tipo = new TipoUsuario(1L, "MASTER", "Administrador", true);
 
-            assertThatThrownBy(() -> tipo.atualizarDados(null, "Nova descricao"))
-                    .isInstanceOf(ValidacaoException.class);
+            assertThatThrownBy(() -> tipo.atualizarCadastro(null, "Nova descricao"))
+                .isInstanceOf(ValidacaoException.class);
         }
 
         @Test
@@ -125,7 +122,7 @@ class TipoUsuarioTest {
 
             tipo.desativar();
 
-            assertThat(tipo.isAtivo()).isFalse();
+            assertThat(tipo.snapshot().ativo()).isFalse();
         }
 
         @Test
@@ -135,7 +132,7 @@ class TipoUsuarioTest {
 
             tipo.ativar();
 
-            assertThat(tipo.isAtivo()).isTrue();
+            assertThat(tipo.snapshot().ativo()).isTrue();
         }
     }
 
