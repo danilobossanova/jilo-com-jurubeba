@@ -29,34 +29,33 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import(TestSecurityConfig.class)
 class SaudeControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-    @Test
-    @DisplayName("GET /v1/health deve retornar status UP")
-    @WithMockUser
-    void deveRetornarStatusUp() throws Exception {
+  @Test
+  @DisplayName("GET /v1/health deve retornar status UP")
+  @WithMockUser
+  void deveRetornarStatusUp() throws Exception {
 
-        mockMvc.perform(get("/v1/health")
-                .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.status", is("UP")))
-            .andExpect(jsonPath("$.versao", notNullValue()))
-            .andExpect(jsonPath("$.timestamp", notNullValue()));
-    }
+    mockMvc
+        .perform(get("/v1/health").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.status", is("UP")))
+        .andExpect(jsonPath("$.versao", notNullValue()))
+        .andExpect(jsonPath("$.timestamp", notNullValue()));
+  }
 
-    @Test
-    @DisplayName("GET /v1/health deve retornar JSON válido")
-    @WithMockUser
-    void deveRetornarJsonValido() throws Exception {
+  @Test
+  @DisplayName("GET /v1/health deve retornar JSON válido")
+  @WithMockUser
+  void deveRetornarJsonValido() throws Exception {
 
-        mockMvc.perform(get("/v1/health")
-                .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$").isMap())
-            .andExpect(jsonPath("$.status").exists())
-            .andExpect(jsonPath("$.versao").exists())
-            .andExpect(jsonPath("$.timestamp").exists());
-    }
+    mockMvc
+        .perform(get("/v1/health").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isMap())
+        .andExpect(jsonPath("$.status").exists())
+        .andExpect(jsonPath("$.versao").exists())
+        .andExpect(jsonPath("$.timestamp").exists());
+  }
 }

@@ -23,19 +23,19 @@ import java.util.Map;
  */
 public class ValidacaoException extends DominioException {
 
-    private final Map<String, String> errosPorCampo;
+  private final Map<String, String> errosPorCampo;
 
-    public ValidacaoException(String mensagem) {
-        super(mensagem);
-        this.errosPorCampo = Collections.emptyMap();
-    }
+  public ValidacaoException(String mensagem) {
+    super(mensagem);
+    this.errosPorCampo = Collections.emptyMap();
+  }
 
-    public ValidacaoException(String mensagem, Map<String, String> errosPorCampo) {
-        super(mensagem);
-        this.errosPorCampo = new HashMap<>(errosPorCampo);
-    }
+  public ValidacaoException(String mensagem, Map<String, String> errosPorCampo) {
+    super(mensagem);
+    this.errosPorCampo = new HashMap<>(errosPorCampo);
+  }
 
-    public Map<String, String> getErrosPorCampo() {
-        return Collections.unmodifiableMap(errosPorCampo);
-    }
+  public Map<String, String> getErrosPorCampo() {
+    return Collections.unmodifiableMap(errosPorCampo);
+  }
 }

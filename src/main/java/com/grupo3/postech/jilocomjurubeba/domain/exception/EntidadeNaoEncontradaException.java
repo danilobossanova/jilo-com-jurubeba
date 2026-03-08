@@ -16,23 +16,21 @@ package com.grupo3.postech.jilocomjurubeba.domain.exception;
  */
 public class EntidadeNaoEncontradaException extends DominioException {
 
-    private final String nomeEntidade;
-    private final Object identificador;
+  private final String nomeEntidade;
+  private final Object identificador;
 
-    public EntidadeNaoEncontradaException(String nomeEntidade, Object identificador) {
-        super(
-                String.format(
-                        "%s com identificador '%s' não foi encontrado",
-                        nomeEntidade, identificador));
-        this.nomeEntidade = nomeEntidade;
-        this.identificador = identificador;
-    }
+  public EntidadeNaoEncontradaException(String nomeEntidade, Object identificador) {
+    super(
+        String.format("%s com identificador '%s' não foi encontrado", nomeEntidade, identificador));
+    this.nomeEntidade = nomeEntidade;
+    this.identificador = identificador;
+  }
 
-    public String getNomeEntidade() {
-        return nomeEntidade;
-    }
+  public String getNomeEntidade() {
+    return nomeEntidade;
+  }
 
-    public Object getIdentificador() {
-        return identificador;
-    }
+  public Object getIdentificador() {
+    return identificador;
+  }
 }

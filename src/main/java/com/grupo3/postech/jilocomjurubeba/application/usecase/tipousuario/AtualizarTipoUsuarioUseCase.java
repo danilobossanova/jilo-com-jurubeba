@@ -12,31 +12,31 @@ import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuario
 public class AtualizarTipoUsuarioUseCase
     implements UseCase<AtualizarTipoUsuarioInput, TipoUsuarioOutput> {
 
-    private final TipoUsuarioGateway tipoUsuarioGateway;
+  private final TipoUsuarioGateway tipoUsuarioGateway;
 
-    public AtualizarTipoUsuarioUseCase(TipoUsuarioGateway tipoUsuarioGateway) {
-        this.tipoUsuarioGateway = tipoUsuarioGateway;
+  public AtualizarTipoUsuarioUseCase(TipoUsuarioGateway tipoUsuarioGateway) {
+    this.tipoUsuarioGateway = tipoUsuarioGateway;
+  }
+
+  @Override
+  public TipoUsuarioOutput executar(AtualizarTipoUsuarioInput input) {
+
+    TipoUsuario tipoUsuario =
+        tipoUsuarioGateway
+            .buscarPorId(input.id())
+            .orElseThrow(() -> new EntidadeNaoEncontradaException("TipoUsuario", input.id()));
+
+    String nomeNormalizado = input.nome().trim().toUpperCase();
+
+    if (tipoUsuarioGateway.existePorNomeEIdDiferente(nomeNormalizado, input.id())) {
+      throw new RegraDeNegocioException(
+          "Ja existe outro tipo de usuario com o nome '" + input.nome() + "'");
     }
 
-    @Override
-    public TipoUsuarioOutput executar(AtualizarTipoUsuarioInput input) {
+    tipoUsuario.atualizarCadastro(input.nome(), input.descricao());
 
-        TipoUsuario tipoUsuario =
-            tipoUsuarioGateway
-                .buscarPorId(input.id())
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("TipoUsuario", input.id()));
+    TipoUsuario atualizado = tipoUsuarioGateway.salvar(tipoUsuario);
 
-        String nomeNormalizado = input.nome().trim().toUpperCase();
-
-        if (tipoUsuarioGateway.existePorNomeEIdDiferente(nomeNormalizado, input.id())) {
-            throw new RegraDeNegocioException(
-                "Ja existe outro tipo de usuario com o nome '" + input.nome() + "'");
-        }
-
-        tipoUsuario.atualizarCadastro(input.nome(), input.descricao());
-
-        TipoUsuario atualizado = tipoUsuarioGateway.salvar(tipoUsuario);
-
-        return TipoUsuarioMapper.paraOutput(atualizado);
-    }
+    return TipoUsuarioMapper.paraOutput(atualizado);
+  }
 }

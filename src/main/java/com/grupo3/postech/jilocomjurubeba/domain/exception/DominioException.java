@@ -14,11 +14,11 @@ package com.grupo3.postech.jilocomjurubeba.domain.exception;
  */
 public abstract class DominioException extends RuntimeException {
 
-    protected DominioException(String mensagem) {
-        super(mensagem);
-    }
+  protected DominioException(String mensagem) {
+    super(mensagem);
+  }
 
-    protected DominioException(String mensagem, Throwable causa) {
-        super(mensagem, causa);
-    }
+  protected DominioException(String mensagem, Throwable causa) {
+    super(mensagem, causa);
+  }
 }

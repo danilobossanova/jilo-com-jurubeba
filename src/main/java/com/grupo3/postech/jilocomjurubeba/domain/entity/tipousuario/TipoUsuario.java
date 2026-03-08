@@ -1,115 +1,118 @@
 package com.grupo3.postech.jilocomjurubeba.domain.entity.tipousuario;
 
 import com.grupo3.postech.jilocomjurubeba.domain.exception.ValidacaoException;
-
 import java.util.Objects;
 
 public class TipoUsuario {
 
-    private Long id;
-    private String nome;
-    private String descricao;
-    private boolean ativo;
+  private Long id;
+  private String nome;
+  private String descricao;
+  private boolean ativo;
 
-    public TipoUsuario(String nome, String descricao) {
-        validarCamposObrigatorios(nome, descricao);
-        this.nome = normalizarNome(nome);
-        this.descricao = normalizarDescricao(descricao);
-        this.ativo = true;
+  public TipoUsuario(String nome, String descricao) {
+    validarCamposObrigatorios(nome, descricao);
+    this.nome = normalizarNome(nome);
+    this.descricao = normalizarDescricao(descricao);
+    this.ativo = true;
+  }
+
+  public TipoUsuario(Long id, String nome, String descricao, boolean ativo) {
+    validarCamposObrigatorios(nome, descricao);
+    this.id = id;
+    this.nome = normalizarNome(nome);
+    this.descricao = normalizarDescricao(descricao);
+    this.ativo = ativo;
+  }
+
+  public void atualizarCadastro(String nome, String descricao) {
+    validarCamposObrigatorios(nome, descricao);
+    this.nome = normalizarNome(nome);
+    this.descricao = normalizarDescricao(descricao);
+  }
+
+  public void ativar() {
+    this.ativo = true;
+  }
+
+  public void desativar() {
+    this.ativo = false;
+  }
+
+  public boolean estaAtivo() {
+    return ativo;
+  }
+
+  public boolean possuiMesmoIdQue(Long outroId) {
+    return id != null && id.equals(outroId);
+  }
+
+  public boolean temNome(String outroNome) {
+    return outroNome != null && nome.equalsIgnoreCase(outroNome.trim());
+  }
+
+  public TipoUsuarioSnapshot snapshot() {
+    return new TipoUsuarioSnapshot(id, nome, descricao, ativo);
+  }
+
+  public record TipoUsuarioSnapshot(Long id, String nome, String descricao, boolean ativo) {}
+
+  private void validarCamposObrigatorios(String nome, String descricao) {
+    if (nome == null || nome.trim().isEmpty()) {
+      throw new ValidacaoException("Nome do tipo de usuario e obrigatorio");
     }
 
-    public TipoUsuario(Long id, String nome, String descricao, boolean ativo) {
-        validarCamposObrigatorios(nome, descricao);
-        this.id = id;
-        this.nome = normalizarNome(nome);
-        this.descricao = normalizarDescricao(descricao);
-        this.ativo = ativo;
+    if (descricao == null || descricao.trim().isEmpty()) {
+      throw new ValidacaoException("Descricao do tipo de usuario e obrigatoria");
     }
+  }
 
-    public void atualizarCadastro(String nome, String descricao) {
-        validarCamposObrigatorios(nome, descricao);
-        this.nome = normalizarNome(nome);
-        this.descricao = normalizarDescricao(descricao);
-    }
+  private String normalizarNome(String nome) {
+    return nome.trim().toUpperCase();
+  }
 
-    public void ativar() {
-        this.ativo = true;
-    }
+  private String normalizarDescricao(String descricao) {
+    return descricao.trim();
+  }
 
-    public void desativar() {
-        this.ativo = false;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof TipoUsuario that)) return false;
+    return Objects.equals(id, that.id);
+  }
 
-    public boolean estaAtivo() {
-        return ativo;
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
+  }
 
-    public boolean possuiMesmoIdQue(Long outroId) {
-        return id != null && id.equals(outroId);
-    }
+  @Override
+  public String toString() {
+    return "TipoUsuario{id="
+        + id
+        + ", nome='"
+        + nome
+        + "', descricao='"
+        + descricao
+        + "', ativo="
+        + ativo
+        + "}";
+  }
 
-    public boolean temNome(String outroNome) {
-        return outroNome != null && nome.equalsIgnoreCase(outroNome.trim());
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public TipoUsuarioSnapshot snapshot() {
-        return new TipoUsuarioSnapshot(id, nome, descricao, ativo);
-    }
+  public String getNome() {
+    return nome;
+  }
 
-    public record TipoUsuarioSnapshot(
-            Long id,
-            String nome,
-            String descricao,
-            boolean ativo
-    ) {}
+  public String getDescricao() {
+    return descricao;
+  }
 
-    private void validarCamposObrigatorios(String nome, String descricao) {
-        if (nome == null || nome.trim().isEmpty()) {
-            throw new ValidacaoException("Nome do tipo de usuario e obrigatorio");
-        }
-
-        if (descricao == null || descricao.trim().isEmpty()) {
-            throw new ValidacaoException("Descricao do tipo de usuario e obrigatoria");
-        }
-    }
-
-    private String normalizarNome(String nome) {
-        return nome.trim().toUpperCase();
-    }
-
-    private String normalizarDescricao(String descricao) {
-        return descricao.trim();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TipoUsuario that)) return false;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-    @Override
-    public String toString() {
-        return "TipoUsuario{id=" + id + ", nome='" + nome + "', descricao='" + descricao + "', ativo=" + ativo + "}";
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public boolean isAtivo() {
-        return ativo;
-    }
+  public boolean isAtivo() {
+    return ativo;
+  }
 }

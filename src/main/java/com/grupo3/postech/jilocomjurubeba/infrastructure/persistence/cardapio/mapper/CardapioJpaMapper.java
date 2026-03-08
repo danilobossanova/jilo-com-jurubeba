@@ -7,33 +7,32 @@ import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.restaurante
 
 public final class CardapioJpaMapper {
 
-    private CardapioJpaMapper() {}
+  private CardapioJpaMapper() {}
 
-    public static CardapioJpaEntity toJpa(Cardapio domain, RestauranteJpaEntity restauranteJpa) {
-        Cardapio.CardapioSnapshot dados = domain.snapshot();
+  public static CardapioJpaEntity toJpa(Cardapio domain, RestauranteJpaEntity restauranteJpa) {
+    Cardapio.CardapioSnapshot dados = domain.snapshot();
 
-        CardapioJpaEntity e = new CardapioJpaEntity();
-        e.setId(dados.id());
-        e.setNome(dados.nome());
-        e.setDescricao(dados.descricao());
-        e.setPreco(dados.preco());
-        e.setApenasNoLocal(dados.apenasNoLocal());
-        e.setCaminhoFoto(dados.caminhoFoto());
-        e.setAtivo(dados.ativo());
-        e.setRestaurante(restauranteJpa);
-        return e;
-    }
+    CardapioJpaEntity e = new CardapioJpaEntity();
+    e.setId(dados.id());
+    e.setNome(dados.nome());
+    e.setDescricao(dados.descricao());
+    e.setPreco(dados.preco());
+    e.setApenasNoLocal(dados.apenasNoLocal());
+    e.setCaminhoFoto(dados.caminhoFoto());
+    e.setAtivo(dados.ativo());
+    e.setRestaurante(restauranteJpa);
+    return e;
+  }
 
-    public static Cardapio toDomain(CardapioJpaEntity e, Restaurante restauranteDomain) {
-        return new Cardapio(
-                e.getId(),
-                e.getNome(),
-                e.getDescricao(),
-                e.getPreco(),
-                e.isApenasNoLocal(),
-                e.getCaminhoFoto(),
-                restauranteDomain,
-                e.isAtivo()
-        );
-    }
+  public static Cardapio toDomain(CardapioJpaEntity e, Restaurante restauranteDomain) {
+    return new Cardapio(
+        e.getId(),
+        e.getNome(),
+        e.getDescricao(),
+        e.getPreco(),
+        e.isApenasNoLocal(),
+        e.getCaminhoFoto(),
+        restauranteDomain,
+        e.isAtivo());
+  }
 }

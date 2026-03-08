@@ -10,26 +10,26 @@ import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuario
 
 public class CriarTipoUsuarioUseCase implements UseCase<CriarTipoUsuarioInput, TipoUsuarioOutput> {
 
-    private final TipoUsuarioGateway tipoUsuarioGateway;
+  private final TipoUsuarioGateway tipoUsuarioGateway;
 
-    public CriarTipoUsuarioUseCase(TipoUsuarioGateway tipoUsuarioGateway) {
-        this.tipoUsuarioGateway = tipoUsuarioGateway;
+  public CriarTipoUsuarioUseCase(TipoUsuarioGateway tipoUsuarioGateway) {
+    this.tipoUsuarioGateway = tipoUsuarioGateway;
+  }
+
+  @Override
+  public TipoUsuarioOutput executar(CriarTipoUsuarioInput input) {
+
+    String nomeNormalizado = input.nome().trim().toUpperCase();
+
+    if (tipoUsuarioGateway.existePorNome(nomeNormalizado)) {
+      throw new RegraDeNegocioException(
+          "Ja existe um tipo de usuario com o nome '" + input.nome() + "'");
     }
 
-    @Override
-    public TipoUsuarioOutput executar(CriarTipoUsuarioInput input) {
+    TipoUsuario tipoUsuario = new TipoUsuario(input.nome(), input.descricao());
 
-        String nomeNormalizado = input.nome().trim().toUpperCase();
+    TipoUsuario salvo = tipoUsuarioGateway.salvar(tipoUsuario);
 
-        if (tipoUsuarioGateway.existePorNome(nomeNormalizado)) {
-            throw new RegraDeNegocioException(
-                "Ja existe um tipo de usuario com o nome '" + input.nome() + "'");
-        }
-
-        TipoUsuario tipoUsuario = new TipoUsuario(input.nome(), input.descricao());
-
-        TipoUsuario salvo = tipoUsuarioGateway.salvar(tipoUsuario);
-
-        return TipoUsuarioMapper.paraOutput(salvo);
-    }
+    return TipoUsuarioMapper.paraOutput(salvo);
+  }
 }

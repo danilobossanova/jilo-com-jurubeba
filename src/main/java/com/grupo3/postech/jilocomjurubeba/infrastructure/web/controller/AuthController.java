@@ -15,25 +15,21 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
+  private final AuthenticationManager authenticationManager;
+  private final JwtService jwtService;
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        try {
-            Authentication authentication =
-                authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                        request.email(),
-                        request.senha()
-                    )
-                );
+  @PostMapping("/login")
+  public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+    try {
+      Authentication authentication =
+          authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(request.email(), request.senha()));
 
-            String token = jwtService.generateToken(authentication);
-            return ResponseEntity.ok(new AuthResponse(token));
+      String token = jwtService.generateToken(authentication);
+      return ResponseEntity.ok(new AuthResponse(token));
 
-        } catch (org.springframework.security.core.AuthenticationException ex) {
-            return ResponseEntity.status(401).build();
-        }
+    } catch (org.springframework.security.core.AuthenticationException ex) {
+      return ResponseEntity.status(401).build();
     }
+  }
 }

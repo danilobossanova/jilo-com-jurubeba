@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CardapioJpaRepository extends JpaRepository<CardapioJpaEntity, Long> {
 
-    Optional<CardapioJpaEntity> findByNome(String nome);
+  Optional<CardapioJpaEntity> findByNome(String nome);
 
-    List<CardapioJpaEntity> findAllByAtivoTrue();
+  List<CardapioJpaEntity> findAllByAtivoTrue();
 
-    // (Opcional - melhora performance do endpoint público por restaurante)
-    // List<CardapioJpaEntity> findAllByRestaurante_IdAndAtivoTrue(Long restauranteId);
+  // (Opcional - melhora performance do endpoint público por restaurante)
+  // List<CardapioJpaEntity> findAllByRestaurante_IdAndAtivoTrue(Long restauranteId);
 }

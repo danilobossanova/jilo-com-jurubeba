@@ -8,56 +8,96 @@ import java.math.BigDecimal;
 @Table(name = "cardapio")
 public class CardapioJpaEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String nome;
+  @Column(nullable = false)
+  private String nome;
 
-    @Column(columnDefinition = "TEXT")
-    private String descricao;
+  @Column(columnDefinition = "TEXT")
+  private String descricao;
 
-    @Column(nullable = false, precision = 19, scale = 2)
-    private BigDecimal preco;
+  @Column(nullable = false, precision = 19, scale = 2)
+  private BigDecimal preco;
 
-    @Column(nullable = false)
-    private boolean apenasNoLocal;
+  @Column(nullable = false)
+  private boolean apenasNoLocal;
 
-    private String caminhoFoto;
+  private String caminhoFoto;
 
-    @Column(nullable = false)
-    private boolean ativo = true;
+  @Column(nullable = false)
+  private boolean ativo = true;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "restaurante_id", nullable = false)
-    private RestauranteJpaEntity restaurante;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "restaurante_id", nullable = false)
+  private RestauranteJpaEntity restaurante;
 
-    public CardapioJpaEntity() {}
+  public CardapioJpaEntity() {}
 
-    // getters/setters
+  // getters/setters
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+  public Long getId() {
+    return id;
+  }
 
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
+  public String getNome() {
+    return nome;
+  }
 
-    public BigDecimal getPreco() { return preco; }
-    public void setPreco(BigDecimal preco) { this.preco = preco; }
+  public void setNome(String nome) {
+    this.nome = nome;
+  }
 
-    public boolean isApenasNoLocal() { return apenasNoLocal; }
-    public void setApenasNoLocal(boolean apenasNoLocal) { this.apenasNoLocal = apenasNoLocal; }
+  public String getDescricao() {
+    return descricao;
+  }
 
-    public String getCaminhoFoto() { return caminhoFoto; }
-    public void setCaminhoFoto(String caminhoFoto) { this.caminhoFoto = caminhoFoto; }
+  public void setDescricao(String descricao) {
+    this.descricao = descricao;
+  }
 
-    public boolean isAtivo() { return ativo; }
-    public void setAtivo(boolean ativo) { this.ativo = ativo; }
+  public BigDecimal getPreco() {
+    return preco;
+  }
 
-    public RestauranteJpaEntity getRestaurante() { return restaurante; }
-    public void setRestaurante(RestauranteJpaEntity restaurante) { this.restaurante = restaurante; }
+  public void setPreco(BigDecimal preco) {
+    this.preco = preco;
+  }
+
+  public boolean isApenasNoLocal() {
+    return apenasNoLocal;
+  }
+
+  public void setApenasNoLocal(boolean apenasNoLocal) {
+    this.apenasNoLocal = apenasNoLocal;
+  }
+
+  public String getCaminhoFoto() {
+    return caminhoFoto;
+  }
+
+  public void setCaminhoFoto(String caminhoFoto) {
+    this.caminhoFoto = caminhoFoto;
+  }
+
+  public boolean isAtivo() {
+    return ativo;
+  }
+
+  public void setAtivo(boolean ativo) {
+    this.ativo = ativo;
+  }
+
+  public RestauranteJpaEntity getRestaurante() {
+    return restaurante;
+  }
+
+  public void setRestaurante(RestauranteJpaEntity restaurante) {
+    this.restaurante = restaurante;
+  }
 }

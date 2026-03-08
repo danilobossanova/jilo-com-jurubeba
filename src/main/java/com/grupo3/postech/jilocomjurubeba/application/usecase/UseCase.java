@@ -30,11 +30,11 @@ package com.grupo3.postech.jilocomjurubeba.application.usecase;
 @FunctionalInterface
 public interface UseCase<I, O> {
 
-    /**
-     * Executa o caso de uso.
-     *
-     * @param input dados de entrada para o caso de uso
-     * @return resultado da execução
-     */
-    O executar(I input);
+  /**
+   * Executa o caso de uso.
+   *
+   * @param input dados de entrada para o caso de uso
+   * @return resultado da execução
+   */
+  O executar(I input);
 }

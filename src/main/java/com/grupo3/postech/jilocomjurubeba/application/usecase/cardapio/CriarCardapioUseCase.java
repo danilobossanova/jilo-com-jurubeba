@@ -13,45 +13,45 @@ import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.Restaurante
 
 public class CriarCardapioUseCase implements UseCase<CriarCardapioInput, CardapioOutput> {
 
-    private final CardapioGateway cardapioGateway;
-    private final RestauranteGateway restauranteGateway;
+  private final CardapioGateway cardapioGateway;
+  private final RestauranteGateway restauranteGateway;
 
-    public CriarCardapioUseCase(
-            CardapioGateway cardapioGateway,
-            RestauranteGateway restauranteGateway
-    ) {
-        this.cardapioGateway = cardapioGateway;
-        this.restauranteGateway = restauranteGateway;
+  public CriarCardapioUseCase(
+      CardapioGateway cardapioGateway, RestauranteGateway restauranteGateway) {
+    this.cardapioGateway = cardapioGateway;
+    this.restauranteGateway = restauranteGateway;
+  }
+
+  @Override
+  public CardapioOutput executar(CriarCardapioInput input) {
+    if (input == null) {
+      throw new RegraDeNegocioException("Dados do cardápio são obrigatórios");
     }
 
-    @Override
-    public CardapioOutput executar(CriarCardapioInput input) {
-        if (input == null) {
-            throw new RegraDeNegocioException("Dados do cardápio são obrigatórios");
-        }
-
-        if (input.restauranteId() == null) {
-            throw new RegraDeNegocioException("restauranteId é obrigatório");
-        }
-
-        if (cardapioGateway.findByNome(input.nome().trim()).isPresent()) {
-            throw new RegraDeNegocioException("Item de cardápio já cadastrado");
-        }
-
-        Restaurante restaurante = restauranteGateway
-                .findByIdRestaurante(input.restauranteId())
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Restaurante", input.restauranteId()));
-
-        Cardapio cardapio = new Cardapio(
-                input.nome(),
-                input.descricao(),
-                input.preco(),
-                input.apenasNoLocal(),
-                input.caminhoFoto(),
-                restaurante
-        );
-
-        Cardapio salvo = cardapioGateway.saveCardapio(cardapio);
-        return CardapioMapper.toOutput(salvo);
+    if (input.restauranteId() == null) {
+      throw new RegraDeNegocioException("restauranteId é obrigatório");
     }
+
+    if (cardapioGateway.findByNome(input.nome().trim()).isPresent()) {
+      throw new RegraDeNegocioException("Item de cardápio já cadastrado");
+    }
+
+    Restaurante restaurante =
+        restauranteGateway
+            .findByIdRestaurante(input.restauranteId())
+            .orElseThrow(
+                () -> new EntidadeNaoEncontradaException("Restaurante", input.restauranteId()));
+
+    Cardapio cardapio =
+        new Cardapio(
+            input.nome(),
+            input.descricao(),
+            input.preco(),
+            input.apenasNoLocal(),
+            input.caminhoFoto(),
+            restaurante);
+
+    Cardapio salvo = cardapioGateway.saveCardapio(cardapio);
+    return CardapioMapper.toOutput(salvo);
+  }
 }

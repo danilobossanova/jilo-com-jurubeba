@@ -8,5 +8,4 @@ public record UsuarioOutput(
     String telefone,
     Long tipoUsuarioId,
     String tipoUsuarioNome,
-    boolean ativo
-) {}
+    boolean ativo) {}

@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication(scanBasePackages = "com.grupo3.postech.jilocomjurubeba")
 public class JiloComJurubebaApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(JiloComJurubebaApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(JiloComJurubebaApplication.class, args);
+  }
 }

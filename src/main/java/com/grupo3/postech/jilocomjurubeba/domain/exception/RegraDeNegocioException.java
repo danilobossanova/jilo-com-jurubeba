@@ -15,11 +15,11 @@ package com.grupo3.postech.jilocomjurubeba.domain.exception;
  */
 public class RegraDeNegocioException extends DominioException {
 
-    public RegraDeNegocioException(String mensagem) {
-        super(mensagem);
-    }
+  public RegraDeNegocioException(String mensagem) {
+    super(mensagem);
+  }
 
-    public RegraDeNegocioException(String mensagem, Throwable causa) {
-        super(mensagem, causa);
-    }
+  public RegraDeNegocioException(String mensagem, Throwable causa) {
+    super(mensagem, causa);
+  }
 }

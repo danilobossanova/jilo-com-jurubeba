@@ -7,16 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.grupo3.postech.jilocomjurubeba.application.dto.cardapio.CardapioOutput;
 import com.grupo3.postech.jilocomjurubeba.application.dto.cardapio.CriarCardapioInput;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.cardapio.Cardapio;
@@ -27,91 +17,81 @@ import com.grupo3.postech.jilocomjurubeba.domain.gateway.cardapio.CardapioGatewa
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGateway;
 import com.grupo3.postech.jilocomjurubeba.factory.CardapioTestFactory;
 import com.grupo3.postech.jilocomjurubeba.factory.RestauranteTestFactory;
+import java.math.BigDecimal;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class CriarCardapioUseCaseTest {
 
-    @Mock private CardapioGateway cardapioGateway;
-    @Mock private RestauranteGateway restauranteGateway;
+  @Mock private CardapioGateway cardapioGateway;
+  @Mock private RestauranteGateway restauranteGateway;
 
-    private CriarCardapioUseCase useCase;
+  private CriarCardapioUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        useCase = new CriarCardapioUseCase(cardapioGateway, restauranteGateway);
-    }
+  @BeforeEach
+  void setUp() {
+    useCase = new CriarCardapioUseCase(cardapioGateway, restauranteGateway);
+  }
 
-    @Test
-    @DisplayName("Deve criar cardapio com sucesso")
-    void deveCriarComSucesso() {
-        Restaurante restaurante = RestauranteTestFactory.criarRestauranteValido();
-        CriarCardapioInput input = new CriarCardapioInput(
-                "Pizza especial",
-                "Pizza grande",
-                BigDecimal.valueOf(59.90),
-                false,
-                "/foto.png",
-                1L
-        );
-        Cardapio salvo = new Cardapio(
-                10L,
-                "Pizza especial",
-                "Pizza grande",
-                BigDecimal.valueOf(59.90),
-                false,
-                "/foto.png",
-                restaurante,
-                true
-        );
+  @Test
+  @DisplayName("Deve criar cardapio com sucesso")
+  void deveCriarComSucesso() {
+    Restaurante restaurante = RestauranteTestFactory.criarRestauranteValido();
+    CriarCardapioInput input =
+        new CriarCardapioInput(
+            "Pizza especial", "Pizza grande", BigDecimal.valueOf(59.90), false, "/foto.png", 1L);
+    Cardapio salvo =
+        new Cardapio(
+            10L,
+            "Pizza especial",
+            "Pizza grande",
+            BigDecimal.valueOf(59.90),
+            false,
+            "/foto.png",
+            restaurante,
+            true);
 
-        when(cardapioGateway.findByNome("Pizza especial")).thenReturn(Optional.empty());
-        when(restauranteGateway.findByIdRestaurante(1L)).thenReturn(Optional.of(restaurante));
-        when(cardapioGateway.saveCardapio(any(Cardapio.class))).thenReturn(salvo);
+    when(cardapioGateway.findByNome("Pizza especial")).thenReturn(Optional.empty());
+    when(restauranteGateway.findByIdRestaurante(1L)).thenReturn(Optional.of(restaurante));
+    when(cardapioGateway.saveCardapio(any(Cardapio.class))).thenReturn(salvo);
 
-        CardapioOutput output = useCase.executar(input);
+    CardapioOutput output = useCase.executar(input);
 
-        assertThat(output.id()).isEqualTo(10L);
-        assertThat(output.nome()).isEqualTo("PIZZA ESPECIAL");
-        assertThat(output.restauranteId()).isEqualTo(1L);
-    }
+    assertThat(output.id()).isEqualTo(10L);
+    assertThat(output.nome()).isEqualTo("PIZZA ESPECIAL");
+    assertThat(output.restauranteId()).isEqualTo(1L);
+  }
 
-    @Test
-    @DisplayName("Deve lancar excecao quando item ja existe")
-    void deveLancarExcecaoQuandoJaExiste() {
-        CriarCardapioInput input = new CriarCardapioInput(
-                "Pizza",
-                "Descricao",
-                BigDecimal.TEN,
-                false,
-                null,
-                1L
-        );
+  @Test
+  @DisplayName("Deve lancar excecao quando item ja existe")
+  void deveLancarExcecaoQuandoJaExiste() {
+    CriarCardapioInput input =
+        new CriarCardapioInput("Pizza", "Descricao", BigDecimal.TEN, false, null, 1L);
 
-        when(cardapioGateway.findByNome("Pizza")).thenReturn(Optional.of(CardapioTestFactory.criarCardapioValido()));
+    when(cardapioGateway.findByNome("Pizza"))
+        .thenReturn(Optional.of(CardapioTestFactory.criarCardapioValido()));
 
-        assertThatThrownBy(() -> useCase.executar(input))
-                .isInstanceOf(RegraDeNegocioException.class);
-        verify(cardapioGateway, never()).saveCardapio(any());
-    }
+    assertThatThrownBy(() -> useCase.executar(input)).isInstanceOf(RegraDeNegocioException.class);
+    verify(cardapioGateway, never()).saveCardapio(any());
+  }
 
-    @Test
-    @DisplayName("Deve lancar excecao quando restaurante nao existir")
-    void deveLancarExcecaoQuandoRestauranteNaoExiste() {
-        CriarCardapioInput input = new CriarCardapioInput(
-                "Pizza",
-                "Descricao",
-                BigDecimal.TEN,
-                false,
-                null,
-                99L
-        );
+  @Test
+  @DisplayName("Deve lancar excecao quando restaurante nao existir")
+  void deveLancarExcecaoQuandoRestauranteNaoExiste() {
+    CriarCardapioInput input =
+        new CriarCardapioInput("Pizza", "Descricao", BigDecimal.TEN, false, null, 99L);
 
-        when(cardapioGateway.findByNome("Pizza")).thenReturn(Optional.empty());
-        when(restauranteGateway.findByIdRestaurante(99L)).thenReturn(Optional.empty());
+    when(cardapioGateway.findByNome("Pizza")).thenReturn(Optional.empty());
+    when(restauranteGateway.findByIdRestaurante(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.executar(input))
-                .isInstanceOf(EntidadeNaoEncontradaException.class);
-        verify(cardapioGateway, never()).saveCardapio(any());
-    }
+    assertThatThrownBy(() -> useCase.executar(input))
+        .isInstanceOf(EntidadeNaoEncontradaException.class);
+    verify(cardapioGateway, never()).saveCardapio(any());
+  }
 }
-

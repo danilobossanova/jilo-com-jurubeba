@@ -25,10 +25,10 @@ package com.grupo3.postech.jilocomjurubeba.application.usecase;
 @FunctionalInterface
 public interface UseCaseSemSaida<I> {
 
-    /**
-     * Executa o caso de uso sem retorno.
-     *
-     * @param input dados de entrada para o caso de uso
-     */
-    void executar(I input);
+  /**
+   * Executa o caso de uso sem retorno.
+   *
+   * @param input dados de entrada para o caso de uso
+   */
+  void executar(I input);
 }

@@ -22,10 +22,10 @@ package com.grupo3.postech.jilocomjurubeba.application.usecase;
 @FunctionalInterface
 public interface UseCaseSemEntrada<O> {
 
-    /**
-     * Executa o caso de uso sem parâmetros de entrada.
-     *
-     * @return resultado da execução
-     */
-    O executar();
+  /**
+   * Executa o caso de uso sem parâmetros de entrada.
+   *
+   * @return resultado da execução
+   */
+  O executar();
 }

@@ -7,17 +7,19 @@ import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGateway;
 
 public class DeletarUsuarioUseCase implements UseCaseSemSaida<Long> {
 
-    private final UsuarioGateway usuarioGateway;
+  private final UsuarioGateway usuarioGateway;
 
-    public DeletarUsuarioUseCase(UsuarioGateway usuarioGateway) {
-        this.usuarioGateway = usuarioGateway;
-    }
+  public DeletarUsuarioUseCase(UsuarioGateway usuarioGateway) {
+    this.usuarioGateway = usuarioGateway;
+  }
 
-    @Override
-    public void executar(Long id) {
-        Usuario usuario = usuarioGateway.findByIdUsuario(id)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", id));
+  @Override
+  public void executar(Long id) {
+    Usuario usuario =
+        usuarioGateway
+            .findByIdUsuario(id)
+            .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario", id));
 
-        usuarioGateway.deletarUsuario(usuario.snapshot().id());
-    }
+    usuarioGateway.deletarUsuario(usuario.snapshot().id());
+  }
 }

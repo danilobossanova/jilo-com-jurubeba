@@ -8,17 +8,17 @@ import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.Restaurante
 
 public class BuscarRestauranteUseCase implements UseCase<Long, RestauranteOutput> {
 
-    private final RestauranteGateway restauranteGateway;
+  private final RestauranteGateway restauranteGateway;
 
-    public BuscarRestauranteUseCase(RestauranteGateway restauranteGateway) {
-        this.restauranteGateway = restauranteGateway;
-    }
+  public BuscarRestauranteUseCase(RestauranteGateway restauranteGateway) {
+    this.restauranteGateway = restauranteGateway;
+  }
 
-    @Override
-    public RestauranteOutput executar(Long input) {
-        return restauranteGateway
-            .findByIdRestaurante(input)
-            .map(RestauranteMapper::paraOutput)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Restaurante", input));
-    }
+  @Override
+  public RestauranteOutput executar(Long input) {
+    return restauranteGateway
+        .findByIdRestaurante(input)
+        .map(RestauranteMapper::paraOutput)
+        .orElseThrow(() -> new EntidadeNaoEncontradaException("Restaurante", input));
+  }
 }

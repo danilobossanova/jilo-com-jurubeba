@@ -12,24 +12,26 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UsuarioDetailsService implements UserDetailsService {
 
-    private final UsuarioJpaRepository usuarioRepo;
+  private final UsuarioJpaRepository usuarioRepo;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) {
-        var user = usuarioRepo.findByEmailFetchTipoUsuario(username)
-            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
+  @Override
+  public UserDetails loadUserByUsername(String username) {
+    var user =
+        usuarioRepo
+            .findByEmailFetchTipoUsuario(username)
+            .orElseThrow(
+                () -> new UsernameNotFoundException("Usuário não encontrado: " + username));
 
-        String role = toRoleName(user.getTipoUsuario().getNome());
+    String role = toRoleName(user.getTipoUsuario().getNome());
 
-        return org.springframework.security.core.userdetails.User
-            .withUsername(user.getEmail())
-            .password(user.getSenhaHash())
-            .authorities(new SimpleGrantedAuthority(role))
-            .disabled(!user.isAtivo())
-            .build();
-    }
+    return org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
+        .password(user.getSenhaHash())
+        .authorities(new SimpleGrantedAuthority(role))
+        .disabled(!user.isAtivo())
+        .build();
+  }
 
-    private String toRoleName(String nomeTipoUsuario) {
-        return "ROLE_" + nomeTipoUsuario.trim().toUpperCase().replace(' ', '_');
-    }
+  private String toRoleName(String nomeTipoUsuario) {
+    return "ROLE_" + nomeTipoUsuario.trim().toUpperCase().replace(' ', '_');
+  }
 }

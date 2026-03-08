@@ -9,18 +9,20 @@ import com.grupo3.postech.jilocomjurubeba.domain.gateway.cardapio.CardapioGatewa
 
 public class BuscarCardapioUseCase implements UseCase<Long, CardapioOutput> {
 
-    private final CardapioGateway cardapioGateway;
+  private final CardapioGateway cardapioGateway;
 
-    public BuscarCardapioUseCase(CardapioGateway cardapioGateway) {
-        this.cardapioGateway = cardapioGateway;
-    }
+  public BuscarCardapioUseCase(CardapioGateway cardapioGateway) {
+    this.cardapioGateway = cardapioGateway;
+  }
 
-    @Override
-    public CardapioOutput executar(Long id) {
+  @Override
+  public CardapioOutput executar(Long id) {
 
-        Cardapio cardapio = cardapioGateway.findByIdCardapio(id)
+    Cardapio cardapio =
+        cardapioGateway
+            .findByIdCardapio(id)
             .orElseThrow(() -> new EntidadeNaoEncontradaException("Cardapio", id));
 
-        return CardapioMapper.toOutput(cardapio);
-    }
+    return CardapioMapper.toOutput(cardapio);
+  }
 }

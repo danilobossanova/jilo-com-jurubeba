@@ -1,19 +1,18 @@
 package com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante;
 
+import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
 import java.util.List;
 import java.util.Optional;
 
-import com.grupo3.postech.jilocomjurubeba.domain.entity.restaurante.Restaurante;
-
 public interface RestauranteGateway {
 
-    Restaurante saveRestaurante(Restaurante restaurante);
+  Restaurante saveRestaurante(Restaurante restaurante);
 
-    Optional<Restaurante> findByIdRestaurante(Long id);
+  Optional<Restaurante> findByIdRestaurante(Long id);
 
-    List<Restaurante> findAllRestaurante();
+  List<Restaurante> findAllRestaurante();
 
-    void deleteRestaurante(Long id);
+  void deleteRestaurante(Long id);
 
-    Optional<Restaurante> findByNome(String nome);
+  Optional<Restaurante> findByNome(String nome);
 }

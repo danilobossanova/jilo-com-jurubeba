@@ -8,18 +8,18 @@ import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuario
 
 public class BuscarTipoUsuarioPorIdUseCase implements UseCase<Long, TipoUsuarioOutput> {
 
-    private final TipoUsuarioGateway tipoUsuarioGateway;
+  private final TipoUsuarioGateway tipoUsuarioGateway;
 
-    public BuscarTipoUsuarioPorIdUseCase(TipoUsuarioGateway tipoUsuarioGateway) {
-        this.tipoUsuarioGateway = tipoUsuarioGateway;
-    }
+  public BuscarTipoUsuarioPorIdUseCase(TipoUsuarioGateway tipoUsuarioGateway) {
+    this.tipoUsuarioGateway = tipoUsuarioGateway;
+  }
 
-    @Override
-    public TipoUsuarioOutput executar(Long id) {
+  @Override
+  public TipoUsuarioOutput executar(Long id) {
 
-        return tipoUsuarioGateway
-            .buscarPorId(id)
-            .map(TipoUsuarioMapper::paraOutput)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("TipoUsuario", id));
-    }
+    return tipoUsuarioGateway
+        .buscarPorId(id)
+        .map(TipoUsuarioMapper::paraOutput)
+        .orElseThrow(() -> new EntidadeNaoEncontradaException("TipoUsuario", id));
+  }
 }

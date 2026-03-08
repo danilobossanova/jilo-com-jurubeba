@@ -11,13 +11,13 @@ import java.time.LocalDateTime;
  * @author Danilo Fernando
  */
 public record SaudeOutput(String status, String versao, LocalDateTime timestamp) {
-    /**
-     * Cria um SaudeOutput com status UP.
-     *
-     * @param versao versão da aplicação
-     * @return SaudeOutput com status UP
-     */
-    public static SaudeOutput up(String versao) {
-        return new SaudeOutput("UP", versao, LocalDateTime.now());
-    }
+  /**
+   * Cria um SaudeOutput com status UP.
+   *
+   * @param versao versão da aplicação
+   * @return SaudeOutput com status UP
+   */
+  public static SaudeOutput up(String versao) {
+    return new SaudeOutput("UP", versao, LocalDateTime.now());
+  }
 }
