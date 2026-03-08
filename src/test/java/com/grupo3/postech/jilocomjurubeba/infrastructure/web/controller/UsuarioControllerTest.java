@@ -15,6 +15,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlMergeMode;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Import(TestSecurityConfig.class)
+@SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
 
 // LIMPA TODAS AS TABELAS E RECRIA tipo_usuario ANTES DE CADA TESTE
 @Sql(statements = {

@@ -3,7 +3,12 @@ package com.grupo3.postech.jilocomjurubeba.infrastructure.security;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @TestConfiguration
@@ -17,10 +22,23 @@ public class TestSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager() {
-        // AuthenticationManager vazio — não autentica nada, só satisfaz a dependência
-        return authentication -> {
-            throw new UnsupportedOperationException("AuthenticationManager stub — não usado em testes");
-        };
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder
+    ) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(DaoAuthenticationProvider daoAuthenticationProvider) {
+        return new ProviderManager(daoAuthenticationProvider);
     }
 }
