@@ -7,6 +7,7 @@ import com.grupo3.postech.jilocomjurubeba.application.usecase.usuario.DeletarUsu
 import com.grupo3.postech.jilocomjurubeba.application.usecase.usuario.ListarUsuarioUseCase;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuarioGateway;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGateway;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,8 +16,10 @@ public class UsuarioUseCaseConfig {
 
   @Bean
   public CriarUsuarioUseCase criarUsuarioUseCase(
-      UsuarioGateway usuarioGateway, TipoUsuarioGateway tipoUsuarioGateway) {
-    return new CriarUsuarioUseCase(usuarioGateway, tipoUsuarioGateway);
+      UsuarioGateway usuarioGateway,
+      TipoUsuarioGateway tipoUsuarioGateway,
+      PasswordEncoder passwordEncoder) {
+    return new CriarUsuarioUseCase(usuarioGateway, tipoUsuarioGateway, passwordEncoder);
   }
 
   @Bean

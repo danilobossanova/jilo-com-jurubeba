@@ -16,15 +16,21 @@ import com.grupo3.postech.jilocomjurubeba.domain.valueobject.Email;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class CriarUsuarioUseCase implements UseCase<CriarUsuarioInput, UsuarioOutput> {
 
   private final UsuarioGateway usuarioGateway;
   private final TipoUsuarioGateway tipoUsuarioGateway;
+  private final PasswordEncoder passwordEncoder;
 
-  public CriarUsuarioUseCase(UsuarioGateway usuarioGateway, TipoUsuarioGateway tipoUsuarioGateway) {
+  public CriarUsuarioUseCase(
+      UsuarioGateway usuarioGateway,
+      TipoUsuarioGateway tipoUsuarioGateway,
+      PasswordEncoder passwordEncoder) {
     this.usuarioGateway = usuarioGateway;
     this.tipoUsuarioGateway = tipoUsuarioGateway;
+    this.passwordEncoder = passwordEncoder;
   }
 
   @Override
@@ -69,7 +75,7 @@ public class CriarUsuarioUseCase implements UseCase<CriarUsuarioInput, UsuarioOu
             input.telefone(),
             tipoUsuario,
             new ArrayList<>(),
-            input.senha());
+            passwordEncoder.encode(input.senha()));
 
     Usuario salvo = usuarioGateway.saveUsuario(usuario);
     return UsuarioMapper.toOutput(salvo);

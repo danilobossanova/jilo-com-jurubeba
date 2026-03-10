@@ -28,18 +28,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class CriarUsuarioUseCaseTest {
 
   @Mock private UsuarioGateway usuarioGateway;
   @Mock private TipoUsuarioGateway tipoUsuarioGateway;
+  @Mock private PasswordEncoder passwordEncoder;
 
   private CriarUsuarioUseCase useCase;
 
   @BeforeEach
   void setUp() {
-    useCase = new CriarUsuarioUseCase(usuarioGateway, tipoUsuarioGateway);
+    useCase = new CriarUsuarioUseCase(usuarioGateway, tipoUsuarioGateway, passwordEncoder);
   }
 
   @Test
@@ -64,6 +66,7 @@ class CriarUsuarioUseCaseTest {
     when(usuarioGateway.findByCpf("12345678909")).thenReturn(Optional.empty());
     when(usuarioGateway.findByEmail("usuario@email.com")).thenReturn(Optional.empty());
     when(tipoUsuarioGateway.buscarPorId(1L)).thenReturn(Optional.of(tipo));
+    when(passwordEncoder.encode("123456")).thenReturn("$2a$10$hash");
     when(usuarioGateway.saveUsuario(any(Usuario.class))).thenReturn(salvo);
 
     UsuarioOutput output = useCase.executar(input);
