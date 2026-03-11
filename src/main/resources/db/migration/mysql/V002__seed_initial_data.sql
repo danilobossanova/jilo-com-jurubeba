@@ -54,7 +54,7 @@ INSERT INTO usuario (nome, email, senha_hash, ativo, tipo_usuario_id, cpf, telef
 SELECT
     'MASTER',
     'master@jilo.com',
-    'COLOQUE_AQUI_UM_HASH_BCRYPT_VALIDO',
+    '$2a$10$7EqJtq98hPqEX7fNZaFWoOHiV0U9y5V7FvC18AJpD33rDg14Q6g7K',
     1,
     @TIPO_MASTER_ID,
     '00000000000',
