@@ -85,15 +85,10 @@ public class AtualizarUsuarioUseCase
     }
 
     TipoUsuario tipoNovo =
-        atual.eDonoDeRestaurante() || atual.eCliente()
-            ? tipoUsuarioGateway
-                .buscarPorId(dadosAtuais.tipoUsuarioId())
-                .orElseThrow(
-                    () -> new RegraDeNegocioException("Tipo de usuário atual não encontrado"))
-            : tipoUsuarioGateway
-                .buscarPorId(dadosAtuais.tipoUsuarioId())
-                .orElseThrow(
-                    () -> new RegraDeNegocioException("Tipo de usuário atual não encontrado"));
+        tipoUsuarioGateway
+            .buscarPorId(dadosAtuais.tipoUsuarioId())
+            .orElseThrow(
+                () -> new RegraDeNegocioException("Tipo de usuário atual não encontrado"));
 
     if (input.tipoUsuarioId() != null
         && !input.tipoUsuarioId().equals(dadosAtuais.tipoUsuarioId())) {

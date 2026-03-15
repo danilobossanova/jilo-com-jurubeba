@@ -28,6 +28,10 @@ public class CriarCardapioUseCase implements UseCase<CriarCardapioInput, Cardapi
       throw new RegraDeNegocioException("Dados do cardápio são obrigatórios");
     }
 
+    if (!hasText(input.nome())) {
+      throw new RegraDeNegocioException("nome é obrigatório");
+    }
+
     if (input.restauranteId() == null) {
       throw new RegraDeNegocioException("restauranteId é obrigatório");
     }
@@ -53,5 +57,9 @@ public class CriarCardapioUseCase implements UseCase<CriarCardapioInput, Cardapi
 
     Cardapio salvo = cardapioGateway.saveCardapio(cardapio);
     return CardapioMapper.toOutput(salvo);
+  }
+
+  private boolean hasText(String valor) {
+    return valor != null && !valor.trim().isEmpty();
   }
 }

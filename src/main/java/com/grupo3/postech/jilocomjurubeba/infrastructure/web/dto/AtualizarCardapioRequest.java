@@ -6,6 +6,6 @@ public record AtualizarCardapioRequest(
     String nome,
     String descricao,
     BigDecimal preco,
-    boolean apenasNoLocal,
+    Boolean apenasNoLocal,
     String caminhoFoto,
     Long restauranteId) {}

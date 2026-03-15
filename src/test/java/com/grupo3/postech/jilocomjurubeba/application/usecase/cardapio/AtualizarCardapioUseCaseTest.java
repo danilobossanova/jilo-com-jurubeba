@@ -15,6 +15,7 @@ import com.grupo3.postech.jilocomjurubeba.domain.gateway.cardapio.CardapioGatewa
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.restaurante.RestauranteGateway;
 import com.grupo3.postech.jilocomjurubeba.factory.CardapioTestFactory;
 import com.grupo3.postech.jilocomjurubeba.factory.RestauranteTestFactory;
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -94,5 +95,22 @@ class AtualizarCardapioUseCaseTest {
 
     assertThatThrownBy(() -> useCase.executar(input))
         .isInstanceOf(EntidadeNaoEncontradaException.class);
+  }
+
+  @Test
+  @DisplayName("Deve preservar apenasNoLocal quando o campo nao for enviado")
+  void devePreservarApenasNoLocalQuandoCampoNaoForEnviado() {
+    Cardapio existente = CardapioTestFactory.criarCardapioValido();
+    Restaurante restaurante = RestauranteTestFactory.criarRestauranteValido();
+    AtualizarCardapioInput input =
+        new AtualizarCardapioInput(1L, "Nova pizza", null, BigDecimal.TEN, null, null, 1L);
+
+    when(cardapioGateway.findByIdCardapio(1L)).thenReturn(Optional.of(existente));
+    when(restauranteGateway.findByIdRestaurante(1L)).thenReturn(Optional.of(restaurante));
+    when(cardapioGateway.saveCardapio(any(Cardapio.class))).thenAnswer(i -> i.getArgument(0));
+
+    CardapioOutput output = useCase.executar(input);
+
+    assertThat(output.apenasNoLocal()).isEqualTo(existente.snapshot().apenasNoLocal());
   }
 }

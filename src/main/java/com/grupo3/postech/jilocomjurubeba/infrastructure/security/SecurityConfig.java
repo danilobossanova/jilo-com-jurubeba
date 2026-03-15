@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -48,7 +49,16 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    return http.csrf(csrf -> csrf.disable())
+    return http
+        .csrf(
+            csrf ->
+                csrf.ignoringRequestMatchers(
+                    "/auth/**",
+                    "/usuarios",
+                    "/usuarios/**",
+                    "/tipos-usuario/**",
+                    "/cardapios/**",
+                    "/restaurantes/**"))
         .cors(Customizer.withDefaults())
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
@@ -157,7 +167,8 @@ public class SecurityConfig {
     pd.setInstance(URI.create(request.getRequestURI()));
 
     response.setStatus(status.value());
-    response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+    response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE + ";charset=UTF-8");
     objectMapper.writeValue(response.getWriter(), pd);
   }
 }

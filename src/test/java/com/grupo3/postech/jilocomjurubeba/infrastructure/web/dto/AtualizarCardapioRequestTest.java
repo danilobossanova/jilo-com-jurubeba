@@ -57,6 +57,25 @@ class AtualizarCardapioRequestTest {
   }
 
   @Test
+  @DisplayName("Deve manter apenasNoLocal nulo quando o campo nao vier no JSON")
+  void deveDesserializarJsonSemApenasNoLocalComoNulo() throws Exception {
+    String json =
+        """
+        {
+          "nome": "Hamburguer",
+          "descricao": "Hamburguer artesanal",
+          "preco": 25.50,
+          "caminhoFoto": "/img/burger.png",
+          "restauranteId": 5
+        }
+        """;
+
+    AtualizarCardapioRequest req = objectMapper.readValue(json, AtualizarCardapioRequest.class);
+
+    assertThat(req.apenasNoLocal()).isNull();
+  }
+
+  @Test
   @DisplayName("Deve serializar AtualizarCardapioRequest para JSON")
   void deveSerializarParaJson() throws Exception {
     AtualizarCardapioRequest req =

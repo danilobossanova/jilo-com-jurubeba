@@ -94,4 +94,28 @@ class CriarCardapioUseCaseTest {
         .isInstanceOf(EntidadeNaoEncontradaException.class);
     verify(cardapioGateway, never()).saveCardapio(any());
   }
+
+  @Test
+  @DisplayName("Deve lancar excecao quando nome for nulo")
+  void deveLancarExcecaoQuandoNomeForNulo() {
+    CriarCardapioInput input =
+        new CriarCardapioInput(null, "Descricao", BigDecimal.TEN, false, null, 1L);
+
+    assertThatThrownBy(() -> useCase.executar(input))
+        .isInstanceOf(RegraDeNegocioException.class)
+        .hasMessage("nome é obrigatório");
+    verify(cardapioGateway, never()).saveCardapio(any());
+  }
+
+  @Test
+  @DisplayName("Deve lancar excecao quando nome for em branco")
+  void deveLancarExcecaoQuandoNomeForEmBranco() {
+    CriarCardapioInput input =
+        new CriarCardapioInput("   ", "Descricao", BigDecimal.TEN, false, null, 1L);
+
+    assertThatThrownBy(() -> useCase.executar(input))
+        .isInstanceOf(RegraDeNegocioException.class)
+        .hasMessage("nome é obrigatório");
+    verify(cardapioGateway, never()).saveCardapio(any());
+  }
 }
