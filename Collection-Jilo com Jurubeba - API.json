@@ -6,1057 +6,1026 @@
   },
   "item": [
     {
-      "name": "🏷️ Listar Tipos de Usuário (Protegido)",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "{{baseUrl}}/tipos-usuario",
-          "protocol": "",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "tipos-usuario"
-          ],
-          "query": [],
-          "variable": []
+      "name": "Autenticação",
+      "item": [
+        {
+          "name": "🔐 Login - Gerar JWT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"master@jilo.com\",\n  \"senha\": \"jilocomjurubeba123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set('token', jsonData.token);"
+                ]
+              }
+            }
+          ]
         }
-      }
+      ]
     },
     {
-      "name": "👤 Listar Usuários (Protegido)",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "{{baseUrl}}/usuarios",
-          "protocol": "",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "usuarios"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "🔐 Login - Gerar JWT",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "{{baseUrl}}/auth/login",
-          "protocol": "",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "auth",
-            "login"
-          ],
-          "query": [],
-          "variable": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"email\": \"usuario.teste@jilo.com\",\n  \"senha\": \"jilocomjurubeba123\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+      "name": "Usuários",
+      "item": [
+        {
+          "name": "👤 Listar Usuários (Protegido)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ],
+              "query": [],
+              "variable": []
             }
           }
-        }
-      },
-      "event": [
+        },
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {},
-            "exec": [
-              "var jsonData = pm.response.json();",
-              "pm.environment.set('token', jsonData.token);"
-            ]
+          "name": "POST Usuario publico",
+          "request": {
+            "method": "post",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuario Teste\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@jilo.com\",\n  \"telefone\": \"11999999999\",\n  \"tipoUsuarioId\": 1,\n  \"senha\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET Buscar usuario por id",
+          "request": {
+            "method": "get",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/1",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "PUT Usuarios",
+          "request": {
+            "method": "put",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/1",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"nome\": \"Usuario Atualizado\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@jilo.com\",\n  \"telefone\": \"11888887777\",\n  \"tipoUsuarioId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE  usuarios",
+          "request": {
+            "method": "delete",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/1",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
           }
         }
       ]
     },
     {
-      "name": "GET Health",
-      "request": {
-        "method": "get",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/v1/health",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "v1",
-            "health"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "GET Health Actuator",
-      "request": {
-        "method": "get",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/actuator/health",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "actuator",
-            "health"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "GET Tipos Usuarios",
-      "request": {
-        "method": "get",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/tipos-usuario",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "tipos-usuario"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "POST Criar Tipo de Usuarios",
-      "request": {
-        "method": "post",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}",
-            "disabled": false,
-            "type": "default"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/tipos-usuario",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "tipos-usuario"
-          ],
-          "query": [],
-          "variable": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"nome\": \"TIPO_TESTE\",\n  \"descricao\": \"Tipo criado via Postman\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+      "name": "Heatlh",
+      "item": [
+        {
+          "name": "GET Health",
+          "request": {
+            "method": "get",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/v1/health",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "health"
+              ],
+              "query": [],
+              "variable": []
             }
           }
         }
-      }
+      ]
     },
     {
-      "name": "GET Tipo Usuario por id",
-      "request": {
-        "method": "get",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}",
-            "disabled": false,
-            "type": "default"
+      "name": "Tipo de Usuários",
+      "item": [
+        {
+          "name": "🏷️ Listar Tipos de Usuário (Protegido)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/tipos-usuario",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos-usuario"
+              ],
+              "query": [],
+              "variable": []
+            }
           }
-        ],
-        "auth": {
-          "type": "noauth"
         },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/tipos-usuario/5",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "tipos-usuario",
-            "5"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "PUT tipos de usuarios",
-      "request": {
-        "method": "put",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXN0ZXJAamlsby5jb20iLCJpYXQiOjE3NzMxMDM1ODYsImV4cCI6MTc3MzExMDc4Nn0.zADp0YteDvhsSHyIamsen1mjKcigm5eBi4C8bwuejTc",
-            "disabled": false,
-            "type": "default"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "disabled": false,
-            "type": "default"
+        {
+          "name": "GET Tipos Usuarios",
+          "request": {
+            "method": "get",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/tipos-usuario",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos-usuario"
+              ],
+              "query": [],
+              "variable": []
+            }
           }
-        ],
-        "auth": {
-          "type": "noauth"
         },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/tipos-usuario/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "tipos-usuario",
-            "1"
-          ],
-          "query": [],
-          "variable": []
+        {
+          "name": "POST Criar Tipo de Usuarios",
+          "request": {
+            "method": "post",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/tipos-usuario",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos-usuario"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"TIPO_TESTE\",\n  \"descricao\": \"Tipo criado via Bruno\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"nome\": \"MASTER\",\n  \"descricao\": \"Administrador atualizado\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+        {
+          "name": "GET Tipo Usuario por id",
+          "request": {
+            "method": "get",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/tipos-usuario/4",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos-usuario",
+                "4"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "PUT tipos de usuarios",
+          "request": {
+            "method": "put",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/tipos-usuario/1",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos-usuario",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"MASTER\",\n  \"descricao\": \"Administrador atualizado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE Tipo Usuario",
+          "request": {
+            "method": "delete",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/tipos-usuario/4",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos-usuario",
+                "4"
+              ],
+              "query": [],
+              "variable": []
             }
           }
         }
-      }
+      ]
     },
     {
-      "name": "DELETE Tipo Usuario",
-      "request": {
-        "method": "delete",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXN0ZXJAamlsby5jb20iLCJpYXQiOjE3NzMxMDM1ODYsImV4cCI6MTc3MzExMDc4Nn0.zADp0YteDvhsSHyIamsen1mjKcigm5eBi4C8bwuejTc",
-            "disabled": false,
-            "type": "default"
+      "name": "Restaurantes",
+      "item": [
+        {
+          "name": "GET Restaurantes",
+          "request": {
+            "method": "get",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/restaurantes",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurantes"
+              ],
+              "query": [],
+              "variable": []
+            }
           }
-        ],
-        "auth": {
-          "type": "noauth"
         },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/tipos-usuario/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "tipos-usuario",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "POST Usuario publico",
-      "request": {
-        "method": "post",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "disabled": false,
-            "type": "default"
+        {
+          "name": "POST Restaurante",
+          "request": {
+            "method": "post",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/restaurantes",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurantes"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Bistro Central\",\n  \"endereco\": \"Rua A, 100\",\n  \"typeCozinha\": \"BRASILEIRA\",\n  \"horaAbertura\": \"08:00:00\",\n  \"horaFechamento\": \"18:00:00\",\n  \"donoId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
-        ],
-        "auth": {
-          "type": "noauth"
         },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/usuarios",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "usuarios"
-          ],
-          "query": [],
-          "variable": []
+        {
+          "name": "GET Restaurante",
+          "request": {
+            "method": "get",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/restaurantes/1",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurantes",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"nome\": \"Usuario Teste\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@jilo.com\",\n  \"telefone\": \"11999999999\",\n  \"tipoUsuarioId\": 1,\n  \"senha\": \"123456\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+        {
+          "name": "PUT Restaurante",
+          "request": {
+            "method": "put",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/restaurantes/1",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurantes",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"nome\": \"Bistro Central Atualizado\",\n  \"endereco\": \"Rua B, 200\",\n  \"typeCozinha\": \"ITALIANA\",\n  \"horaAbertura\": \"09:00:00\",\n  \"horaFechamento\": \"22:00:00\",\n  \"donoId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE Restaurante",
+          "request": {
+            "method": "delete",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXN0ZXJAamlsby5jb20iLCJpYXQiOjE3NzMxMDM1ODYsImV4cCI6MTc3MzExMDc4Nn0.zADp0YteDvhsSHyIamsen1mjKcigm5eBi4C8bwuejTc",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "http://localhost:8080/restaurantes/1",
+              "protocol": "http",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "restaurantes",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "GET Restaurante publico",
+          "request": {
+            "method": "get",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "http://localhost:8080/restaurantes/1/cardapio",
+              "protocol": "http",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "restaurantes",
+                "1",
+                "cardapio"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "POST Restaurante t",
+          "request": {
+            "method": "post",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXN0ZXJAamlsby5jb20iLCJpYXQiOjE3NzMxMDM1ODYsImV4cCI6MTc3MzExMDc4Nn0.zADp0YteDvhsSHyIamsen1mjKcigm5eBi4C8bwuejTc",
+                "disabled": false,
+                "type": "default"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "http://localhost:8080/restaurantes/1/cardapio",
+              "protocol": "http",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "restaurantes",
+                "1",
+                "cardapio"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Sobremesa da Casa\",\n  \"descricao\": \"Pudim\",\n  \"preco\": 14.50,\n  \"apenasNoLocal\": false,\n  \"caminhoFoto\": \"/imagens/pudim.jpg\",\n  \"restauranteId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET REstaurantes publico",
+          "request": {
+            "method": "get",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "http://localhost:8080/restaurantes/1/cardapio/1",
+              "protocol": "http",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "restaurantes",
+                "1",
+                "cardapio",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "PUT Atualizar por restaurante ",
+          "request": {
+            "method": "put",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer SEU_TOKEN_AQUI",
+                "disabled": false,
+                "type": "default"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "http://localhost:8080/restaurantes/1/cardapio/1",
+              "protocol": "http",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "restaurantes",
+                "1",
+                "cardapio",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Sobremesa Atualizada\",\n  \"descricao\": \"Pudim com calda\",\n  \"preco\": 16.00,\n  \"apenasNoLocal\": false,\n  \"caminhoFoto\": \"/imagens/pudim2.jpg\",\n  \"restauranteId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         }
-      }
+      ]
     },
     {
-      "name": "GET Listar Usuarios",
-      "request": {
-        "method": "get",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXN0ZXJAamlsby5jb20iLCJpYXQiOjE3NzMxMDM1ODYsImV4cCI6MTc3MzExMDc4Nn0.zADp0YteDvhsSHyIamsen1mjKcigm5eBi4C8bwuejTc",
-            "disabled": false,
-            "type": "default"
+      "name": "Cardápio",
+      "item": [
+        {
+          "name": "GET Cardapio",
+          "request": {
+            "method": "get",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/cardapios",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cardapios"
+              ],
+              "query": [],
+              "variable": []
+            }
           }
-        ],
-        "auth": {
-          "type": "noauth"
         },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/usuarios",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "usuarios"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "GET Buscar usuario por id",
-      "request": {
-        "method": "get",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}",
-            "disabled": false,
-            "type": "default"
+        {
+          "name": "POST Cardapio",
+          "request": {
+            "method": "post",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/cardapios",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cardapios"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Prato Executivo\",\n  \"descricao\": \"Arroz, feijao e carne\",\n  \"preco\": 39.90,\n  \"apenasNoLocal\": true,\n  \"caminhoFoto\": \"/imagens/prato.jpg\",\n  \"restauranteId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
-        ],
-        "auth": {
-          "type": "noauth"
         },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/usuarios/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "usuarios",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "PUT Usuarios",
-      "request": {
-        "method": "put",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXN0ZXJAamlsby5jb20iLCJpYXQiOjE3NzMxMDM1ODYsImV4cCI6MTc3MzExMDc4Nn0.zADp0YteDvhsSHyIamsen1mjKcigm5eBi4C8bwuejTc",
-            "disabled": false,
-            "type": "default"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "disabled": false,
-            "type": "default"
+        {
+          "name": "GET Cardapios",
+          "request": {
+            "method": "get",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/cardapios/1",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cardapios",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
           }
-        ],
-        "auth": {
-          "type": "noauth"
         },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/usuarios/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "usuarios",
-            "1"
-          ],
-          "query": [],
-          "variable": []
+        {
+          "name": "PUT Cardapios",
+          "request": {
+            "method": "put",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/cardapios/1",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cardapios",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Prato Executivo Premium\",\n  \"descricao\": \"Arroz, feijao, carne e salada\",\n  \"preco\": 49.90,\n  \"apenasNoLocal\": true,\n  \"caminhoFoto\": \"/imagens/prato-premium.jpg\",\n  \"restauranteId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"id\": 1,\n  \"nome\": \"Usuario Atualizado\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"usuario.teste@jilo.com\",\n  \"telefone\": \"11888887777\",\n  \"tipoUsuarioId\": 1\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+        {
+          "name": "DELETE Cardapios",
+          "request": {
+            "method": "delete",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/cardapios/1",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cardapios",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": " DELETAR CARDAPIO POR RESTAURANTE (TOKEN)",
+          "request": {
+            "method": "delete",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer SEU_TOKEN_AQUI",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "http://localhost:8080/restaurantes/1/cardapio/1",
+              "protocol": "http",
+              "host": [
+                "localhost:8080"
+              ],
+              "path": [
+                "restaurantes",
+                "1",
+                "cardapio",
+                "1"
+              ],
+              "query": [],
+              "variable": []
             }
           }
         }
-      }
-    },
-    {
-      "name": "DELETE  usuarios",
-      "request": {
-        "method": "delete",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXN0ZXJAamlsby5jb20iLCJpYXQiOjE3NzMxMDM1ODYsImV4cCI6MTc3MzExMDc4Nn0.zADp0YteDvhsSHyIamsen1mjKcigm5eBi4C8bwuejTc",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/usuarios/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "usuarios",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "GET Restaurantes",
-      "request": {
-        "method": "get",
-        "header": [],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/restaurantes",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "restaurantes"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "POST Restaurante",
-      "request": {
-        "method": "post",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXN0ZXJAamlsby5jb20iLCJpYXQiOjE3NzMxMDM1ODYsImV4cCI6MTc3MzExMDc4Nn0.zADp0YteDvhsSHyIamsen1mjKcigm5eBi4C8bwuejTc",
-            "disabled": false,
-            "type": "default"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/restaurantes",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "restaurantes"
-          ],
-          "query": [],
-          "variable": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"nome\": \"Bistro Central\",\n  \"endereco\": \"Rua A, 100\",\n  \"typeCozinha\": \"BRASILEIRA\",\n  \"horaAbertura\": \"08:00:00\",\n  \"horaFechamento\": \"18:00:00\",\n  \"donoId\": 1\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "GET Restaurante",
-      "request": {
-        "method": "get",
-        "header": [],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/restaurantes/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "restaurantes",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "PUT Restaurante",
-      "request": {
-        "method": "put",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer SEU_TOKEN_AQUI",
-            "disabled": false,
-            "type": "default"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/restaurantes/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "restaurantes",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"id\": 1,\n  \"nome\": \"Bistro Central Atualizado\",\n  \"endereco\": \"Rua B, 200\",\n  \"typeCozinha\": \"ITALIANA\",\n  \"horaAbertura\": \"09:00:00\",\n  \"horaFechamento\": \"22:00:00\",\n  \"donoId\": 1\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "DELETE Restaurante",
-      "request": {
-        "method": "delete",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXN0ZXJAamlsby5jb20iLCJpYXQiOjE3NzMxMDM1ODYsImV4cCI6MTc3MzExMDc4Nn0.zADp0YteDvhsSHyIamsen1mjKcigm5eBi4C8bwuejTc",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/restaurantes/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "restaurantes",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "GET Cardapio",
-      "request": {
-        "method": "get",
-        "header": [],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/cardapios",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "cardapios"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "POST Cardapio",
-      "request": {
-        "method": "post",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer SEU_TOKEN_AQUI",
-            "disabled": false,
-            "type": "default"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/cardapios",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "cardapios"
-          ],
-          "query": [],
-          "variable": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"nome\": \"Prato Executivo\",\n  \"descricao\": \"Arroz, feijao e carne\",\n  \"preco\": 39.90,\n  \"apenasNoLocal\": true,\n  \"caminhoFoto\": \"/imagens/prato.jpg\",\n  \"restauranteId\": 1\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "GET Cardapios",
-      "request": {
-        "method": "get",
-        "header": [],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/cardapios/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "cardapios",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "PUT Cardapios",
-      "request": {
-        "method": "put",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer SEU_TOKEN_AQUI",
-            "disabled": false,
-            "type": "default"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/cardapios/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "cardapios",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"nome\": \"Prato Executivo Premium\",\n  \"descricao\": \"Arroz, feijao, carne e salada\",\n  \"preco\": 49.90,\n  \"apenasNoLocal\": true,\n  \"caminhoFoto\": \"/imagens/prato-premium.jpg\",\n  \"restauranteId\": 1\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "DELETE Cardapios",
-      "request": {
-        "method": "delete",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXN0ZXJAamlsby5jb20iLCJpYXQiOjE3NzMxMDM1ODYsImV4cCI6MTc3MzExMDc4Nn0.zADp0YteDvhsSHyIamsen1mjKcigm5eBi4C8bwuejTc",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/cardapios/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "cardapios",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "GET Restaurante publico",
-      "request": {
-        "method": "get",
-        "header": [],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/restaurantes/1/cardapio",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "restaurantes",
-            "1",
-            "cardapio"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "POST Restaurante t",
-      "request": {
-        "method": "post",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXN0ZXJAamlsby5jb20iLCJpYXQiOjE3NzMxMDM1ODYsImV4cCI6MTc3MzExMDc4Nn0.zADp0YteDvhsSHyIamsen1mjKcigm5eBi4C8bwuejTc",
-            "disabled": false,
-            "type": "default"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/restaurantes/1/cardapio",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "restaurantes",
-            "1",
-            "cardapio"
-          ],
-          "query": [],
-          "variable": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"nome\": \"Sobremesa da Casa\",\n  \"descricao\": \"Pudim\",\n  \"preco\": 14.50,\n  \"apenasNoLocal\": false,\n  \"caminhoFoto\": \"/imagens/pudim.jpg\",\n  \"restauranteId\": 1\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "GET REstaurantes publico",
-      "request": {
-        "method": "get",
-        "header": [],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/restaurantes/1/cardapio/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "restaurantes",
-            "1",
-            "cardapio",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
-    },
-    {
-      "name": "PUT Atualizar por restaurante ",
-      "request": {
-        "method": "put",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer SEU_TOKEN_AQUI",
-            "disabled": false,
-            "type": "default"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/restaurantes/1/cardapio/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "restaurantes",
-            "1",
-            "cardapio",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"nome\": \"Sobremesa Atualizada\",\n  \"descricao\": \"Pudim com calda\",\n  \"preco\": 16.00,\n  \"apenasNoLocal\": false,\n  \"caminhoFoto\": \"/imagens/pudim2.jpg\",\n  \"restauranteId\": 1\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": " DELETAR CARDAPIO POR RESTAURANTE (TOKEN)",
-      "request": {
-        "method": "delete",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer SEU_TOKEN_AQUI",
-            "disabled": false,
-            "type": "default"
-          }
-        ],
-        "auth": {
-          "type": "noauth"
-        },
-        "description": "",
-        "url": {
-          "raw": "http://localhost:8080/restaurantes/1/cardapio/1",
-          "protocol": "http",
-          "host": [
-            "localhost:8080"
-          ],
-          "path": [
-            "restaurantes",
-            "1",
-            "cardapio",
-            "1"
-          ],
-          "query": [],
-          "variable": []
-        }
-      }
+      ]
     }
   ],
   "variable": [

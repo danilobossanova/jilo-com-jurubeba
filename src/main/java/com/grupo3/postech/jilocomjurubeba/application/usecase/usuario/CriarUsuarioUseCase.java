@@ -10,27 +10,27 @@ import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontrada
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.ValidacaoException;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuarioGateway;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.PasswordHashGateway;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGateway;
 import com.grupo3.postech.jilocomjurubeba.domain.valueobject.Cpf;
 import com.grupo3.postech.jilocomjurubeba.domain.valueobject.Email;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class CriarUsuarioUseCase implements UseCase<CriarUsuarioInput, UsuarioOutput> {
 
   private final UsuarioGateway usuarioGateway;
   private final TipoUsuarioGateway tipoUsuarioGateway;
-  private final PasswordEncoder passwordEncoder;
+  private final PasswordHashGateway passwordHashGateway;
 
   public CriarUsuarioUseCase(
       UsuarioGateway usuarioGateway,
       TipoUsuarioGateway tipoUsuarioGateway,
-      PasswordEncoder passwordEncoder) {
+      PasswordHashGateway passwordHashGateway) {
     this.usuarioGateway = usuarioGateway;
     this.tipoUsuarioGateway = tipoUsuarioGateway;
-    this.passwordEncoder = passwordEncoder;
+    this.passwordHashGateway = passwordHashGateway;
   }
 
   @Override
@@ -75,7 +75,7 @@ public class CriarUsuarioUseCase implements UseCase<CriarUsuarioInput, UsuarioOu
             input.telefone(),
             tipoUsuario,
             new ArrayList<>(),
-            passwordEncoder.encode(input.senha()));
+            passwordHashGateway.hash(input.senha()));
 
     Usuario salvo = usuarioGateway.saveUsuario(usuario);
     return UsuarioMapper.toOutput(salvo);
