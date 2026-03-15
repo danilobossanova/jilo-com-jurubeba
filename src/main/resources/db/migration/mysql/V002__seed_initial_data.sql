@@ -56,7 +56,7 @@ CREATE INDEX idx_cardapio_restaurante_id ON cardapio (restaurante_id);
 
 -- =====================================================================
 -- Seed inicial
--- senha do master: jilocomjurubeba123
+-- senha do master: fornecida via placeholder Flyway
 -- =====================================================================
 
 INSERT INTO tipo_usuario (nome, ativo, descricao)
@@ -77,7 +77,7 @@ INSERT INTO usuario (nome, email, senha_hash, ativo, tipo_usuario_id, cpf, telef
 SELECT
     'MASTER',
     'master@jilo.com',
-    '$2a$10$sYn347yV7GLtpdYRP0vFXujEd29gRLMnZrG47i.rxnM1FZjNPwHGm',
+    '${master_password_hash}',
     1,
     @TIPO_MASTER_ID,
     '00000000000',
