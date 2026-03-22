@@ -1,0 +1,343 @@
+@startuml
+title Diagrama de Classes - jilo-com-jurubeba
+
+top to bottom direction
+skinparam linetype ortho
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam roundcorner 12
+skinparam nodesep 35
+skinparam ranksep 45
+skinparam classAttributeIconSize 0
+skinparam classFontSize 13
+skinparam ArrowColor #2E75B6
+skinparam packageBorderColor #2E75B6
+skinparam packageBackgroundColor #F0F6FC
+skinparam classBorderColor #2E75B6
+skinparam classBackgroundColor #EBF3FB
+skinparam classHeaderBackgroundColor #1F3864
+skinparam classHeaderFontColor #FFFFFF
+skinparam noteBackgroundColor #FFF9E6
+skinparam noteBorderColor #E6C619
+
+package "Domain" #F7FBFF {
+    package "Entities" #EBF3FB {
+        class Usuario {
+            - id : Long
+            - nome : String
+            - cpf : Cpf
+            - email : Email
+            - telefone : String
+            - senha : String
+            - ativo : boolean
+            - tipoUsuario : TipoUsuario
+            - restaurantes : List<Restaurante>
+            + atualizarCadastro(nome, cpf, email, telefone, tipoUsuario) : void
+            + ativar() : void
+            + desativar() : void
+            + snapshot() : UsuarioSnapshot
+        }
+
+        class TipoUsuario {
+            - id : Long
+            - nome : String
+            - descricao : String
+            - ativo : boolean
+            + atualizarDados(nome, descricao) : void
+            + ativar() : void
+            + desativar() : void
+            + snapshot() : TipoUsuarioSnapshot
+        }
+
+        class Restaurante {
+            - id : Long
+            - nome : String
+            - endereco : String
+            - typeCozinha : TypeCozinha
+            - horaAbertura : LocalTime
+            - horaFechamento : LocalTime
+            - dono : Usuario
+            - ativo : boolean
+            + atualizarCadastro(nome, endereco, typeCozinha, horaAbertura, horaFechamento, dono) : void
+            + ativar() : void
+            + desativar() : void
+            + snapshot() : RestauranteSnapshot
+        }
+
+        class Cardapio {
+            - id : Long
+            - nome : String
+            - descricao : String
+            - preco : BigDecimal
+            - apenasNoLocal : boolean
+            - caminhoFoto : String
+            - restaurante : Restaurante
+            - ativo : boolean
+            + atualizarCadastro(nome, descricao, preco, apenasNoLocal, caminhoFoto, restaurante) : void
+            + ativar() : void
+            + desativar() : void
+            + snapshot() : CardapioSnapshot
+        }
+    }
+
+    package "Value Objects" #EBF3FB {
+        class Cpf {
+            - numero : String
+            + getNumero() : String
+        }
+
+        class Email {
+            - email : String
+            + getEmail() : String
+        }
+    }
+
+    package "Enums" #EBF3FB {
+        enum TypeUsuario {
+            DONO_RESTAURANTE
+            CLIENTE
+        }
+
+        enum TypeCozinha {
+            ITALIANA
+            JAPONESA
+            BRASILEIRA
+            MEXICANA
+            ARABE
+            FAST_FOOD
+        }
+    }
+
+    package "Gateways" #EBF3FB {
+        interface UsuarioGateway {
+            + saveUsuario(usuario: Usuario) : Usuario
+            + findByIdUsuario(id: Long) : Optional<Usuario>
+            + findByCpf(cpf: String) : Optional<Usuario>
+            + findByEmail(email: String) : Optional<Usuario>
+            + findAllUsuario() : List<Usuario>
+            + deleteUsuario(id: Long) : void
+        }
+
+        interface TipoUsuarioGateway {
+            + salvar(tipoUsuario: TipoUsuario) : TipoUsuario
+            + buscarPorId(id: Long) : Optional<TipoUsuario>
+            + buscarPorNome(nome: String) : Optional<TipoUsuario>
+            + listarTodos() : List<TipoUsuario>
+            + deletar(id: Long) : void
+        }
+
+        interface RestauranteGateway {
+            + saveRestaurante(restaurante: Restaurante) : Restaurante
+            + findByIdRestaurante(id: Long) : Optional<Restaurante>
+            + findAllRestaurante() : List<Restaurante>
+            + deleteRestaurante(id: Long) : void
+            + findByNome(nome: String) : Optional<Restaurante>
+        }
+
+        interface CardapioGateway {
+            + saveCardapio(cardapio: Cardapio) : Cardapio
+            + findByIdCardapio(id: Long) : Optional<Cardapio>
+            + findAllCardapio() : List<Cardapio>
+            + deleteCardapio(id: Long) : void
+            + findByNome(nome: String) : Optional<Cardapio>
+        }
+
+        interface PasswordHashGateway {
+            + hash(rawPassword: String) : String
+        }
+    }
+
+    package "Exceptions" #EBF3FB {
+        class DominioException
+        class ValidacaoException
+        class RegraDeNegocioException
+        class EntidadeNaoEncontradaException
+    }
+}
+
+package "Application" #F6FCF7 {
+    package "Use Cases" #E8F5E9 {
+        together {
+            class CriarUsuarioUseCase
+            class BuscarUsuarioUseCase
+            class ListarUsuarioUseCase
+            class AtualizarUsuarioUseCase
+            class DeletarUsuarioUseCase
+        }
+
+        together {
+            class CriarTipoUsuarioUseCase
+            class BuscarTipoUsuarioPorIdUseCase
+            class ListarTiposUsuarioUseCase
+            class AtualizarTipoUsuarioUseCase
+            class DeletarTipoUsuarioUseCase
+        }
+
+        together {
+            class CriarRestauranteUseCase
+            class BuscarRestauranteUseCase
+            class ListarRestauranteUseCase
+            class AtualizarRestauranteUseCase
+            class DeletarRestauranteUseCase
+        }
+
+        together {
+            class CriarCardapioUseCase
+            class BuscarCardapioUseCase
+            class ListarCardapioUseCase
+            class AtualizarCardapioUseCase
+            class DeletarCardapioUseCase
+        }
+
+        class VerificarSaudeUseCase
+    }
+
+    package "DTOs" #E8F5E9 {
+        class CriarUsuarioInput <<record>>
+        class AtualizarUsuarioInput <<record>>
+        class UsuarioOutput <<record>>
+
+        class CriarTipoUsuarioInput <<record>>
+        class AtualizarTipoUsuarioInput <<record>>
+        class TipoUsuarioOutput <<record>>
+
+        class CriarRestauranteInput <<record>>
+        class AtualizarRestauranteInput <<record>>
+        class RestauranteOutput <<record>>
+
+        class CriarCardapioInput <<record>>
+        class AtualizarCardapioInput <<record>>
+        class CardapioOutput <<record>>
+
+        class SaudeOutput <<record>>
+    }
+}
+
+package "Infrastructure" #FFF9F3 {
+    package "Security" #FFF3E0 {
+        class SecurityConfig
+        class JwtAuthFilter
+        class JwtService
+        class UsuarioDetailsService
+        interface UserDetailsService
+        class SpringPasswordHashGateway
+        class AuthRequest
+        class AuthResponse
+    }
+
+    package "Persistence" #FCE4EC {
+        class UsuarioGatewayJpaAdapter
+        class TipoUsuarioGatewayJpaAdapter
+        class RestauranteGatewayJpa
+        class CardapioGatewayJpaAdapter
+        interface UsuarioJpaRepository
+    }
+
+    package "Controllers" #E8EAF6 {
+        together {
+            class AuthController
+            class UsuarioController
+            class TipoUsuarioController
+            class RestauranteController
+            class CardapioController
+            class SaudeController
+        }
+    }
+
+    package "Web Support" #E8EAF6 {
+        class GlobalExceptionHandler
+    }
+
+    package "Config" #FFF9E6 {
+        class OpenApiConfig
+    }
+}
+
+DominioException <|-- ValidacaoException
+DominioException <|-- RegraDeNegocioException
+DominioException <|-- EntidadeNaoEncontradaException
+
+Usuario "1" --> "1" TipoUsuario
+Usuario "1" *-- "1" Cpf
+Usuario "1" *-- "1" Email
+Usuario "1" --> "0..*" Restaurante
+Restaurante "0..*" --> "1" Usuario : dono
+Cardapio "0..*" --> "1" Restaurante
+
+UsuarioGatewayJpaAdapter ..|> UsuarioGateway
+TipoUsuarioGatewayJpaAdapter ..|> TipoUsuarioGateway
+RestauranteGatewayJpa ..|> RestauranteGateway
+CardapioGatewayJpaAdapter ..|> CardapioGateway
+SpringPasswordHashGateway ..|> PasswordHashGateway
+UsuarioDetailsService ..|> UserDetailsService
+
+CriarUsuarioUseCase --> UsuarioGateway
+CriarUsuarioUseCase --> TipoUsuarioGateway
+CriarUsuarioUseCase --> PasswordHashGateway
+BuscarUsuarioUseCase --> UsuarioGateway
+ListarUsuarioUseCase --> UsuarioGateway
+AtualizarUsuarioUseCase --> UsuarioGateway
+AtualizarUsuarioUseCase --> TipoUsuarioGateway
+DeletarUsuarioUseCase --> UsuarioGateway
+
+CriarTipoUsuarioUseCase --> TipoUsuarioGateway
+BuscarTipoUsuarioPorIdUseCase --> TipoUsuarioGateway
+ListarTiposUsuarioUseCase --> TipoUsuarioGateway
+AtualizarTipoUsuarioUseCase --> TipoUsuarioGateway
+DeletarTipoUsuarioUseCase --> TipoUsuarioGateway
+
+CriarRestauranteUseCase --> RestauranteGateway
+CriarRestauranteUseCase --> UsuarioGateway
+BuscarRestauranteUseCase --> RestauranteGateway
+ListarRestauranteUseCase --> RestauranteGateway
+AtualizarRestauranteUseCase --> RestauranteGateway
+AtualizarRestauranteUseCase --> UsuarioGateway
+DeletarRestauranteUseCase --> RestauranteGateway
+
+CriarCardapioUseCase --> CardapioGateway
+CriarCardapioUseCase --> RestauranteGateway
+BuscarCardapioUseCase --> CardapioGateway
+ListarCardapioUseCase --> CardapioGateway
+AtualizarCardapioUseCase --> CardapioGateway
+AtualizarCardapioUseCase --> RestauranteGateway
+DeletarCardapioUseCase --> CardapioGateway
+
+UsuarioController --> CriarUsuarioUseCase
+UsuarioController --> BuscarUsuarioUseCase
+UsuarioController --> ListarUsuarioUseCase
+UsuarioController --> AtualizarUsuarioUseCase
+UsuarioController --> DeletarUsuarioUseCase
+
+TipoUsuarioController --> CriarTipoUsuarioUseCase
+TipoUsuarioController --> BuscarTipoUsuarioPorIdUseCase
+TipoUsuarioController --> ListarTiposUsuarioUseCase
+TipoUsuarioController --> AtualizarTipoUsuarioUseCase
+TipoUsuarioController --> DeletarTipoUsuarioUseCase
+
+RestauranteController --> CriarRestauranteUseCase
+RestauranteController --> BuscarRestauranteUseCase
+RestauranteController --> ListarRestauranteUseCase
+RestauranteController --> AtualizarRestauranteUseCase
+RestauranteController --> DeletarRestauranteUseCase
+
+CardapioController --> CriarCardapioUseCase
+CardapioController --> BuscarCardapioUseCase
+CardapioController --> ListarCardapioUseCase
+CardapioController --> AtualizarCardapioUseCase
+CardapioController --> DeletarCardapioUseCase
+
+AuthController --> JwtService
+AuthController --> AuthRequest
+AuthController --> AuthResponse
+
+JwtAuthFilter --> JwtService
+JwtAuthFilter --> UserDetailsService
+UsuarioDetailsService --> UsuarioJpaRepository
+SecurityConfig --> JwtAuthFilter
+SecurityConfig --> JwtService
+
+VerificarSaudeUseCase ..> SaudeOutput
+SaudeController --> VerificarSaudeUseCase
+
+OpenApiConfig ..> JwtService
+@enduml
