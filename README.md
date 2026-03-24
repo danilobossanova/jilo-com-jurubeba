@@ -6,6 +6,14 @@
 
 ---
 
+## Video de Apresentacao
+
+O video com a demonstracao do projeto executando e funcionando esta disponivel no repositorio:
+
+[Assistir video de apresentacao (13-42-16.mp4)](13-42-16.mp4)
+
+---
+
 ## Indice
 
 - [Objetivo da Fase 2](#objetivo-da-fase-2)
