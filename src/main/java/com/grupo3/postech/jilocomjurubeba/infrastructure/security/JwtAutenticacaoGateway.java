@@ -25,8 +25,8 @@ import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.AutenticacaoGat
  *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
  *     </ul>
  */
-@Component
 @Profile("!test")
+@Component
 public class JwtAutenticacaoGateway implements AutenticacaoGateway {
 
     private final AuthenticationManager authenticationManager;

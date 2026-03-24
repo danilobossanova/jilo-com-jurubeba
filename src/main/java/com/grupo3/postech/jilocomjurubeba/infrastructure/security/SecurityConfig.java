@@ -47,9 +47,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
  *     </ul>
  */
+@Profile("!test")
 @Configuration
 @EnableWebSecurity
-@Profile("!test")
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;

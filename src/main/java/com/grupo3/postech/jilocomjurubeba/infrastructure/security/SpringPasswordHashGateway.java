@@ -24,8 +24,8 @@ import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.CriptografiaSen
  *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
  *     </ul>
  */
-@Component
 @Profile("!test")
+@Component
 public class SpringPasswordHashGateway implements CriptografiaSenhaGateway {
 
     private final PasswordEncoder passwordEncoder;

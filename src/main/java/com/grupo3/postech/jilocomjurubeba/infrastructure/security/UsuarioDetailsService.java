@@ -24,8 +24,8 @@ import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.usuario.rep
  *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
  *     </ul>
  */
-@Service
 @Profile("!test")
+@Service
 public class UsuarioDetailsService implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepo;

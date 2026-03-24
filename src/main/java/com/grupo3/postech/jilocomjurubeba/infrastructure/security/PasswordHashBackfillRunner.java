@@ -26,8 +26,8 @@ import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.usuario.rep
  *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
  *     </ul>
  */
-@Component
 @Profile("!test")
+@Component
 public class PasswordHashBackfillRunner implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(PasswordHashBackfillRunner.class);

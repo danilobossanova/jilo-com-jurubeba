@@ -39,8 +39,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
  *     </ul>
  */
-@Component
 @Profile("!test")
+@Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;

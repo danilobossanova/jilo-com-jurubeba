@@ -33,8 +33,8 @@ import io.jsonwebtoken.security.Keys;
  *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
  *     </ul>
  */
-@Service
 @Profile("!test")
+@Service
 public class JwtService {
 
     @Value("${security.jwt.secret}")
