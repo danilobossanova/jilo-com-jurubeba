@@ -45,6 +45,16 @@
 			"key": "cardapioId",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "testEmail",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "testCpf",
+			"value": "",
+			"type": "string"
 		}
 	],
 	"event": [
@@ -52,13 +62,11 @@
 			"listen": "prerequest",
 			"script": {
 				"exec": [
-					"// Auto-login: se o token estiver vazio e a request exigir auth, faz login automaticamente",
-					"var token = pm.collectionVariables.get(\"token\");",
+					"// Auto-login: se o token estiver vazio e a request exigir auth, faz login",
+					"var token = pm.variables.get(\"token\");",
 					"if (!token && pm.request.auth && pm.request.auth.type === \"bearer\") {",
-					"    var baseUrl = pm.collectionVariables.get(\"base_url\");",
-					"",
 					"    pm.sendRequest({",
-					"        url: baseUrl + \"/auth/login\",",
+					"        url: pm.variables.get(\"base_url\") + \"/auth/login\",",
 					"        method: \"POST\",",
 					"        header: { \"Content-Type\": \"application/json\" },",
 					"        body: {",
@@ -67,8 +75,9 @@
 					"        }",
 					"    }, function (err, res) {",
 					"        if (!err && res.code === 200) {",
-					"            var jsonData = res.json();",
-					"            pm.collectionVariables.set(\"token\", jsonData.token);",
+					"            var t = res.json().token;",
+					"            pm.collectionVariables.set(\"token\", t);",
+					"            try { pm.environment.set(\"token\", t); } catch(e) {}",
 					"            console.log(\"Auto-login: token JWT obtido com sucesso\");",
 					"        } else {",
 					"            console.log(\"Auto-login falhou: \" + (err || res.status));",
@@ -105,7 +114,8 @@
 									"if (pm.response.code === 200) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"token\", jsonData.token);",
-									"    console.log(\"Token JWT salvo com sucesso!\");",
+									"    try { pm.environment.set(\"token\", jsonData.token); } catch(e) {}",
+									"    console.log(\"Token JWT salvo (collection + environment)!\");",
 									"}"
 								],
 								"type": "text/javascript"
@@ -341,6 +351,7 @@
 									"if (pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"tipoUsuarioId\", jsonData.id);",
+									"    try { pm.environment.set(\"tipoUsuarioId\", jsonData.id); } catch(e) {}",
 									"    console.log(\"tipoUsuarioId salvo: \" + jsonData.id);",
 									"}"
 								],
@@ -658,6 +669,38 @@
 					"name": "Criar Usuario",
 					"event": [
 						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Gera email e CPF unicos para evitar erro 422 (duplicidade) entre execucoes",
+									"var ts = Date.now().toString().slice(-8);",
+									"",
+									"// Email unico baseado em timestamp",
+									"var email = \"teste\" + ts + \"@email.com\";",
+									"pm.collectionVariables.set(\"testEmail\", email);",
+									"try { pm.environment.set(\"testEmail\", email); } catch(e) {}",
+									"",
+									"// Gera CPF valido algoritmicamente (com digitos verificadores corretos)",
+									"function gerarCpf() {",
+									"    var n = [];",
+									"    for (var i = 0; i < 9; i++) n.push(Math.floor(Math.random() * 9));",
+									"    var d1 = 0;",
+									"    for (var i = 0; i < 9; i++) d1 += n[i] * (10 - i);",
+									"    d1 = 11 - (d1 % 11); if (d1 >= 10) d1 = 0; n.push(d1);",
+									"    var d2 = 0;",
+									"    for (var i = 0; i < 10; i++) d2 += n[i] * (11 - i);",
+									"    d2 = 11 - (d2 % 11); if (d2 >= 10) d2 = 0; n.push(d2);",
+									"    return n.join(\"\");",
+									"}",
+									"var cpf = gerarCpf();",
+									"pm.collectionVariables.set(\"testCpf\", cpf);",
+									"try { pm.environment.set(\"testCpf\", cpf); } catch(e) {}",
+									"console.log(\"Gerado -> Email: \" + email + \", CPF: \" + cpf);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
 							"listen": "test",
 							"script": {
 								"exec": [
@@ -677,6 +720,7 @@
 									"if (pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"usuarioId\", jsonData.id);",
+									"    try { pm.environment.set(\"usuarioId\", jsonData.id); } catch(e) {}",
 									"    console.log(\"usuarioId salvo: \" + jsonData.id);",
 									"}"
 								],
@@ -697,7 +741,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"Joao Silva\",\n    \"cpf\": \"73456289051\",\n    \"email\": \"joao@email.com\",\n    \"telefone\": \"11999999999\",\n    \"tipoUsuarioId\": 2,\n    \"senha\": \"senha123\"\n}",
+							"raw": "{\n    \"nome\": \"Joao Silva\",\n    \"cpf\": \"{{testCpf}}\",\n    \"email\": \"{{testEmail}}\",\n    \"telefone\": \"11999999999\",\n    \"tipoUsuarioId\": 2,\n    \"senha\": \"senha123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -999,6 +1043,7 @@
 									"if (pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"restauranteId\", jsonData.id);",
+									"    try { pm.environment.set(\"restauranteId\", jsonData.id); } catch(e) {}",
 									"    console.log(\"restauranteId salvo: \" + jsonData.id);",
 									"}"
 								],
@@ -1269,6 +1314,7 @@
 									"if (pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"cardapioId\", jsonData.id);",
+									"    try { pm.environment.set(\"cardapioId\", jsonData.id); } catch(e) {}",
 									"    console.log(\"cardapioId salvo: \" + jsonData.id);",
 									"}"
 								],
