@@ -1,0 +1,990 @@
+{
+	"id": "2fa3fa9a-a3b6-4d47-b71e-17eeadd35e2f",
+	"name": "Jilo com Jurubeba API",
+	"timestamp": "2026-03-24T14:07:20.484Z",
+	"collection_id": "56392-aecfb9e0-7bec-45e4-ae86-c7f9596d411d",
+	"folder_id": 0,
+	"environment_id": "56392-5bbcb74b-52aa-4919-abd7-e221d8af0c86",
+	"totalPass": 53,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2026-03-24T14:07:16.098Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "0e98a348-d239-48f5-b29b-be7e5e7532ee",
+			"name": "Login",
+			"url": "http://localhost:8080/auth/login",
+			"time": 345,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response has token": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has token": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				345
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response has token": true
+				}
+			]
+		},
+		{
+			"id": "27999240-8b19-424f-82cf-3e7ff491fc9f",
+			"name": "Health Check",
+			"url": "http://localhost:8080/v1/health",
+			"time": 28,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response has status UP": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has status UP": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				28
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response has status UP": true
+				}
+			]
+		},
+		{
+			"id": "f1f1caa0-3784-487d-9ac6-3da1bf614160",
+			"name": "Criar Tipo Usuario",
+			"url": "http://localhost:8080/v1/tipos-usuario",
+			"time": 149,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status code is 201": true,
+				"Response has id": true,
+				"Has Location header": true
+			},
+			"testPassFailCounts": {
+				"Status code is 201": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Has Location header": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				149
+			],
+			"allTests": [
+				{
+					"Status code is 201": true,
+					"Response has id": true,
+					"Has Location header": true
+				}
+			]
+		},
+		{
+			"id": "2345128b-6df4-4e98-9bf6-347c56fae02c",
+			"name": "Listar Tipos Usuario",
+			"url": "http://localhost:8080/v1/tipos-usuario",
+			"time": 37,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response is an array": true,
+				"Array has at least 3 default types": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response is an array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Array has at least 3 default types": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				37
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response is an array": true,
+					"Array has at least 3 default types": true
+				}
+			]
+		},
+		{
+			"id": "d78e9b91-082c-44c2-a33e-798b7c4b620c",
+			"name": "Buscar Tipo Usuario por ID",
+			"url": "http://localhost:8080/v1/tipos-usuario/4",
+			"time": 31,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response has expected fields": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has expected fields": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				31
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response has expected fields": true
+				}
+			]
+		},
+		{
+			"id": "590257d1-726c-4480-a068-a24d75391a08",
+			"name": "Atualizar Tipo Usuario",
+			"url": "http://localhost:8080/v1/tipos-usuario/4",
+			"time": 69,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Nome was updated": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Nome was updated": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				69
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Nome was updated": true
+				}
+			]
+		},
+		{
+			"id": "c1e6671d-ad86-4388-9262-87abfed49cbb",
+			"name": "Deletar Tipo Usuario",
+			"url": "http://localhost:8080/v1/tipos-usuario/4",
+			"time": 34,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status code is 204": true
+			},
+			"testPassFailCounts": {
+				"Status code is 204": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				34
+			],
+			"allTests": [
+				{
+					"Status code is 204": true
+				}
+			]
+		},
+		{
+			"id": "d09d9129-e62c-4df3-9650-8f69d90f5dab",
+			"name": "Criar Usuario",
+			"url": "http://localhost:8080/v1/usuarios",
+			"time": 146,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status code is 201": true,
+				"Response has id": true,
+				"Has Location header": true
+			},
+			"testPassFailCounts": {
+				"Status code is 201": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Has Location header": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				146
+			],
+			"allTests": [
+				{
+					"Status code is 201": true,
+					"Response has id": true,
+					"Has Location header": true
+				}
+			]
+		},
+		{
+			"id": "c120d79d-26ef-4543-93fd-c33cc5d84ab2",
+			"name": "Listar Usuarios",
+			"url": "http://localhost:8080/v1/usuarios",
+			"time": 37,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response is an array": true,
+				"Array has at least 1 user (admin)": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response is an array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Array has at least 1 user (admin)": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				37
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response is an array": true,
+					"Array has at least 1 user (admin)": true
+				}
+			]
+		},
+		{
+			"id": "6f9e11c5-853a-4857-9d50-c07e4114d4a5",
+			"name": "Buscar Usuario por ID",
+			"url": "http://localhost:8080/v1/usuarios/2",
+			"time": 26,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response has expected fields": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has expected fields": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				26
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response has expected fields": true
+				}
+			]
+		},
+		{
+			"id": "fddeb0f1-d809-4a51-88b6-ecdc4f6028b4",
+			"name": "Atualizar Usuario",
+			"url": "http://localhost:8080/v1/usuarios/2",
+			"time": 74,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Nome was updated": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Nome was updated": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				74
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Nome was updated": true
+				}
+			]
+		},
+		{
+			"id": "6d2dd1e7-a7ff-4266-8745-265f5e9b58af",
+			"name": "Deletar Usuario",
+			"url": "http://localhost:8080/v1/usuarios/2",
+			"time": 67,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status code is 204": true
+			},
+			"testPassFailCounts": {
+				"Status code is 204": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				67
+			],
+			"allTests": [
+				{
+					"Status code is 204": true
+				}
+			]
+		},
+		{
+			"id": "a2383e9d-0ae7-4c75-8972-277175f59b46",
+			"name": "Criar Restaurante",
+			"url": "http://localhost:8080/v1/restaurantes",
+			"time": 74,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status code is 201": true,
+				"Response has id": true,
+				"Has Location header": true
+			},
+			"testPassFailCounts": {
+				"Status code is 201": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Has Location header": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				74
+			],
+			"allTests": [
+				{
+					"Status code is 201": true,
+					"Response has id": true,
+					"Has Location header": true
+				}
+			]
+		},
+		{
+			"id": "879c370e-214a-47ea-b930-863a951d78c3",
+			"name": "Listar Restaurantes",
+			"url": "http://localhost:8080/v1/restaurantes",
+			"time": 20,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response is an array": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response is an array": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				20
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response is an array": true
+				}
+			]
+		},
+		{
+			"id": "ac122c5c-2a45-4d26-84d1-837058d14b2f",
+			"name": "Buscar Restaurante por ID",
+			"url": "http://localhost:8080/v1/restaurantes/1",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response has expected fields": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has expected fields": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response has expected fields": true
+				}
+			]
+		},
+		{
+			"id": "3e19fa06-77f5-4cf2-a7d9-7ae0daa3ea29",
+			"name": "Atualizar Restaurante",
+			"url": "http://localhost:8080/v1/restaurantes/1?donoId=2",
+			"time": 63,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Nome was updated": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Nome was updated": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				63
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Nome was updated": true
+				}
+			]
+		},
+		{
+			"id": "b062e2db-3833-4fbd-8b64-994f66a2e5cf",
+			"name": "Deletar Restaurante",
+			"url": "http://localhost:8080/v1/restaurantes/1",
+			"time": 40,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status code is 204": true
+			},
+			"testPassFailCounts": {
+				"Status code is 204": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				40
+			],
+			"allTests": [
+				{
+					"Status code is 204": true
+				}
+			]
+		},
+		{
+			"id": "61458c0e-5b50-44d0-8933-204d0dac1353",
+			"name": "Criar Item Cardapio",
+			"url": "http://localhost:8080/v1/cardapios",
+			"time": 78,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status code is 201": true,
+				"Response has id": true,
+				"Has Location header": true
+			},
+			"testPassFailCounts": {
+				"Status code is 201": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Has Location header": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				78
+			],
+			"allTests": [
+				{
+					"Status code is 201": true,
+					"Response has id": true,
+					"Has Location header": true
+				}
+			]
+		},
+		{
+			"id": "15c70a67-cdcc-478c-b86e-b73032282f2d",
+			"name": "Listar Itens Cardapio",
+			"url": "http://localhost:8080/v1/cardapios",
+			"time": 22,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response is an array": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response is an array": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				22
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response is an array": true
+				}
+			]
+		},
+		{
+			"id": "0f57df33-e5be-4f59-8a72-cba6d7058bd9",
+			"name": "Buscar Item Cardapio por ID",
+			"url": "http://localhost:8080/v1/cardapios/1",
+			"time": 20,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response has expected fields": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has expected fields": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				20
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response has expected fields": true
+				}
+			]
+		},
+		{
+			"id": "f54714f5-537c-4022-b62a-8ea869b1eb4c",
+			"name": "Atualizar Item Cardapio",
+			"url": "http://localhost:8080/v1/cardapios/1?donoId=2",
+			"time": 109,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Nome was updated": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Nome was updated": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				109
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Nome was updated": true
+				}
+			]
+		},
+		{
+			"id": "14e5b8b6-1935-420c-8756-7d862754db2b",
+			"name": "Deletar Item Cardapio",
+			"url": "http://localhost:8080/v1/cardapios/1",
+			"time": 49,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status code is 204": true
+			},
+			"testPassFailCounts": {
+				"Status code is 204": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				49
+			],
+			"allTests": [
+				{
+					"Status code is 204": true
+				}
+			]
+		},
+		{
+			"id": "8b1d8416-b34f-4eb1-b431-73eef7aa04db",
+			"name": "401 - Endpoint protegido sem token",
+			"url": "http://localhost:8080/v1/tipos-usuario",
+			"time": 21,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status code is 401": true,
+				"Response has status 401": true
+			},
+			"testPassFailCounts": {
+				"Status code is 401": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has status 401": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				21
+			],
+			"allTests": [
+				{
+					"Status code is 401": true,
+					"Response has status 401": true
+				}
+			]
+		},
+		{
+			"id": "3f9e542b-b6b3-4cb8-8121-f435d7cc066a",
+			"name": "404 - Buscar ID inexistente",
+			"url": "http://localhost:8080/v1/tipos-usuario/99999",
+			"time": 27,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status code is 404": true,
+				"Response has detail property": true
+			},
+			"testPassFailCounts": {
+				"Status code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has detail property": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				27
+			],
+			"allTests": [
+				{
+					"Status code is 404": true,
+					"Response has detail property": true
+				}
+			]
+		},
+		{
+			"id": "24300b26-9d3c-42f4-ba50-f31ec75824bd",
+			"name": "400 - Criar usuario com dados invalidos",
+			"url": "http://localhost:8080/v1/usuarios",
+			"time": 25,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status code is 400": true
+			},
+			"testPassFailCounts": {
+				"Status code is 400": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				25
+			],
+			"allTests": [
+				{
+					"Status code is 400": true
+				}
+			]
+		},
+		{
+			"id": "6851ceb2-de76-4a87-864d-ab5792537d30",
+			"name": "422 - Login com credenciais erradas",
+			"url": "http://localhost:8080/auth/login",
+			"time": 91,
+			"responseCode": {
+				"code": 422,
+				"name": "Unprocessable Entity (WebDAV) (RFC 4918)"
+			},
+			"tests": {
+				"Status code is 422": true,
+				"Response detail includes invalidas": true
+			},
+			"testPassFailCounts": {
+				"Status code is 422": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response detail includes invalidas": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				91
+			],
+			"allTests": [
+				{
+					"Status code is 422": true,
+					"Response detail includes invalidas": true
+				}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 1697,
+	"collection": {
+		"requests": [
+			{
+				"id": "0e98a348-d239-48f5-b29b-be7e5e7532ee",
+				"method": "POST"
+			},
+			{
+				"id": "27999240-8b19-424f-82cf-3e7ff491fc9f",
+				"method": "GET"
+			},
+			{
+				"id": "f1f1caa0-3784-487d-9ac6-3da1bf614160",
+				"method": "POST"
+			},
+			{
+				"id": "2345128b-6df4-4e98-9bf6-347c56fae02c",
+				"method": "GET"
+			},
+			{
+				"id": "d78e9b91-082c-44c2-a33e-798b7c4b620c",
+				"method": "GET"
+			},
+			{
+				"id": "590257d1-726c-4480-a068-a24d75391a08",
+				"method": "PUT"
+			},
+			{
+				"id": "c1e6671d-ad86-4388-9262-87abfed49cbb",
+				"method": "DELETE"
+			},
+			{
+				"id": "d09d9129-e62c-4df3-9650-8f69d90f5dab",
+				"method": "POST"
+			},
+			{
+				"id": "c120d79d-26ef-4543-93fd-c33cc5d84ab2",
+				"method": "GET"
+			},
+			{
+				"id": "6f9e11c5-853a-4857-9d50-c07e4114d4a5",
+				"method": "GET"
+			},
+			{
+				"id": "fddeb0f1-d809-4a51-88b6-ecdc4f6028b4",
+				"method": "PUT"
+			},
+			{
+				"id": "6d2dd1e7-a7ff-4266-8745-265f5e9b58af",
+				"method": "DELETE"
+			},
+			{
+				"id": "a2383e9d-0ae7-4c75-8972-277175f59b46",
+				"method": "POST"
+			},
+			{
+				"id": "879c370e-214a-47ea-b930-863a951d78c3",
+				"method": "GET"
+			},
+			{
+				"id": "ac122c5c-2a45-4d26-84d1-837058d14b2f",
+				"method": "GET"
+			},
+			{
+				"id": "3e19fa06-77f5-4cf2-a7d9-7ae0daa3ea29",
+				"method": "PUT"
+			},
+			{
+				"id": "b062e2db-3833-4fbd-8b64-994f66a2e5cf",
+				"method": "DELETE"
+			},
+			{
+				"id": "61458c0e-5b50-44d0-8933-204d0dac1353",
+				"method": "POST"
+			},
+			{
+				"id": "15c70a67-cdcc-478c-b86e-b73032282f2d",
+				"method": "GET"
+			},
+			{
+				"id": "0f57df33-e5be-4f59-8a72-cba6d7058bd9",
+				"method": "GET"
+			},
+			{
+				"id": "f54714f5-537c-4022-b62a-8ea869b1eb4c",
+				"method": "PUT"
+			},
+			{
+				"id": "14e5b8b6-1935-420c-8756-7d862754db2b",
+				"method": "DELETE"
+			},
+			{
+				"id": "8b1d8416-b34f-4eb1-b431-73eef7aa04db",
+				"method": "GET"
+			},
+			{
+				"id": "3f9e542b-b6b3-4cb8-8121-f435d7cc066a",
+				"method": "GET"
+			},
+			{
+				"id": "24300b26-9d3c-42f4-ba50-f31ec75824bd",
+				"method": "POST"
+			},
+			{
+				"id": "6851ceb2-de76-4a87-864d-ab5792537d30",
+				"method": "POST"
+			}
+		]
+	}
+}
