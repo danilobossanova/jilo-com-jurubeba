@@ -2,12 +2,12 @@
 	"info": {
 		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
 		"name": "Jilo com Jurubeba API",
-		"description": "Colecao Postman para a API do sistema de gestao de restaurantes Jilo com Jurubeba.\n\nTech Challenge FIAP Pos-Tech Fase 2 - Grupo 3.\n\n**Como usar:**\n1. Execute a request \"Login\" para obter o token JWT automaticamente.\n2. Todas as demais requests autenticadas ja utilizam o token salvo na variavel `{{token}}`.\n\n**Profiles de banco:**\n- Default: H2 em memoria\n- `dev`: MySQL via Docker\n- `postgres`: PostgreSQL\n\n**Swagger UI:** http://localhost:8080/swagger-ui.html",
+		"description": "Colecao Postman para a API do sistema de gestao de restaurantes Jilo com Jurubeba.\n\nTech Challenge FIAP Pos-Tech Fase 2 - Grupo 3.\n\n**Como usar:**\n1. Execute a request \"Login\" para obter o token JWT automaticamente.\n2. Todas as demais requests autenticadas ja utilizam o token salvo na variavel `{{token}}`.\n3. Os IDs criados sao salvos automaticamente em variaveis de colecao para encadeamento.\n\n**Profiles de banco:**\n- Default: H2 em memoria (usuario admin criado automaticamente pelo UsuarioDataSeeder)\n- `dev`: MySQL via Docker (usuario admin criado pelo Flyway seed)\n\n**Credenciais de desenvolvimento:**\n- Email: admin@jilocomjurubeba.com\n- Senha: admin123\n\n**Swagger UI:** http://localhost:8080/swagger-ui.html\n\n**Nota:** O endpoint de login usa `/auth/login` (sem prefixo `/v1/`) pois a rota de autenticacao esta fora do versionamento da API.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
 		{
-			"key": "baseUrl",
+			"key": "base_url",
 			"value": "http://localhost:8080",
 			"type": "string"
 		},
@@ -15,12 +15,77 @@
 			"key": "token",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "admin_login",
+			"value": "admin@jilocomjurubeba.com",
+			"type": "string"
+		},
+		{
+			"key": "admin_password",
+			"value": "admin123",
+			"type": "string"
+		},
+		{
+			"key": "tipoUsuarioId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "usuarioId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "restauranteId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cardapioId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"exec": [
+					"// Auto-login: se o token estiver vazio e a request exigir auth, faz login automaticamente",
+					"var token = pm.collectionVariables.get(\"token\");",
+					"if (!token && pm.request.auth && pm.request.auth.type === \"bearer\") {",
+					"    var baseUrl = pm.collectionVariables.get(\"base_url\");",
+					"    var login = pm.collectionVariables.get(\"admin_login\");",
+					"    var senha = pm.collectionVariables.get(\"admin_password\");",
+					"",
+					"    pm.sendRequest({",
+					"        url: baseUrl + \"/auth/login\",",
+					"        method: \"POST\",",
+					"        header: { \"Content-Type\": \"application/json\" },",
+					"        body: {",
+					"            mode: \"raw\",",
+					"            raw: JSON.stringify({ email: login, senha: senha })",
+					"        }",
+					"    }, function (err, res) {",
+					"        if (!err && res.code === 200) {",
+					"            var jsonData = res.json();",
+					"            pm.collectionVariables.set(\"token\", jsonData.token);",
+					"            console.log(\"Auto-login: token JWT obtido com sucesso\");",
+					"        } else {",
+					"            console.log(\"Auto-login falhou: \" + (err || res.status));",
+					"        }",
+					"    });",
+					"}"
+				],
+				"type": "text/javascript"
+			}
 		}
 	],
 	"item": [
 		{
 			"name": "Auth",
-			"description": "Endpoints de autenticacao e geracao de token JWT.",
+			"description": "Endpoints de autenticacao e geracao de token JWT.\n\nO endpoint de login usa `/auth/login` (sem prefixo `/v1/`) pois a rota de autenticacao esta fora do versionamento da API.",
 			"item": [
 				{
 					"name": "Login",
@@ -29,12 +94,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"if (pm.response.code === 200) {",
-									"    var jsonData = pm.response.json();",
-									"    pm.collectionVariables.set(\"token\", jsonData.token);",
-									"    console.log(\"Token JWT salvo com sucesso!\");",
-									"}",
-									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
@@ -43,13 +102,22 @@
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData).to.have.property(\"token\");",
 									"    pm.expect(jsonData.token).to.be.a(\"string\").and.not.empty;",
-									"});"
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"    console.log(\"Token JWT salvo com sucesso!\");",
+									"}"
 								],
 								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "POST",
 						"header": [
 							{
@@ -59,19 +127,24 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"admin@jilocomjurubeba.com\",\n    \"senha\": \"admin123\"\n}"
+							"raw": "{\n    \"email\": \"{{admin_login}}\",\n    \"senha\": \"{{admin_password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/auth/login",
+							"raw": "{{base_url}}/auth/login",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"auth",
 								"login"
 							]
 						},
-						"description": "Autentica um usuario e retorna um token JWT.\n\nO token e salvo automaticamente na variavel de colecao `{{token}}` para uso nas demais requests."
+						"description": "Autentica um usuario e retorna um token JWT.\n\nO token e salvo automaticamente na variavel de colecao `{{token}}` para uso nas demais requests.\n\n**Credenciais de dev:** Configuradas nas variaveis `{{admin_login}}` e `{{admin_password}}`.\n\n**Nota:** Este endpoint usa `/auth/login` (sem `/v1/`) pois esta fora do versionamento da API."
 					},
 					"response": []
 				}
@@ -108,9 +181,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/health",
+							"raw": "{{base_url}}/v1/health",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
@@ -145,7 +218,13 @@
 									"",
 									"pm.test(\"Has Location header\", function () {",
 									"    pm.response.to.have.header(\"Location\");",
-									"});"
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"tipoUsuarioId\", jsonData.id);",
+									"    console.log(\"tipoUsuarioId salvo: \" + jsonData.id);",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -171,19 +250,24 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"TESTE\",\n    \"descricao\": \"Tipo teste\"\n}"
+							"raw": "{\n    \"nome\": \"TESTE\",\n    \"descricao\": \"Tipo teste criado via Postman\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/v1/tipos-usuario",
+							"raw": "{{base_url}}/v1/tipos-usuario",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"tipos-usuario"
 							]
 						},
-						"description": "Cria um novo tipo de usuario. Retorna 201 Created com header Location."
+						"description": "Cria um novo tipo de usuario. Retorna 201 Created com header Location.\n\nO ID criado e salvo automaticamente na variavel `{{tipoUsuarioId}}`."
 					},
 					"response": []
 				},
@@ -201,6 +285,11 @@
 									"pm.test(\"Response is an array\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});",
+									"",
+									"pm.test(\"Array has at least 3 default types\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.at.least(3);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -221,16 +310,16 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/tipos-usuario",
+							"raw": "{{base_url}}/v1/tipos-usuario",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"tipos-usuario"
 							]
 						},
-						"description": "Retorna todos os tipos de usuario cadastrados."
+						"description": "Retorna todos os tipos de usuario cadastrados. Os 3 tipos padrao (MASTER, DONO_RESTAURANTE, CLIENTE) sao criados automaticamente pelo seeder."
 					},
 					"response": []
 				},
@@ -270,17 +359,17 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/tipos-usuario/1",
+							"raw": "{{base_url}}/v1/tipos-usuario/{{tipoUsuarioId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"tipos-usuario",
-								"1"
+								"{{tipoUsuarioId}}"
 							]
 						},
-						"description": "Retorna um tipo de usuario pelo seu identificador."
+						"description": "Retorna um tipo de usuario pelo seu identificador. Usa o ID salvo automaticamente pelo request 'Criar Tipo Usuario'."
 					},
 					"response": []
 				},
@@ -324,20 +413,25 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"TESTE_ATUALIZADO\",\n    \"descricao\": \"Desc atualizada\"\n}"
+							"raw": "{\n    \"nome\": \"TESTE_ATUALIZADO\",\n    \"descricao\": \"Descricao atualizada via Postman\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/v1/tipos-usuario/1",
+							"raw": "{{base_url}}/v1/tipos-usuario/{{tipoUsuarioId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"tipos-usuario",
-								"1"
+								"{{tipoUsuarioId}}"
 							]
 						},
-						"description": "Atualiza um tipo de usuario existente."
+						"description": "Atualiza um tipo de usuario existente. Usa o ID salvo automaticamente pelo request 'Criar Tipo Usuario'."
 					},
 					"response": []
 				},
@@ -370,17 +464,17 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/tipos-usuario/1",
+							"raw": "{{base_url}}/v1/tipos-usuario/{{tipoUsuarioId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"tipos-usuario",
-								"1"
+								"{{tipoUsuarioId}}"
 							]
 						},
-						"description": "Desativa (soft delete) um tipo de usuario. Retorna 204 No Content."
+						"description": "Desativa (soft delete) um tipo de usuario. Retorna 204 No Content. Usa o ID salvo automaticamente."
 					},
 					"response": []
 				}
@@ -388,7 +482,7 @@
 		},
 		{
 			"name": "Usuario",
-			"description": "Gerenciamento de usuarios do sistema. POST /v1/usuarios e publico (criacao de conta). Demais endpoints requerem autenticacao Bearer Token.",
+			"description": "Gerenciamento de usuarios do sistema.\n\n**POST /v1/usuarios e PUBLICO** (criacao de conta, sem autenticacao).\nDemais endpoints requerem autenticacao Bearer Token.",
 			"item": [
 				{
 					"name": "Criar Usuario",
@@ -408,7 +502,13 @@
 									"",
 									"pm.test(\"Has Location header\", function () {",
 									"    pm.response.to.have.header(\"Location\");",
-									"});"
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"usuarioId\", jsonData.id);",
+									"    console.log(\"usuarioId salvo: \" + jsonData.id);",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -416,14 +516,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [
@@ -434,19 +527,24 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"Joao Silva\",\n    \"cpf\": \"12345678901\",\n    \"email\": \"joao@email.com\",\n    \"telefone\": \"11999999999\",\n    \"tipoUsuarioId\": 2,\n    \"senha\": \"senha123\"\n}"
+							"raw": "{\n    \"nome\": \"Joao Silva\",\n    \"cpf\": \"73456289051\",\n    \"email\": \"joao@email.com\",\n    \"telefone\": \"11999999999\",\n    \"tipoUsuarioId\": 2,\n    \"senha\": \"senha123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/v1/usuarios",
+							"raw": "{{base_url}}/v1/usuarios",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"usuarios"
 							]
 						},
-						"description": "Cria um novo usuario no sistema. Retorna 201 Created com header Location.\n\nCampos obrigatorios: nome, cpf (11 digitos), email, tipoUsuarioId, senha (min 6 chars).\nCampo opcional: telefone."
+						"description": "Cria um novo usuario no sistema. Retorna 201 Created com header Location.\n\n**Este endpoint e PUBLICO** (nao requer autenticacao).\n\nO ID criado e salvo automaticamente na variavel `{{usuarioId}}`.\n\nCampos obrigatorios: nome, cpf (11 digitos validos), email, tipoUsuarioId, senha (min 6 chars).\nCampo opcional: telefone.\n\n**Nota:** O tipoUsuarioId=2 corresponde a DONO_RESTAURANTE (criado pelo seeder)."
 					},
 					"response": []
 				},
@@ -464,6 +562,11 @@
 									"pm.test(\"Response is an array\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});",
+									"",
+									"pm.test(\"Array has at least 1 user (admin)\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.at.least(1);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -484,16 +587,16 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/usuarios",
+							"raw": "{{base_url}}/v1/usuarios",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"usuarios"
 							]
 						},
-						"description": "Retorna todos os usuarios cadastrados."
+						"description": "Retorna todos os usuarios cadastrados. Requer autenticacao."
 					},
 					"response": []
 				},
@@ -533,17 +636,17 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/usuarios/1",
+							"raw": "{{base_url}}/v1/usuarios/{{usuarioId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"usuarios",
-								"1"
+								"{{usuarioId}}"
 							]
 						},
-						"description": "Retorna um usuario pelo seu identificador."
+						"description": "Retorna um usuario pelo seu identificador. Usa o ID salvo automaticamente pelo request 'Criar Usuario'."
 					},
 					"response": []
 				},
@@ -560,7 +663,7 @@
 									"",
 									"pm.test(\"Nome was updated\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.nome).to.include(\"Atualizado\");",
+									"    pm.expect(jsonData.nome).to.include(\"ATUALIZADO\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -587,20 +690,25 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"Joao Atualizado\",\n    \"email\": \"joao.novo@email.com\",\n    \"telefone\": \"11888888888\"\n}"
+							"raw": "{\n    \"nome\": \"Joao Atualizado\",\n    \"email\": \"joao.novo@email.com\",\n    \"telefone\": \"11888888888\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/v1/usuarios/1",
+							"raw": "{{base_url}}/v1/usuarios/{{usuarioId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"usuarios",
-								"1"
+								"{{usuarioId}}"
 							]
 						},
-						"description": "Atualiza um usuario existente. Campos atualizaveis: nome, email, telefone."
+						"description": "Atualiza um usuario existente. Campos atualizaveis: nome, email, telefone. Usa o ID salvo automaticamente."
 					},
 					"response": []
 				},
@@ -633,17 +741,17 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/usuarios/1",
+							"raw": "{{base_url}}/v1/usuarios/{{usuarioId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"usuarios",
-								"1"
+								"{{usuarioId}}"
 							]
 						},
-						"description": "Desativa (soft delete) um usuario. Retorna 204 No Content."
+						"description": "Desativa (soft delete) um usuario. Retorna 204 No Content. Usa o ID salvo automaticamente."
 					},
 					"response": []
 				}
@@ -651,7 +759,7 @@
 		},
 		{
 			"name": "Restaurante",
-			"description": "Gerenciamento de restaurantes do sistema. GET endpoints sao publicos. POST/PUT/DELETE requerem autenticacao Bearer Token com role DONO_RESTAURANTE ou MASTER.",
+			"description": "Gerenciamento de restaurantes do sistema.\n\n**GET endpoints sao publicos** (sem autenticacao).\nPOST/PUT/DELETE requerem autenticacao Bearer Token.",
 			"item": [
 				{
 					"name": "Criar Restaurante",
@@ -671,7 +779,13 @@
 									"",
 									"pm.test(\"Has Location header\", function () {",
 									"    pm.response.to.have.header(\"Location\");",
-									"});"
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"restauranteId\", jsonData.id);",
+									"    console.log(\"restauranteId salvo: \" + jsonData.id);",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -697,19 +811,24 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"Sabor Brasil\",\n    \"endereco\": \"Rua A 123\",\n    \"tipoCozinha\": \"BRASILEIRA\",\n    \"horaAbertura\": \"08:00\",\n    \"horaFechamento\": \"22:00\",\n    \"donoId\": 1\n}"
+							"raw": "{\n    \"nome\": \"Sabor Brasil\",\n    \"endereco\": \"Rua A 123\",\n    \"tipoCozinha\": \"BRASILEIRA\",\n    \"horaAbertura\": \"08:00\",\n    \"horaFechamento\": \"22:00\",\n    \"donoId\": {{usuarioId}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/v1/restaurantes",
+							"raw": "{{base_url}}/v1/restaurantes",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"restaurantes"
 							]
 						},
-						"description": "Cria um novo restaurante no sistema. Retorna 201 Created com header Location.\n\nCampos obrigatorios: nome, endereco, tipoCozinha, horaAbertura, horaFechamento, donoId.\nHorarios no formato HH:mm (ex: \"08:00\", \"22:00\")."
+						"description": "Cria um novo restaurante no sistema. Retorna 201 Created com header Location.\n\nO ID criado e salvo automaticamente na variavel `{{restauranteId}}`.\n\nCampos obrigatorios: nome, endereco, tipoCozinha, horaAbertura, horaFechamento, donoId.\nHorarios no formato HH:mm (ex: \"08:00\", \"22:00\").\n\n**Nota:** O donoId usa `{{usuarioId}}` criado no passo anterior (deve ser DONO_RESTAURANTE)."
 					},
 					"response": []
 				},
@@ -735,28 +854,21 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/restaurantes",
+							"raw": "{{base_url}}/v1/restaurantes",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"restaurantes"
 							]
 						},
-						"description": "Retorna todos os restaurantes cadastrados. Este endpoint e publico (GET)."
+						"description": "Retorna todos os restaurantes cadastrados. **Este endpoint e publico** (sem autenticacao)."
 					},
 					"response": []
 				},
@@ -783,29 +895,22 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/restaurantes/1",
+							"raw": "{{base_url}}/v1/restaurantes/{{restauranteId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"restaurantes",
-								"1"
+								"{{restauranteId}}"
 							]
 						},
-						"description": "Retorna um restaurante pelo seu identificador. Este endpoint e publico (GET)."
+						"description": "Retorna um restaurante pelo seu identificador. **Este endpoint e publico** (sem autenticacao). Usa o ID salvo automaticamente."
 					},
 					"response": []
 				},
@@ -822,7 +927,7 @@
 									"",
 									"pm.test(\"Nome was updated\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.nome).to.include(\"Premium\");",
+									"    pm.expect(jsonData.nome).to.include(\"PREMIUM\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -849,20 +954,31 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"Sabor Brasil Premium\",\n    \"endereco\": \"Rua B 456\",\n    \"tipoCozinha\": \"ITALIANA\",\n    \"horaAbertura\": \"09:00\",\n    \"horaFechamento\": \"23:00\"\n}"
+							"raw": "{\n    \"nome\": \"Sabor Brasil Premium\",\n    \"endereco\": \"Rua B 456\",\n    \"tipoCozinha\": \"ITALIANA\",\n    \"horaAbertura\": \"09:00\",\n    \"horaFechamento\": \"23:00\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/v1/restaurantes/1",
+							"raw": "{{base_url}}/v1/restaurantes/{{restauranteId}}?donoId={{usuarioId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"restaurantes",
-								"1"
+								"{{restauranteId}}"
+							],
+							"query": [
+								{
+									"key": "donoId",
+									"value": "{{usuarioId}}"
+								}
 							]
 						},
-						"description": "Atualiza um restaurante existente. Requer role DONO_RESTAURANTE ou MASTER."
+						"description": "Atualiza um restaurante existente. Requer autenticacao e validacao de propriedade (apenas o dono pode atualizar). Usa IDs salvos automaticamente."
 					},
 					"response": []
 				},
@@ -895,17 +1011,17 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/restaurantes/1",
+							"raw": "{{base_url}}/v1/restaurantes/{{restauranteId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"restaurantes",
-								"1"
+								"{{restauranteId}}"
 							]
 						},
-						"description": "Desativa (soft delete) um restaurante. Retorna 204 No Content. Requer role DONO_RESTAURANTE ou MASTER."
+						"description": "Desativa (soft delete) um restaurante. Retorna 204 No Content. Requer autenticacao. Usa o ID salvo automaticamente."
 					},
 					"response": []
 				}
@@ -913,7 +1029,7 @@
 		},
 		{
 			"name": "Cardapio",
-			"description": "Gerenciamento de itens de cardapio do sistema. GET endpoints sao publicos. POST/PUT/DELETE requerem autenticacao Bearer Token com role DONO_RESTAURANTE ou MASTER.",
+			"description": "Gerenciamento de itens de cardapio do sistema.\n\n**GET endpoints sao publicos** (sem autenticacao).\nPOST/PUT/DELETE requerem autenticacao Bearer Token.",
 			"item": [
 				{
 					"name": "Criar Item Cardapio",
@@ -933,7 +1049,13 @@
 									"",
 									"pm.test(\"Has Location header\", function () {",
 									"    pm.response.to.have.header(\"Location\");",
-									"});"
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"cardapioId\", jsonData.id);",
+									"    console.log(\"cardapioId salvo: \" + jsonData.id);",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -959,19 +1081,24 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"Feijoada\",\n    \"descricao\": \"Feijoada completa\",\n    \"preco\": 45.90,\n    \"apenasNoLocal\": false,\n    \"caminhoFoto\": \"/fotos/feijoada.jpg\",\n    \"restauranteId\": 1\n}"
+							"raw": "{\n    \"nome\": \"Feijoada\",\n    \"descricao\": \"Feijoada completa com arroz, farofa e couve\",\n    \"preco\": 45.90,\n    \"apenasNoLocal\": false,\n    \"caminhoFoto\": \"/fotos/feijoada.jpg\",\n    \"restauranteId\": {{restauranteId}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/v1/cardapios",
+							"raw": "{{base_url}}/v1/cardapios",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"cardapios"
 							]
 						},
-						"description": "Cria um novo item de cardapio no sistema. Retorna 201 Created com header Location.\n\nCampos obrigatorios: nome, preco (> 0), restauranteId.\nCampos opcionais: descricao, apenasNoLocal (default false), caminhoFoto.\nRequer role DONO_RESTAURANTE ou MASTER."
+						"description": "Cria um novo item de cardapio no sistema. Retorna 201 Created com header Location.\n\nO ID criado e salvo automaticamente na variavel `{{cardapioId}}`.\n\nCampos obrigatorios: nome, preco (> 0), restauranteId.\nCampos opcionais: descricao, apenasNoLocal (default false), caminhoFoto.\n\n**Nota:** O restauranteId usa `{{restauranteId}}` criado no passo anterior."
 					},
 					"response": []
 				},
@@ -997,28 +1124,21 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/cardapios",
+							"raw": "{{base_url}}/v1/cardapios",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"cardapios"
 							]
 						},
-						"description": "Retorna todos os itens de cardapio cadastrados. Este endpoint e publico (GET)."
+						"description": "Retorna todos os itens de cardapio cadastrados. **Este endpoint e publico** (sem autenticacao)."
 					},
 					"response": []
 				},
@@ -1046,29 +1166,22 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/cardapios/1",
+							"raw": "{{base_url}}/v1/cardapios/{{cardapioId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"cardapios",
-								"1"
+								"{{cardapioId}}"
 							]
 						},
-						"description": "Retorna um item de cardapio pelo seu identificador. Este endpoint e publico (GET)."
+						"description": "Retorna um item de cardapio pelo seu identificador. **Este endpoint e publico** (sem autenticacao). Usa o ID salvo automaticamente."
 					},
 					"response": []
 				},
@@ -1085,7 +1198,7 @@
 									"",
 									"pm.test(\"Nome was updated\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.nome).to.include(\"Premium\");",
+									"    pm.expect(jsonData.nome).to.include(\"PREMIUM\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1112,20 +1225,31 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"Feijoada Premium\",\n    \"descricao\": \"Feijoada premium completa\",\n    \"preco\": 55.90,\n    \"apenasNoLocal\": true,\n    \"caminhoFoto\": \"/fotos/feijoada-premium.jpg\"\n}"
+							"raw": "{\n    \"nome\": \"Feijoada Premium\",\n    \"descricao\": \"Feijoada premium completa com todas as carnes nobres\",\n    \"preco\": 55.90,\n    \"apenasNoLocal\": true,\n    \"caminhoFoto\": \"/fotos/feijoada-premium.jpg\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/v1/cardapios/1",
+							"raw": "{{base_url}}/v1/cardapios/{{cardapioId}}?donoId={{usuarioId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"cardapios",
-								"1"
+								"{{cardapioId}}"
+							],
+							"query": [
+								{
+									"key": "donoId",
+									"value": "{{usuarioId}}"
+								}
 							]
 						},
-						"description": "Atualiza um item de cardapio existente. Requer role DONO_RESTAURANTE ou MASTER."
+						"description": "Atualiza um item de cardapio existente. Requer autenticacao e validacao de propriedade (apenas o dono do restaurante pode atualizar). Usa IDs salvos automaticamente."
 					},
 					"response": []
 				},
@@ -1158,17 +1282,17 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/v1/cardapios/1",
+							"raw": "{{base_url}}/v1/cardapios/{{cardapioId}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"v1",
 								"cardapios",
-								"1"
+								"{{cardapioId}}"
 							]
 						},
-						"description": "Desativa (soft delete) um item de cardapio. Retorna 204 No Content. Requer role DONO_RESTAURANTE ou MASTER."
+						"description": "Desativa (soft delete) um item de cardapio. Retorna 204 No Content. Requer autenticacao. Usa o ID salvo automaticamente."
 					},
 					"response": []
 				}

@@ -233,7 +233,7 @@ Use o token retornado no header: `Authorization: Bearer <token>`
 
 | Metodo | Endpoint             | Descricao              | Auth     |
 |--------|----------------------|------------------------|----------|
-| POST   | /v1/usuarios         | Criar usuario          | Sim (JWT)|
+| POST   | /v1/usuarios         | Criar usuario          | **Nao** (publico)|
 | GET    | /v1/usuarios         | Listar todos           | Sim (JWT)|
 | GET    | /v1/usuarios/{id}    | Buscar por ID          | Sim (JWT)|
 | PUT    | /v1/usuarios/{id}    | Atualizar              | Sim (JWT)|
@@ -267,13 +267,102 @@ Documentacao interativa completa disponivel em: **http://localhost:8080/swagger-
 
 ## Postman Collection
 
-Uma collection completa esta disponivel para importacao:
+Uma collection completa do Postman esta disponivel em [`docs/postman/`](docs/postman/) com **22 requests** prontos para teste, incluindo scripts automaticos que salvam o token JWT.
 
-1. Abra o Postman
-2. Importe o arquivo: `docs/postman/Jilo-com-Jurubeba-API.postman_collection.json`
-3. Configure a variavel `baseUrl` para `http://localhost:8080`
-4. Execute primeiro o request **"Login"** - o token JWT sera salvo automaticamente
-5. Todos os demais requests usarao o token automaticamente
+### 1. Pre-requisitos
+
+| Requisito | Descricao |
+|-----------|-----------|
+| **Postman** | [Baixar aqui](https://www.postman.com/downloads/) (desktop) ou usar a [versao web](https://web.postman.com/) |
+| **Aplicacao rodando** | Escolha uma das opcoes abaixo para iniciar a API |
+
+```bash
+# Opcao A - H2 em memoria (mais rapido, sem Docker)
+./mvnw spring-boot:run
+
+# Opcao B - Stack completa via Docker (app + MySQL)
+docker-compose up --build -d
+```
+
+> A API estara disponivel em **http://localhost:8080**
+
+### 2. Importar a Collection no Postman
+
+1. Abra o **Postman** (desktop ou web)
+2. Clique no botao **"Import"** no canto superior esquerdo
+3. Na janela que abrir, escolha uma das opcoes:
+   - **Arrastar e soltar:** arraste o arquivo diretamente para a janela do Postman
+   - **Upload:** clique em **"Upload Files"** e navegue ate:
+     ```
+     docs/postman/Jilo-com-Jurubeba-API.postman_collection.json
+     ```
+4. O Postman mostrara um preview da collection — clique em **"Import"** para confirmar
+5. A collection **"Jilo com Jurubeba API"** aparecera na barra lateral esquerda com 6 pastas
+
+### 3. Configurar Variaveis (opcional)
+
+A collection ja vem com as variaveis pre-configuradas. So altere se necessario:
+
+| Variavel           | Valor padrao                    | Descricao                  |
+|--------------------|--------------------------------|----------------------------|
+| `base_url`         | `http://localhost:8080`        | URL base da API            |
+| `token`            | *(preenchido automaticamente)* | Token JWT                  |
+| `admin_login`      | `admin@jilocomjurubeba.com`    | Email do admin             |
+| `admin_password`   | `admin123`                     | Senha do admin             |
+| `tipoUsuarioId`    | *(preenchido automaticamente)* | ID do ultimo tipo criado   |
+| `usuarioId`        | *(preenchido automaticamente)* | ID do ultimo usuario criado|
+| `restauranteId`    | *(preenchido automaticamente)* | ID do ultimo restaurante   |
+| `cardapioId`       | *(preenchido automaticamente)* | ID do ultimo item criado   |
+
+> **Para editar:** clique com botao direito na collection → **Edit** → aba **Variables**
+>
+> **Auto-login:** A collection possui um pre-request script que faz login automaticamente se o token estiver vazio e o endpoint exigir autenticacao.
+
+### 4. Autenticacao (JWT) — Primeiro passo obrigatorio
+
+A API ja vem com um usuario administrador pre-cadastrado (criado automaticamente pelo seeder):
+
+| Campo    | Valor                          |
+|----------|--------------------------------|
+| **Email**| `admin@jilocomjurubeba.com`    |
+| **Senha**| `admin123`                     |
+
+**Para autenticar:**
+
+1. Expanda a pasta **Auth** na collection
+2. Clique em **"Login"** e depois em **"Send"**
+   - O body usa as variaveis `{{admin_login}}` e `{{admin_password}}` (configuradas na collection)
+3. Voce recebera um JSON com o campo `token`
+4. O token e **salvo automaticamente** na variavel `{{token}}` (via script do Postman)
+5. Todos os demais requests ja usam `Authorization: Bearer {{token}}` — nao precisa copiar nada manualmente
+6. Os IDs criados nos POST sao salvos automaticamente (`{{tipoUsuarioId}}`, `{{usuarioId}}`, etc.) para uso nos requests seguintes
+
+> **Token expirou?** Se os requests retornarem `401 Unauthorized`, execute o Login novamente.
+
+### 5. Ordem sugerida para testar
+
+A collection esta organizada em pastas na ordem recomendada de execucao:
+
+| # | Pasta          | Descricao                                      | Endpoints | Auth? |
+|---|----------------|-------------------------------------------------|-----------|-------|
+| 1 | **Auth**       | Fazer login e obter token JWT                   | 1         | Nao   |
+| 2 | **Saude**      | Verificar se a API esta no ar (`/v1/health`)    | 1         | Nao   |
+| 3 | **TipoUsuario**| CRUD de tipos de usuario (MASTER, DONO, CLIENTE)| 5         | Sim   |
+| 4 | **Usuario**    | CRUD de usuarios (POST e publico, demais autenticados)| 5   | Misto |
+| 5 | **Restaurante**| CRUD de restaurantes (vinculados a um dono)     | 5         | Sim   |
+| 6 | **Cardapio**   | CRUD de itens do cardapio (vinculados a restaurante)| 5     | Sim   |
+
+> **Dica:** Cada pasta segue o fluxo **Criar → Listar → Buscar por ID → Atualizar → Deletar**.
+> Todos os requests ja vem com exemplos de payload preenchidos e scripts de teste automaticos.
+
+### 6. Executar todos os testes de uma vez (Runner)
+
+O Postman permite rodar toda a collection de uma vez:
+
+1. Clique com botao direito na collection → **"Run collection"**
+2. Marque todas as pastas (ou selecione as desejadas)
+3. Clique em **"Run Jilo com Jurubeba API"**
+4. O Postman executara todos os 22 requests em sequencia e mostrara os resultados dos testes
 
 ---
 
@@ -329,6 +418,18 @@ docker-compose logs -f api
 docker-compose down -v
 ```
 
+### Usuario administrador
+
+A aplicacao cria automaticamente um usuario MASTER no startup:
+
+| Campo    | Valor                          |
+|----------|--------------------------------|
+| Email    | `admin@jilocomjurubeba.com`    |
+| Senha    | `admin123`                     |
+| Tipo     | MASTER (acesso total)          |
+
+> Este usuario e criado pelo `UsuarioDataSeeder` (H2) ou pelo Flyway seed (MySQL/PostgreSQL).
+
 ### Variaveis de Ambiente
 
 | Variavel                 | Padrao               | Descricao                        |
@@ -339,6 +440,7 @@ docker-compose down -v
 | `DB_USER`                | `jilocomjurubeba`    | Usuario do banco                 |
 | `DB_PASSWORD`            | `jilocomjurubeba123` | Senha do banco                   |
 | `JWT_SECRET`             | _(fallback interno)_ | Segredo para tokens JWT         |
+| `MASTER_PASSWORD_HASH`   | _(BCrypt do admin123)_| Hash da senha do admin (Flyway) |
 | `SPRING_PROFILES_ACTIVE` | _(nenhum = H2)_      | `dev` para MySQL                 |
 
 ---

@@ -50,7 +50,7 @@ services:
 
       JWT_SECRET: ${JWT_SECRET:-change-me-in-dev}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-1440}
-      MASTER_PASSWORD_HASH: ${MASTER_PASSWORD_HASH:-$$2a$$10$$defaulthashplaceholder}
+      MASTER_PASSWORD_HASH: ${MASTER_PASSWORD_HASH:-$$2a$$10$$Xsx0MV.lnEBwSXtBwC11xuu1D.PXvwOg663hgi/KUV7E73GKBcsfy}
 
       SERVER_PORT: 8080
 
