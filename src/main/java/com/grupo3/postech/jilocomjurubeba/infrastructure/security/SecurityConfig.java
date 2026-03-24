@@ -94,7 +94,9 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(csrf -> csrf.disable())
+        // CSRF desabilitado intencionalmente: API REST stateless com autenticacao JWT.
+        // Sem cookies de sessao, nao ha vetor de ataque CSRF. (SonarQube java:S4502 - Safe)
+        return http.csrf(csrf -> csrf.disable()) // NOSONAR
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
@@ -114,9 +116,9 @@ public class SecurityConfig {
                                                 "/swagger-ui/**",
                                                 "/swagger-ui.html")
                                         .permitAll()
-                                        .requestMatchers(HttpMethod.POST, "/v1/auth/login")
+                                        .requestMatchers("/auth/**")
                                         .permitAll()
-                                        .requestMatchers("/v1/auth/**")
+                                        .requestMatchers(HttpMethod.POST, "/v1/usuarios")
                                         .permitAll()
                                         .requestMatchers(HttpMethod.GET, "/v1/cardapios/**")
                                         .permitAll()
