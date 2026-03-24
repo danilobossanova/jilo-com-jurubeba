@@ -74,10 +74,10 @@ WHERE NOT EXISTS (SELECT 1 FROM tipo_usuario WHERE nome = 'CLIENTE');
 INSERT INTO usuario (nome, email, senha_hash, ativo, tipo_usuario_id, cpf, telefone)
 SELECT
     'MASTER',
-    'master@jilo.com',
+    'admin@jilocomjurubeba.com',
     '${master_password_hash}',
     TRUE,
     (SELECT id FROM tipo_usuario WHERE nome = 'MASTER' LIMIT 1),
     '00000000000',
     '79999999999'
-WHERE NOT EXISTS (SELECT 1 FROM usuario WHERE email = 'master@jilo.com');
+WHERE NOT EXISTS (SELECT 1 FROM usuario WHERE email = 'admin@jilocomjurubeba.com');

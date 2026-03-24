@@ -3,6 +3,7 @@ package com.grupo3.postech.jilocomjurubeba.infrastructure.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.tipousuario.entity.TipoUsuarioJpaEntity;
@@ -24,6 +25,7 @@ import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.tipousuario
  *     </ul>
  */
 @Component
+@Order(1)
 public class TipoUsuarioDataSeeder implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(TipoUsuarioDataSeeder.class);

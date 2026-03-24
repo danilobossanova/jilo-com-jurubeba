@@ -76,14 +76,14 @@ SET @TIPO_MASTER_ID := (SELECT id FROM tipo_usuario WHERE nome = 'MASTER' LIMIT 
 INSERT INTO usuario (nome, email, senha_hash, ativo, tipo_usuario_id, cpf, telefone)
 SELECT
     'MASTER',
-    'master@jilo.com',
+    'admin@jilocomjurubeba.com',
     '${master_password_hash}',
     1,
     @TIPO_MASTER_ID,
     '00000000000',
     '79999999999'
 WHERE NOT EXISTS (
-    SELECT 1 FROM usuario WHERE email = 'master@jilo.com'
+    SELECT 1 FROM usuario WHERE email = 'admin@jilocomjurubeba.com'
 );
 
 -- ============================================================
@@ -92,7 +92,7 @@ WHERE NOT EXISTS (
 -- ============================================================
 
 SET @DONO_ID := (
-    SELECT id FROM usuario WHERE email = 'master@jilo.com' LIMIT 1
+    SELECT id FROM usuario WHERE email = 'admin@jilocomjurubeba.com' LIMIT 1
 );
 
 -- ============================================================
