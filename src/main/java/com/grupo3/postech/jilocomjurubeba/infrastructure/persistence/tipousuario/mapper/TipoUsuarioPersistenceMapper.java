@@ -15,7 +15,14 @@ import com.grupo3.postech.jilocomjurubeba.infrastructure.persistence.tipousuario
  * implementacao manual para evitar ambiguidade de construtores no MapStruct (a entidade de dominio
  * tem 2 construtores e nao pode ter anotacoes de framework).
  *
- * @author Danilo Fernando
+ * @author Grupo 3 - Tech Challenge POSTECH FIAP - Fase 2 - Data Guardian
+ *     <ul>
+ *       <li>Thiago de Jesus Cordeiro - Desenvolvimento e Arquitetura
+ *       <li>Juliana Maria Dal Olio Braz - Desenvolvimento e Arquitetura
+ *       <li>Luis Henrique Silveira Borges - Desenvolvimento e Arquitetura
+ *       <li>Gilmar da Costa Moraes Junior - Desenvolvimento e Arquitetura
+ *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
+ *     </ul>
  */
 @Mapper(componentModel = "spring")
 public interface TipoUsuarioPersistenceMapper {

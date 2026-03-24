@@ -1,0 +1,4 @@
+-- Dados iniciais de TipoUsuario (idempotente para H2)
+MERGE INTO tipo_usuario (nome, descricao, ativo) KEY (nome) VALUES ('MASTER', 'Administrador do sistema', true);
+MERGE INTO tipo_usuario (nome, descricao, ativo) KEY (nome) VALUES ('DONO_RESTAURANTE', 'Proprietario de restaurante', true);
+MERGE INTO tipo_usuario (nome, descricao, ativo) KEY (nome) VALUES ('CLIENTE', 'Consumidor', true);

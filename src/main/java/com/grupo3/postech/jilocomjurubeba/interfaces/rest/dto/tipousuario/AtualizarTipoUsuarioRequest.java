@@ -6,11 +6,23 @@ import jakarta.validation.constraints.Size;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * Request DTO para atualizacao de TipoUsuario.
+ * Request DTO para atualizacao de um tipo de usuario existente.
  *
- * @param nome novo nome do tipo
- * @param descricao nova descricao do tipo
- * @author Danilo Fernando
+ * <p>Utilizado no endpoint {@code PUT /v1/tipos-usuario/{id}}. Os campos sao validados com Bean
+ * Validation antes de serem convertidos para {@code AtualizarTipoUsuarioInput} pelo {@code
+ * TipoUsuarioRestMapper}. O {@code id} e fornecido via path variable.
+ *
+ * @param nome novo nome do tipo de usuario (obrigatorio, max 50 caracteres). Sera normalizado para
+ *     UPPERCASE no dominio
+ * @param descricao nova descricao do tipo de usuario (obrigatoria, max 255 caracteres)
+ * @author Grupo 3 - Tech Challenge POSTECH FIAP - Fase 2 - Data Guardian
+ *     <ul>
+ *       <li>Thiago de Jesus Cordeiro - Desenvolvimento e Arquitetura
+ *       <li>Juliana Maria Dal Olio Braz - Desenvolvimento e Arquitetura
+ *       <li>Luis Henrique Silveira Borges - Desenvolvimento e Arquitetura
+ *       <li>Gilmar da Costa Moraes Junior - Desenvolvimento e Arquitetura
+ *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
+ *     </ul>
  */
 @Schema(description = "Dados para atualizacao de um tipo de usuario existente")
 public record AtualizarTipoUsuarioRequest(

@@ -1,30 +1,83 @@
 -- =====================================================================
--- V001: Criar tabela tipos_usuario
--- Armazena os tipos/papeis de usuario do sistema.
--- Substitui o enum tipo_usuario por tabela para permitir CRUD.
+-- V001 - Schema inicial PostgreSQL + seed
+-- Tabelas alinhadas com as entidades JPA:
+--   tipo_usuario, usuario, restaurante, cardapio
 -- =====================================================================
 
-CREATE TABLE tipos_usuario (
-    id              BIGSERIAL       PRIMARY KEY,
-    nome            VARCHAR(50)     NOT NULL,
-    descricao       VARCHAR(255)    NOT NULL,
-    ativo           BOOLEAN         NOT NULL DEFAULT TRUE,
-    criado_em       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em   TIMESTAMP,
-
-    CONSTRAINT uk_tipos_usuario_nome UNIQUE (nome)
+CREATE TABLE IF NOT EXISTS tipo_usuario (
+    id BIGSERIAL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL UNIQUE,
+    descricao VARCHAR(255) NOT NULL,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE INDEX idx_tipos_usuario_nome ON tipos_usuario (nome);
-CREATE INDEX idx_tipos_usuario_ativo ON tipos_usuario (ativo);
+CREATE TABLE IF NOT EXISTS usuario (
+    id BIGSERIAL PRIMARY KEY,
+    nome VARCHAR(120) NOT NULL,
+    cpf VARCHAR(14) NOT NULL UNIQUE,
+    email VARCHAR(120) NOT NULL UNIQUE,
+    telefone VARCHAR(20),
+    tipo_usuario_id BIGINT NOT NULL,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    senha_hash VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_usuario_tipo_usuario
+        FOREIGN KEY (tipo_usuario_id) REFERENCES tipo_usuario (id)
+);
 
-COMMENT ON TABLE tipos_usuario IS 'Tipos/papeis de usuario no sistema';
-COMMENT ON COLUMN tipos_usuario.nome IS 'Nome unico do tipo (MASTER, DONO_RESTAURANTE, CLIENTE)';
-COMMENT ON COLUMN tipos_usuario.descricao IS 'Descricao legivel do tipo de usuario';
-COMMENT ON COLUMN tipos_usuario.ativo IS 'Soft delete - FALSE significa tipo desativado';
+CREATE TABLE IF NOT EXISTS restaurante (
+    id BIGSERIAL PRIMARY KEY,
+    nome VARCHAR(120) NOT NULL,
+    endereco VARCHAR(255) NOT NULL,
+    type_cozinha VARCHAR(40) NOT NULL,
+    hora_abertura TIME NOT NULL,
+    hora_fechamento TIME NOT NULL,
+    dono_id BIGINT NOT NULL,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    CONSTRAINT fk_restaurante_dono
+        FOREIGN KEY (dono_id) REFERENCES usuario (id)
+);
 
--- Dados iniciais
-INSERT INTO tipos_usuario (nome, descricao) VALUES
-    ('MASTER', 'Administrador do sistema com acesso total'),
-    ('DONO_RESTAURANTE', 'Proprietario de restaurante que gerencia cardapios'),
-    ('CLIENTE', 'Cliente que consulta restaurantes e cardapios');
+CREATE TABLE IF NOT EXISTS cardapio (
+    id BIGSERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    descricao TEXT,
+    preco NUMERIC(19, 2) NOT NULL,
+    apenas_no_local BOOLEAN NOT NULL,
+    caminho_foto VARCHAR(255),
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    restaurante_id BIGINT NOT NULL,
+    CONSTRAINT fk_cardapio_restaurante
+        FOREIGN KEY (restaurante_id) REFERENCES restaurante (id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_usuario_tipo_usuario_id ON usuario (tipo_usuario_id);
+CREATE INDEX IF NOT EXISTS idx_restaurante_dono_id ON restaurante (dono_id);
+CREATE INDEX IF NOT EXISTS idx_cardapio_restaurante_id ON cardapio (restaurante_id);
+
+-- =====================================================================
+-- Seed inicial
+-- senha do master: fornecida via placeholder Flyway
+-- =====================================================================
+
+INSERT INTO tipo_usuario (nome, ativo, descricao)
+SELECT 'MASTER', TRUE, 'Administrador do sistema'
+WHERE NOT EXISTS (SELECT 1 FROM tipo_usuario WHERE nome = 'MASTER');
+
+INSERT INTO tipo_usuario (nome, ativo, descricao)
+SELECT 'DONO_RESTAURANTE', TRUE, 'Dono de restaurante'
+WHERE NOT EXISTS (SELECT 1 FROM tipo_usuario WHERE nome = 'DONO_RESTAURANTE');
+
+INSERT INTO tipo_usuario (nome, ativo, descricao)
+SELECT 'CLIENTE', TRUE, 'Usuário cliente da plataforma'
+WHERE NOT EXISTS (SELECT 1 FROM tipo_usuario WHERE nome = 'CLIENTE');
+
+INSERT INTO usuario (nome, email, senha_hash, ativo, tipo_usuario_id, cpf, telefone)
+SELECT
+    'MASTER',
+    'master@jilo.com',
+    '${master_password_hash}',
+    TRUE,
+    (SELECT id FROM tipo_usuario WHERE nome = 'MASTER' LIMIT 1),
+    '00000000000',
+    '79999999999'
+WHERE NOT EXISTS (SELECT 1 FROM usuario WHERE email = 'master@jilo.com');

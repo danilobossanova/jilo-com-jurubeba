@@ -1,70 +1,34 @@
-# ==========================================
-# Dockerfile Multi-stage para jilo-com-jurubeba
-# ==========================================
-# Build otimizado com camadas de cache
-# @author Danilo Fernando
-
-# -----------------------------------------
-# STAGE 1: Build da aplicação
-# -----------------------------------------
-FROM eclipse-temurin:21-jdk-alpine AS builder
+# ----------------------------
+# 1) BUILD STAGE (Maven)
+# ----------------------------
+FROM maven:3.9.9-eclipse-temurin-21-alpine AS build
 
 WORKDIR /app
 
-# Copiar arquivos Maven (cache de dependências)
 COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
 
-# Dar permissão de execução ao mvnw
-RUN chmod +x mvnw
+RUN mvn -B dependency:go-offline
 
-# Baixar dependências (cache layer)
-RUN ./mvnw dependency:go-offline -B
-
-# Copiar código fonte
 COPY src ./src
 
-# Build da aplicação (skip tests no build - rodar separadamente)
-RUN ./mvnw clean package -DskipTests -B
+RUN mvn clean package -DskipTests
 
-# Extrair layers do JAR para build mais eficiente
-RUN java -Djarmode=layertools -jar target/*.jar extract --destination target/extracted
 
-# -----------------------------------------
-# STAGE 2: Runtime da aplicação
-# -----------------------------------------
-FROM eclipse-temurin:21-jre-alpine AS runtime
+# ----------------------------
+# 2) RUNTIME STAGE
+# ----------------------------
+FROM eclipse-temurin:21-jre-alpine
 
-# Labels para metadata
-LABEL maintainer="Danilo Fernando"
-LABEL version="1.0.0"
-LABEL description="Sistema de Gestão de Restaurantes - Postech Fase 2"
-
-# Criar usuário não-root para segurança
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN addgroup --system spring && adduser --system spring --ingroup spring
 
 WORKDIR /app
 
-# Copiar layers em ordem de frequência de mudança (cache optimization)
-COPY --from=builder /app/target/extracted/dependencies/ ./
-COPY --from=builder /app/target/extracted/spring-boot-loader/ ./
-COPY --from=builder /app/target/extracted/snapshot-dependencies/ ./
-COPY --from=builder /app/target/extracted/application/ ./
+COPY --from=build /app/target/*.jar app.jar
 
-# Mudar para usuário não-root
-USER appuser
+RUN chown -R spring:spring /app
 
-# Porta da aplicação
+USER spring
+
 EXPOSE 8080
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
-
-# Comando de inicialização com configurações de produção
-ENTRYPOINT ["java", \
-    "-XX:+UseContainerSupport", \
-    "-XX:MaxRAMPercentage=75.0", \
-    "-Djava.security.egd=file:/dev/./urandom", \
-    "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]

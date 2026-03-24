@@ -44,7 +44,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * Request → Mapper → Input → UseCase.executar() → Output → Mapper → Response
  * </pre>
  *
- * @author Danilo Fernando
+ * @author Grupo 3 - Tech Challenge POSTECH FIAP - Fase 2 - Data Guardian
+ *     <ul>
+ *       <li>Thiago de Jesus Cordeiro - Desenvolvimento e Arquitetura
+ *       <li>Juliana Maria Dal Olio Braz - Desenvolvimento e Arquitetura
+ *       <li>Luis Henrique Silveira Borges - Desenvolvimento e Arquitetura
+ *       <li>Gilmar da Costa Moraes Junior - Desenvolvimento e Arquitetura
+ *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
+ *     </ul>
  */
 @RestController
 @RequestMapping("/v1/tipos-usuario")
@@ -60,6 +67,16 @@ public class TipoUsuarioController {
     private final DeletarTipoUsuarioUseCase deletarTipoUsuarioUseCase;
     private final TipoUsuarioRestMapper mapper;
 
+    /**
+     * Construtor com injecao de dependencias.
+     *
+     * @param criarTipoUsuarioUseCase caso de uso para criacao de tipo de usuario
+     * @param buscarTipoUsuarioPorIdUseCase caso de uso para busca por ID
+     * @param listarTiposUsuarioUseCase caso de uso para listagem de tipos de usuario
+     * @param atualizarTipoUsuarioUseCase caso de uso para atualizacao de tipo de usuario
+     * @param deletarTipoUsuarioUseCase caso de uso para desativacao (soft delete)
+     * @param mapper mapper para conversao entre DTOs REST e Application
+     */
     public TipoUsuarioController(
             CriarTipoUsuarioUseCase criarTipoUsuarioUseCase,
             BuscarTipoUsuarioPorIdUseCase buscarTipoUsuarioPorIdUseCase,
@@ -75,6 +92,18 @@ public class TipoUsuarioController {
         this.mapper = mapper;
     }
 
+    /**
+     * Cria um novo tipo de usuario no sistema.
+     *
+     * <p>Endpoint: {@code POST /v1/tipos-usuario}
+     *
+     * <p>Fluxo: Request -> TipoUsuarioRestMapper.toInput() -> CriarTipoUsuarioUseCase.executar() ->
+     * TipoUsuarioRestMapper.toResponse() -> Response
+     *
+     * @param request dados do tipo de usuario a ser criado (validados com Bean Validation)
+     * @return {@link ResponseEntity} com status 201 (Created), header Location e corpo com {@link
+     *     TipoUsuarioResponse}
+     */
     @PostMapping
     @Operation(summary = "Criar tipo de usuario", description = "Cria um novo tipo de usuario")
     @ApiResponses(
@@ -95,6 +124,16 @@ public class TipoUsuarioController {
         return ResponseEntity.created(location).body(response);
     }
 
+    /**
+     * Lista todos os tipos de usuario cadastrados.
+     *
+     * <p>Endpoint: {@code GET /v1/tipos-usuario}
+     *
+     * <p>Fluxo: ListarTiposUsuarioUseCase.executar() -> TipoUsuarioRestMapper.toResponseList() ->
+     * Response
+     *
+     * @return {@link ResponseEntity} com status 200 (OK) e lista de {@link TipoUsuarioResponse}
+     */
     @GetMapping
     @Operation(
             summary = "Listar tipos de usuario",
@@ -112,6 +151,17 @@ public class TipoUsuarioController {
         return ResponseEntity.ok(responses);
     }
 
+    /**
+     * Busca um tipo de usuario pelo seu identificador.
+     *
+     * <p>Endpoint: {@code GET /v1/tipos-usuario/{id}}
+     *
+     * <p>Fluxo: BuscarTipoUsuarioPorIdUseCase.executar(id) -> TipoUsuarioRestMapper.toResponse() ->
+     * Response
+     *
+     * @param id identificador unico do tipo de usuario
+     * @return {@link ResponseEntity} com status 200 (OK) e corpo com {@link TipoUsuarioResponse}
+     */
     @GetMapping("/{id}")
     @Operation(
             summary = "Buscar tipo de usuario por ID",
@@ -130,6 +180,19 @@ public class TipoUsuarioController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Atualiza um tipo de usuario existente.
+     *
+     * <p>Endpoint: {@code PUT /v1/tipos-usuario/{id}}
+     *
+     * <p>Fluxo: Request -> TipoUsuarioRestMapper.toInput(id, request) ->
+     * AtualizarTipoUsuarioUseCase.executar() -> TipoUsuarioRestMapper.toResponse() -> Response
+     *
+     * @param id identificador unico do tipo de usuario a ser atualizado
+     * @param request dados de atualizacao (validados com Bean Validation)
+     * @return {@link ResponseEntity} com status 200 (OK) e corpo com {@link TipoUsuarioResponse}
+     *     atualizado
+     */
     @PutMapping("/{id}")
     @Operation(
             summary = "Atualizar tipo de usuario",
@@ -152,6 +215,19 @@ public class TipoUsuarioController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Desativa (soft delete) um tipo de usuario.
+     *
+     * <p>Endpoint: {@code DELETE /v1/tipos-usuario/{id}}
+     *
+     * <p>Fluxo: DeletarTipoUsuarioUseCase.executar(id) -> Response 204 No Content
+     *
+     * <p>O registro nao e removido fisicamente do banco; o campo {@code ativo} e definido como
+     * {@code false}.
+     *
+     * @param id identificador unico do tipo de usuario a ser desativado
+     * @return {@link ResponseEntity} com status 204 (No Content)
+     */
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Desativar tipo de usuario",

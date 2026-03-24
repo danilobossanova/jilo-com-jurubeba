@@ -13,11 +13,22 @@ import com.grupo3.postech.jilocomjurubeba.domain.entity.tipousuario.TipoUsuario;
  * {@code TipoUsuarioGatewayJpa}).
  *
  * <p>Na Clean Architecture, este e o mecanismo de <strong>inversao de dependencia</strong>: o
- * dominio define O QUE precisa, e a infraestrutura decide COMO fazer.
+ * dominio define O QUE precisa, e a infraestrutura decide COMO fazer. O dominio depende apenas
+ * desta interface abstrata, enquanto a implementacao concreta depende do dominio, invertendo o
+ * fluxo natural de dependencia.
  *
- * @author Danilo Fernando
+ * <p>Operacoes suportadas: CRUD completo (salvar, buscar, listar, deletar) e verificacoes de
+ * existencia por nome (com e sem exclusao de id, para validacao de unicidade em atualizacoes).
+ *
  * @see TipoUsuario
- * @see com.grupo3.postech.jilocomjurubeba.domain.entity.tipousuario.TipoUsuario
+ * @author Grupo 3 - Tech Challenge POSTECH FIAP - Fase 2 - Data Guardian
+ *     <ul>
+ *       <li>Thiago de Jesus Cordeiro - Desenvolvimento e Arquitetura
+ *       <li>Juliana Maria Dal Olio Braz - Desenvolvimento e Arquitetura
+ *       <li>Luis Henrique Silveira Borges - Desenvolvimento e Arquitetura
+ *       <li>Gilmar da Costa Moraes Junior - Desenvolvimento e Arquitetura
+ *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
+ *     </ul>
  */
 public interface TipoUsuarioGateway {
 

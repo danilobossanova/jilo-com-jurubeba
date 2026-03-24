@@ -39,7 +39,14 @@ import com.grupo3.postech.jilocomjurubeba.domain.exception.ValidacaoException;
  * }
  * </pre>
  *
- * @author Danilo Fernando
+ * @author Grupo 3 - Tech Challenge POSTECH FIAP - Fase 2 - Data Guardian
+ *     <ul>
+ *       <li>Thiago de Jesus Cordeiro - Desenvolvimento e Arquitetura
+ *       <li>Juliana Maria Dal Olio Braz - Desenvolvimento e Arquitetura
+ *       <li>Luis Henrique Silveira Borges - Desenvolvimento e Arquitetura
+ *       <li>Gilmar da Costa Moraes Junior - Desenvolvimento e Arquitetura
+ *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
+ *     </ul>
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -51,10 +58,15 @@ public class GlobalExceptionHandler {
     private static final String PROPRIEDADE_ERROS = "erros";
 
     /**
-     * Trata exceções de validação do Bean Validation (@Valid).
+     * Trata excecoes de validacao do Bean Validation ({@code @Valid}).
      *
-     * @param ex exceção de validação
-     * @return ProblemDetail com status 400 e detalhes dos erros por campo
+     * <p>Captura erros de {@link MethodArgumentNotValidException} lancados quando os campos de um
+     * {@code @RequestBody} falham na validacao. Retorna um mapa de campo/mensagem no atributo
+     * {@code erros} do {@link ProblemDetail}.
+     *
+     * @param ex excecao de validacao do Spring contendo os erros por campo
+     * @return {@link ProblemDetail} com status 400 (Bad Request), tipo {@code /erros/validacao} e
+     *     detalhes dos erros por campo
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail tratarValidacaoSpring(MethodArgumentNotValidException ex) {
@@ -76,10 +88,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Trata exceções de validação do domínio.
+     * Trata excecoes de validacao originadas na camada de dominio.
      *
-     * @param ex exceção de validação
-     * @return ProblemDetail com status 400 e detalhes dos erros
+     * <p>Captura {@link ValidacaoException} lancadas quando entidades de dominio rejeitam dados
+     * invalidos durante criacao ou atualizacao. Pode incluir erros por campo no atributo {@code
+     * erros} quando disponivel.
+     *
+     * @param ex excecao de validacao do dominio com mensagem e possiveis erros por campo
+     * @return {@link ProblemDetail} com status 400 (Bad Request), tipo {@code /erros/validacao} e
+     *     detalhes da validacao
      */
     @ExceptionHandler(ValidacaoException.class)
     public ProblemDetail tratarValidacaoDominio(ValidacaoException ex) {
@@ -99,10 +116,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Trata exceções de entidade não encontrada.
+     * Trata excecoes de entidade nao encontrada.
      *
-     * @param ex exceção de entidade não encontrada
-     * @return ProblemDetail com status 404
+     * <p>Captura {@link EntidadeNaoEncontradaException} lancadas quando uma busca por ID nao
+     * encontra o registro solicitado. Inclui atributos {@code entidade} e {@code identificador} no
+     * {@link ProblemDetail} para facilitar o diagnostico.
+     *
+     * @param ex excecao contendo o nome da entidade e o identificador buscado
+     * @return {@link ProblemDetail} com status 404 (Not Found), tipo {@code /erros/nao-encontrado}
+     *     e dados da entidade nao localizada
      */
     @ExceptionHandler(EntidadeNaoEncontradaException.class)
     public ProblemDetail tratarEntidadeNaoEncontrada(EntidadeNaoEncontradaException ex) {
@@ -120,10 +142,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Trata exceções de regra de negócio.
+     * Trata excecoes de violacao de regra de negocio.
      *
-     * @param ex exceção de regra de negócio
-     * @return ProblemDetail com status 422 (Unprocessable Entity)
+     * <p>Captura {@link RegraDeNegocioException} lancadas quando uma operacao viola uma regra de
+     * negocio (ex: nome de tipo de usuario ja existente, usuario nao e dono do restaurante,
+     * credenciais invalidas).
+     *
+     * @param ex excecao de regra de negocio com mensagem descritiva
+     * @return {@link ProblemDetail} com status 422 (Unprocessable Entity), tipo {@code
+     *     /erros/regra-negocio} e descricao da violacao
      */
     @ExceptionHandler(RegraDeNegocioException.class)
     public ProblemDetail tratarRegraDeNegocio(RegraDeNegocioException ex) {
@@ -139,10 +166,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Trata exceções genéricas de domínio não mapeadas especificamente.
+     * Trata excecoes genericas de dominio nao mapeadas pelos handlers especificos.
      *
-     * @param ex exceção de domínio
-     * @return ProblemDetail com status 400
+     * <p>Funciona como fallback para subclasses de {@link DominioException} que nao sejam {@link
+     * ValidacaoException}, {@link EntidadeNaoEncontradaException} ou {@link
+     * RegraDeNegocioException}.
+     *
+     * @param ex excecao de dominio nao tratada por handler mais especifico
+     * @return {@link ProblemDetail} com status 400 (Bad Request), tipo {@code /erros/dominio} e
+     *     mensagem da excecao
      */
     @ExceptionHandler(DominioException.class)
     public ProblemDetail tratarDominioGenerico(DominioException ex) {
@@ -158,10 +190,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Trata exceções não esperadas (fallback).
+     * Trata excecoes nao esperadas (fallback global).
      *
-     * @param ex exceção genérica
-     * @return ProblemDetail com status 500
+     * <p>Captura qualquer {@link Exception} nao tratada pelos handlers anteriores. Retorna uma
+     * mensagem generica sem expor detalhes internos para evitar vazamento de informacoes sensiveis
+     * em producao. O stack trace completo e registrado nos logs.
+     *
+     * @param ex excecao generica nao esperada
+     * @return {@link ProblemDetail} com status 500 (Internal Server Error), tipo {@code
+     *     /erros/erro-interno} e mensagem generica de erro
      */
     @ExceptionHandler(Exception.class)
     public ProblemDetail tratarErroInterno(Exception ex) {

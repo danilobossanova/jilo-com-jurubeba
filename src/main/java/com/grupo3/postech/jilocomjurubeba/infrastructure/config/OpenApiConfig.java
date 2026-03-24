@@ -13,11 +13,19 @@ import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
 
 /**
- * Configuração do OpenAPI (Swagger).
+ * Configuracao do OpenAPI (Swagger).
  *
- * <p>Define metadados da API para documentação automática. Acessível em: /swagger-ui.html
+ * <p>Define metadados da API para documentacao automatica, incluindo titulo, versao, descricao,
+ * contato, licenca e servidores disponiveis. Acessivel em: /swagger-ui.html
  *
- * @author Danilo Fernando
+ * @author Grupo 3 - Tech Challenge POSTECH FIAP - Fase 2 - Data Guardian
+ *     <ul>
+ *       <li>Thiago de Jesus Cordeiro - Desenvolvimento e Arquitetura
+ *       <li>Juliana Maria Dal Olio Braz - Desenvolvimento e Arquitetura
+ *       <li>Luis Henrique Silveira Borges - Desenvolvimento e Arquitetura
+ *       <li>Gilmar da Costa Moraes Junior - Desenvolvimento e Arquitetura
+ *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
+ *     </ul>
  */
 @Configuration
 public class OpenApiConfig {
@@ -25,6 +33,15 @@ public class OpenApiConfig {
     @Value("${spring.application.name:jilo-com-jurubeba}")
     private String nomeAplicacao;
 
+    /**
+     * Cria o bean de configuracao customizada do OpenAPI.
+     *
+     * <p>Configura informacoes gerais da API como titulo (obtido da propriedade {@code
+     * spring.application.name}), versao, descricao da arquitetura, dados de contato, licenca e os
+     * servidores de desenvolvimento e producao.
+     *
+     * @return instancia configurada de {@link OpenAPI}
+     */
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()

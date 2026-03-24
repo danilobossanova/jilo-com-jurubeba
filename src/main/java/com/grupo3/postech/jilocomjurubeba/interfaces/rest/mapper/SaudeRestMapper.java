@@ -10,7 +10,14 @@ import com.grupo3.postech.jilocomjurubeba.interfaces.rest.dto.saude.SaudeRespons
  *
  * <p>Converte SaudeOutput (application) para SaudeResponse (interfaces/rest).
  *
- * @author Danilo Fernando
+ * @author Grupo 3 - Tech Challenge POSTECH FIAP - Fase 2 - Data Guardian
+ *     <ul>
+ *       <li>Thiago de Jesus Cordeiro - Desenvolvimento e Arquitetura
+ *       <li>Juliana Maria Dal Olio Braz - Desenvolvimento e Arquitetura
+ *       <li>Luis Henrique Silveira Borges - Desenvolvimento e Arquitetura
+ *       <li>Gilmar da Costa Moraes Junior - Desenvolvimento e Arquitetura
+ *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
+ *     </ul>
  */
 @Mapper(componentModel = "spring")
 public interface SaudeRestMapper {

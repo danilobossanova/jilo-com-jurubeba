@@ -36,7 +36,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * HTTP Response
  * </pre>
  *
- * @author Danilo Fernando
+ * @author Grupo 3 - Tech Challenge POSTECH FIAP - Fase 2 - Data Guardian
+ *     <ul>
+ *       <li>Thiago de Jesus Cordeiro - Desenvolvimento e Arquitetura
+ *       <li>Juliana Maria Dal Olio Braz - Desenvolvimento e Arquitetura
+ *       <li>Luis Henrique Silveira Borges - Desenvolvimento e Arquitetura
+ *       <li>Gilmar da Costa Moraes Junior - Desenvolvimento e Arquitetura
+ *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
+ *     </ul>
  */
 @RestController
 @RequestMapping("/v1/health")
@@ -49,10 +56,10 @@ public class SaudeController {
     private final SaudeRestMapper mapper;
 
     /**
-     * Construtor com injeção de dependências.
+     * Construtor com injecao de dependencias.
      *
-     * @param verificarSaudeUseCase caso de uso de verificação de saúde
-     * @param mapper mapper para conversão de DTOs
+     * @param verificarSaudeUseCase caso de uso para verificacao de saude da aplicacao
+     * @param mapper mapper para conversao de SaudeOutput para SaudeResponse
      */
     public SaudeController(VerificarSaudeUseCase verificarSaudeUseCase, SaudeRestMapper mapper) {
         this.verificarSaudeUseCase = verificarSaudeUseCase;
@@ -60,11 +67,17 @@ public class SaudeController {
     }
 
     /**
-     * Verifica a saúde da aplicação.
+     * Verifica a saude da aplicacao.
      *
-     * <p>Este endpoint é usado para health checks por load balancers, Kubernetes, Docker, etc.
+     * <p>Endpoint: {@code GET /v1/health}
      *
-     * @return status de saúde da aplicação
+     * <p>Endpoint publico utilizado para health checks por load balancers, Kubernetes, Docker e
+     * ferramentas de monitoramento.
+     *
+     * <p>Fluxo: VerificarSaudeUseCase.executar() -> SaudeRestMapper.toResponse() -> Response
+     *
+     * @return {@link ResponseEntity} com status 200 (OK) e corpo com {@link SaudeResponse} contendo
+     *     status, versao e timestamp
      */
     @GetMapping
     @Operation(

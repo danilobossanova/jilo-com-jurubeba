@@ -12,7 +12,14 @@ import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCaseSemEntrada;
  * <p>Fluxo: 1. Controller recebe requisição GET /v1/health 2. Controller chama este UseCase 3.
  * UseCase retorna SaudeOutput 4. Controller converte para SaudeResponse e retorna HTTP 200
  *
- * @author Danilo Fernando
+ * @author Grupo 3 - Tech Challenge POSTECH FIAP - Fase 2 - Data Guardian
+ *     <ul>
+ *       <li>Thiago de Jesus Cordeiro - Desenvolvimento e Arquitetura
+ *       <li>Juliana Maria Dal Olio Braz - Desenvolvimento e Arquitetura
+ *       <li>Luis Henrique Silveira Borges - Desenvolvimento e Arquitetura
+ *       <li>Gilmar da Costa Moraes Junior - Desenvolvimento e Arquitetura
+ *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
+ *     </ul>
  */
 public class VerificarSaudeUseCase implements UseCaseSemEntrada<SaudeOutput> {
 
