@@ -45,6 +45,16 @@
 			"key": "cardapioId",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "testEmail",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "testCpf",
+			"value": "",
+			"type": "string"
 		}
 	],
 	"event": [
@@ -52,25 +62,22 @@
 			"listen": "prerequest",
 			"script": {
 				"exec": [
-					"// Auto-login: se o token estiver vazio e a request exigir auth, faz login automaticamente",
-					"var token = pm.collectionVariables.get(\"token\");",
+					"// Auto-login: se o token estiver vazio e a request exigir auth, faz login",
+					"var token = pm.variables.get(\"token\");",
 					"if (!token && pm.request.auth && pm.request.auth.type === \"bearer\") {",
-					"    var baseUrl = pm.collectionVariables.get(\"base_url\");",
-					"    var login = pm.collectionVariables.get(\"admin_login\");",
-					"    var senha = pm.collectionVariables.get(\"admin_password\");",
-					"",
 					"    pm.sendRequest({",
-					"        url: baseUrl + \"/auth/login\",",
+					"        url: pm.variables.get(\"base_url\") + \"/auth/login\",",
 					"        method: \"POST\",",
 					"        header: { \"Content-Type\": \"application/json\" },",
 					"        body: {",
 					"            mode: \"raw\",",
-					"            raw: JSON.stringify({ email: login, senha: senha })",
+					"            raw: JSON.stringify({ email: \"admin@jilocomjurubeba.com\", senha: \"admin123\" })",
 					"        }",
 					"    }, function (err, res) {",
 					"        if (!err && res.code === 200) {",
-					"            var jsonData = res.json();",
-					"            pm.collectionVariables.set(\"token\", jsonData.token);",
+					"            var t = res.json().token;",
+					"            pm.collectionVariables.set(\"token\", t);",
+					"            try { pm.environment.set(\"token\", t); } catch(e) {}",
 					"            console.log(\"Auto-login: token JWT obtido com sucesso\");",
 					"        } else {",
 					"            console.log(\"Auto-login falhou: \" + (err || res.status));",
@@ -107,7 +114,8 @@
 									"if (pm.response.code === 200) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"token\", jsonData.token);",
-									"    console.log(\"Token JWT salvo com sucesso!\");",
+									"    try { pm.environment.set(\"token\", jsonData.token); } catch(e) {}",
+									"    console.log(\"Token JWT salvo (collection + environment)!\");",
 									"}"
 								],
 								"type": "text/javascript"
@@ -127,7 +135,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"{{admin_login}}\",\n    \"senha\": \"{{admin_password}}\"\n}",
+							"raw": "{\n    \"email\": \"admin@jilocomjurubeba.com\",\n    \"senha\": \"admin123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -144,9 +152,98 @@
 								"login"
 							]
 						},
-						"description": "Autentica um usuario e retorna um token JWT.\n\nO token e salvo automaticamente na variavel de colecao `{{token}}` para uso nas demais requests.\n\n**Credenciais de dev:** Configuradas nas variaveis `{{admin_login}}` e `{{admin_password}}`.\n\n**Nota:** Este endpoint usa `/auth/login` (sem `/v1/`) pois esta fora do versionamento da API."
+						"description": "Autentica um usuario e retorna um token JWT.\n\nO token e salvo automaticamente na variavel de colecao `{{token}}` para uso nas demais requests.\n\n**Credenciais de dev:** admin@jilocomjurubeba.com / admin123\n\n**Nota:** Este endpoint usa `/auth/login` (sem `/v1/`) pois esta fora do versionamento da API."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Login sucesso (200)",
+							"originalRequest": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"admin@jilocomjurubeba.com\",\n    \"senha\": \"admin123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\"token\":\"eyJhbGciOiJIUzI1NiJ9...\"}"
+						},
+						{
+							"name": "Credenciais invalidas (422)",
+							"originalRequest": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"naoexiste@email.com\",\n    \"senha\": \"senhaerrada\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\"type\":\"https://api.jilo-com-jurubeba.com.br/erros/regra-negocio\",\"title\":\"Regra de Neg\\u00f3cio Violada\",\"status\":422,\"detail\":\"Credenciais invalidas\",\"instance\":\"/auth/login\"}"
+						}
+					]
 				}
 			]
 		},
@@ -192,7 +289,38 @@
 						},
 						"description": "Verifica a saude da aplicacao. Retorna status, versao e timestamp. Endpoint publico sem autenticacao."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Health UP (200)",
+							"originalRequest": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/v1/health",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"health"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\"status\":\"UP\",\"versao\":\"0.0.1-SNAPSHOT\",\"timestamp\":\"2026-03-24T13:36:39.831251356\"}"
+						}
+					]
 				}
 			]
 		},
@@ -223,6 +351,7 @@
 									"if (pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"tipoUsuarioId\", jsonData.id);",
+									"    try { pm.environment.set(\"tipoUsuarioId\", jsonData.id); } catch(e) {}",
 									"    console.log(\"tipoUsuarioId salvo: \" + jsonData.id);",
 									"}"
 								],
@@ -269,7 +398,59 @@
 						},
 						"description": "Cria um novo tipo de usuario. Retorna 201 Created com header Location.\n\nO ID criado e salvo automaticamente na variavel `{{tipoUsuarioId}}`."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Tipo criado (201)",
+							"originalRequest": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nome\": \"TESTE\",\n    \"descricao\": \"Tipo teste criado via Postman\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/tipos-usuario",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"tipos-usuario"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\"id\":4,\"nome\":\"TESTE\",\"descricao\":\"Tipo teste criado via Postman\",\"ativo\":true}"
+						}
+					]
 				},
 				{
 					"name": "Listar Tipos Usuario",
@@ -488,6 +669,38 @@
 					"name": "Criar Usuario",
 					"event": [
 						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Gera email e CPF unicos para evitar erro 422 (duplicidade) entre execucoes",
+									"var ts = Date.now().toString().slice(-8);",
+									"",
+									"// Email unico baseado em timestamp",
+									"var email = \"teste\" + ts + \"@email.com\";",
+									"pm.collectionVariables.set(\"testEmail\", email);",
+									"try { pm.environment.set(\"testEmail\", email); } catch(e) {}",
+									"",
+									"// Gera CPF valido algoritmicamente (com digitos verificadores corretos)",
+									"function gerarCpf() {",
+									"    var n = [];",
+									"    for (var i = 0; i < 9; i++) n.push(Math.floor(Math.random() * 9));",
+									"    var d1 = 0;",
+									"    for (var i = 0; i < 9; i++) d1 += n[i] * (10 - i);",
+									"    d1 = 11 - (d1 % 11); if (d1 >= 10) d1 = 0; n.push(d1);",
+									"    var d2 = 0;",
+									"    for (var i = 0; i < 10; i++) d2 += n[i] * (11 - i);",
+									"    d2 = 11 - (d2 % 11); if (d2 >= 10) d2 = 0; n.push(d2);",
+									"    return n.join(\"\");",
+									"}",
+									"var cpf = gerarCpf();",
+									"pm.collectionVariables.set(\"testCpf\", cpf);",
+									"try { pm.environment.set(\"testCpf\", cpf); } catch(e) {}",
+									"console.log(\"Gerado -> Email: \" + email + \", CPF: \" + cpf);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
 							"listen": "test",
 							"script": {
 								"exec": [
@@ -507,6 +720,7 @@
 									"if (pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"usuarioId\", jsonData.id);",
+									"    try { pm.environment.set(\"usuarioId\", jsonData.id); } catch(e) {}",
 									"    console.log(\"usuarioId salvo: \" + jsonData.id);",
 									"}"
 								],
@@ -527,7 +741,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"Joao Silva\",\n    \"cpf\": \"73456289051\",\n    \"email\": \"joao@email.com\",\n    \"telefone\": \"11999999999\",\n    \"tipoUsuarioId\": 2,\n    \"senha\": \"senha123\"\n}",
+							"raw": "{\n    \"nome\": \"Joao Silva\",\n    \"cpf\": \"{{testCpf}}\",\n    \"email\": \"{{testEmail}}\",\n    \"telefone\": \"11999999999\",\n    \"tipoUsuarioId\": 2,\n    \"senha\": \"senha123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -546,7 +760,52 @@
 						},
 						"description": "Cria um novo usuario no sistema. Retorna 201 Created com header Location.\n\n**Este endpoint e PUBLICO** (nao requer autenticacao).\n\nO ID criado e salvo automaticamente na variavel `{{usuarioId}}`.\n\nCampos obrigatorios: nome, cpf (11 digitos validos), email, tipoUsuarioId, senha (min 6 chars).\nCampo opcional: telefone.\n\n**Nota:** O tipoUsuarioId=2 corresponde a DONO_RESTAURANTE (criado pelo seeder)."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Usuario criado (201)",
+							"originalRequest": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nome\": \"Joao Silva\",\n    \"cpf\": \"73456289051\",\n    \"email\": \"joao@email.com\",\n    \"telefone\": \"11999999999\",\n    \"tipoUsuarioId\": 2,\n    \"senha\": \"senha123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/usuarios",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"usuarios"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\"id\":2,\"nome\":\"JOAO SILVA\",\"cpf\":\"73456289051\",\"email\":\"joao@email.com\",\"telefone\":\"11999999999\",\"tipoUsuario\":\"DONO_RESTAURANTE\",\"ativo\":true}"
+						}
+					]
 				},
 				{
 					"name": "Listar Usuarios",
@@ -784,6 +1043,7 @@
 									"if (pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"restauranteId\", jsonData.id);",
+									"    try { pm.environment.set(\"restauranteId\", jsonData.id); } catch(e) {}",
 									"    console.log(\"restauranteId salvo: \" + jsonData.id);",
 									"}"
 								],
@@ -1054,6 +1314,7 @@
 									"if (pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set(\"cardapioId\", jsonData.id);",
+									"    try { pm.environment.set(\"cardapioId\", jsonData.id); } catch(e) {}",
 									"    console.log(\"cardapioId salvo: \" + jsonData.id);",
 									"}"
 								],
@@ -1293,6 +1554,203 @@
 							]
 						},
 						"description": "Desativa (soft delete) um item de cardapio. Retorna 204 No Content. Requer autenticacao. Usa o ID salvo automaticamente."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Testes de Erro",
+			"description": "Testes negativos para validar o comportamento da API em cenarios de erro. Inclui testes de autenticacao, recursos inexistentes, validacao de dados e credenciais invalidas.",
+			"item": [
+				{
+					"name": "401 - Endpoint protegido sem token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"pm.test(\"Response has status 401\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/tipos-usuario",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v1",
+								"tipos-usuario"
+							]
+						},
+						"description": "Tenta acessar um endpoint protegido sem enviar token JWT. Espera-se resposta 401 Unauthorized."
+					},
+					"response": []
+				},
+				{
+					"name": "404 - Buscar ID inexistente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Response has detail property\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"detail\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/tipos-usuario/99999",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v1",
+								"tipos-usuario",
+								"99999"
+							]
+						},
+						"description": "Tenta buscar um tipo de usuario com ID inexistente. Espera-se resposta 404 Not Found com corpo RFC 7807 contendo propriedade `detail`."
+					},
+					"response": []
+				},
+				{
+					"name": "400 - Criar usuario com dados invalidos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"\",\n    \"cpf\": \"123\",\n    \"email\": \"invalido\",\n    \"tipoUsuarioId\": 1,\n    \"senha\": \"ab\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v1/usuarios",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v1",
+								"usuarios"
+							]
+						},
+						"description": "Tenta criar um usuario com dados invalidos (nome vazio, CPF curto, email sem formato, senha curta). Espera-se resposta 400 Bad Request com erros de validacao."
+					},
+					"response": []
+				},
+				{
+					"name": "422 - Login com credenciais erradas",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 422\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"",
+									"pm.test(\"Response detail includes invalidas\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.detail).to.include(\"invalidas\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"naoexiste@email.com\",\n    \"senha\": \"senhaerrada\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Tenta fazer login com credenciais invalidas. Espera-se resposta 422 Unprocessable Entity com mensagem indicando credenciais invalidas."
 					},
 					"response": []
 				}
