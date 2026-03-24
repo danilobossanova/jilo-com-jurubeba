@@ -3,40 +3,48 @@ package com.grupo3.postech.jilocomjurubeba.infrastructure.security;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.AutenticacaoGateway;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.CriptografiaSenhaGateway;
+
+/**
+ * Configuracao de seguranca para testes.
+ *
+ * <p>Desabilita toda autenticacao/autorizacao e fornece beans mock para que os testes de integracao
+ * possam acessar os endpoints sem necessidade de token JWT.
+ */
 @TestConfiguration
 public class TestSecurityConfig {
 
-  @Bean
-  public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-    return http.build();
-  }
+    @Bean
+    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .build();
+    }
 
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+    @Bean
+    public AuthenticationManager testAuthenticationManager() {
+        return authentication -> authentication;
+    }
 
-  @Bean
-  public DaoAuthenticationProvider daoAuthenticationProvider(
-      UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-    provider.setUserDetailsService(userDetailsService);
-    provider.setPasswordEncoder(passwordEncoder);
-    return provider;
-  }
+    @Bean
+    public PasswordEncoder testPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-  @Bean
-  public AuthenticationManager authenticationManager(
-      DaoAuthenticationProvider daoAuthenticationProvider) {
-    return new ProviderManager(daoAuthenticationProvider);
-  }
+    @Bean
+    public CriptografiaSenhaGateway testCriptografiaSenhaGateway() {
+        return senha -> "$2a$10$testHash";
+    }
+
+    @Bean
+    public AutenticacaoGateway testAutenticacaoGateway() {
+        return (email, senha) -> "test-jwt-token";
+    }
 }

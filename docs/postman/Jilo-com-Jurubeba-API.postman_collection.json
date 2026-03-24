@@ -1,0 +1,1178 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "Jilo com Jurubeba API",
+		"description": "Colecao Postman para a API do sistema de gestao de restaurantes Jilo com Jurubeba.\n\nTech Challenge FIAP Pos-Tech Fase 2 - Grupo 3.\n\n**Como usar:**\n1. Execute a request \"Login\" para obter o token JWT automaticamente.\n2. Todas as demais requests autenticadas ja utilizam o token salvo na variavel `{{token}}`.\n\n**Profiles de banco:**\n- Default: H2 em memoria\n- `dev`: MySQL via Docker\n- `postgres`: PostgreSQL\n\n**Swagger UI:** http://localhost:8080/swagger-ui.html",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"description": "Endpoints de autenticacao e geracao de token JWT.",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"    console.log(\"Token JWT salvo com sucesso!\");",
+									"}",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"token\");",
+									"    pm.expect(jsonData.token).to.be.a(\"string\").and.not.empty;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@jilocomjurubeba.com\",\n    \"senha\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Autentica um usuario e retorna um token JWT.\n\nO token e salvo automaticamente na variavel de colecao `{{token}}` para uso nas demais requests."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Saude",
+			"description": "Endpoints para verificacao de saude da API. Nao requerem autenticacao.",
+			"item": [
+				{
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has status UP\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql(\"UP\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"health"
+							]
+						},
+						"description": "Verifica a saude da aplicacao. Retorna status, versao e timestamp. Endpoint publico sem autenticacao."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TipoUsuario",
+			"description": "Gerenciamento de tipos de usuario do sistema (MASTER, DONO_RESTAURANTE, CLIENTE). Todos os endpoints requerem autenticacao Bearer Token.",
+			"item": [
+				{
+					"name": "Criar Tipo Usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"id\");",
+									"});",
+									"",
+									"pm.test(\"Has Location header\", function () {",
+									"    pm.response.to.have.header(\"Location\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"TESTE\",\n    \"descricao\": \"Tipo teste\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/tipos-usuario",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"tipos-usuario"
+							]
+						},
+						"description": "Cria um novo tipo de usuario. Retorna 201 Created com header Location."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Tipos Usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/tipos-usuario",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"tipos-usuario"
+							]
+						},
+						"description": "Retorna todos os tipos de usuario cadastrados."
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Tipo Usuario por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has expected fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"id\");",
+									"    pm.expect(jsonData).to.have.property(\"nome\");",
+									"    pm.expect(jsonData).to.have.property(\"descricao\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/tipos-usuario/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"tipos-usuario",
+								"1"
+							]
+						},
+						"description": "Retorna um tipo de usuario pelo seu identificador."
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Tipo Usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Nome was updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.nome).to.eql(\"TESTE_ATUALIZADO\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"TESTE_ATUALIZADO\",\n    \"descricao\": \"Desc atualizada\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/tipos-usuario/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"tipos-usuario",
+								"1"
+							]
+						},
+						"description": "Atualiza um tipo de usuario existente."
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Tipo Usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/tipos-usuario/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"tipos-usuario",
+								"1"
+							]
+						},
+						"description": "Desativa (soft delete) um tipo de usuario. Retorna 204 No Content."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Usuario",
+			"description": "Gerenciamento de usuarios do sistema. POST /v1/usuarios e publico (criacao de conta). Demais endpoints requerem autenticacao Bearer Token.",
+			"item": [
+				{
+					"name": "Criar Usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"id\");",
+									"});",
+									"",
+									"pm.test(\"Has Location header\", function () {",
+									"    pm.response.to.have.header(\"Location\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Joao Silva\",\n    \"cpf\": \"12345678901\",\n    \"email\": \"joao@email.com\",\n    \"telefone\": \"11999999999\",\n    \"tipoUsuarioId\": 2,\n    \"senha\": \"senha123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/usuarios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"usuarios"
+							]
+						},
+						"description": "Cria um novo usuario no sistema. Retorna 201 Created com header Location.\n\nCampos obrigatorios: nome, cpf (11 digitos), email, tipoUsuarioId, senha (min 6 chars).\nCampo opcional: telefone."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Usuarios",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/usuarios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"usuarios"
+							]
+						},
+						"description": "Retorna todos os usuarios cadastrados."
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Usuario por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has expected fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"id\");",
+									"    pm.expect(jsonData).to.have.property(\"nome\");",
+									"    pm.expect(jsonData).to.have.property(\"email\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/usuarios/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"usuarios",
+								"1"
+							]
+						},
+						"description": "Retorna um usuario pelo seu identificador."
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Nome was updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.nome).to.include(\"Atualizado\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Joao Atualizado\",\n    \"email\": \"joao.novo@email.com\",\n    \"telefone\": \"11888888888\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/usuarios/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"usuarios",
+								"1"
+							]
+						},
+						"description": "Atualiza um usuario existente. Campos atualizaveis: nome, email, telefone."
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/usuarios/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"usuarios",
+								"1"
+							]
+						},
+						"description": "Desativa (soft delete) um usuario. Retorna 204 No Content."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Restaurante",
+			"description": "Gerenciamento de restaurantes do sistema. GET endpoints sao publicos. POST/PUT/DELETE requerem autenticacao Bearer Token com role DONO_RESTAURANTE ou MASTER.",
+			"item": [
+				{
+					"name": "Criar Restaurante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"id\");",
+									"});",
+									"",
+									"pm.test(\"Has Location header\", function () {",
+									"    pm.response.to.have.header(\"Location\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Sabor Brasil\",\n    \"endereco\": \"Rua A 123\",\n    \"tipoCozinha\": \"BRASILEIRA\",\n    \"horaAbertura\": \"08:00\",\n    \"horaFechamento\": \"22:00\",\n    \"donoId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/restaurantes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"restaurantes"
+							]
+						},
+						"description": "Cria um novo restaurante no sistema. Retorna 201 Created com header Location.\n\nCampos obrigatorios: nome, endereco, tipoCozinha, horaAbertura, horaFechamento, donoId.\nHorarios no formato HH:mm (ex: \"08:00\", \"22:00\")."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Restaurantes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/restaurantes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"restaurantes"
+							]
+						},
+						"description": "Retorna todos os restaurantes cadastrados. Este endpoint e publico (GET)."
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Restaurante por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has expected fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"id\");",
+									"    pm.expect(jsonData).to.have.property(\"nome\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/restaurantes/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"restaurantes",
+								"1"
+							]
+						},
+						"description": "Retorna um restaurante pelo seu identificador. Este endpoint e publico (GET)."
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Restaurante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Nome was updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.nome).to.include(\"Premium\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Sabor Brasil Premium\",\n    \"endereco\": \"Rua B 456\",\n    \"tipoCozinha\": \"ITALIANA\",\n    \"horaAbertura\": \"09:00\",\n    \"horaFechamento\": \"23:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/restaurantes/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"restaurantes",
+								"1"
+							]
+						},
+						"description": "Atualiza um restaurante existente. Requer role DONO_RESTAURANTE ou MASTER."
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Restaurante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/restaurantes/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"restaurantes",
+								"1"
+							]
+						},
+						"description": "Desativa (soft delete) um restaurante. Retorna 204 No Content. Requer role DONO_RESTAURANTE ou MASTER."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cardapio",
+			"description": "Gerenciamento de itens de cardapio do sistema. GET endpoints sao publicos. POST/PUT/DELETE requerem autenticacao Bearer Token com role DONO_RESTAURANTE ou MASTER.",
+			"item": [
+				{
+					"name": "Criar Item Cardapio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"id\");",
+									"});",
+									"",
+									"pm.test(\"Has Location header\", function () {",
+									"    pm.response.to.have.header(\"Location\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Feijoada\",\n    \"descricao\": \"Feijoada completa\",\n    \"preco\": 45.90,\n    \"apenasNoLocal\": false,\n    \"caminhoFoto\": \"/fotos/feijoada.jpg\",\n    \"restauranteId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/cardapios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"cardapios"
+							]
+						},
+						"description": "Cria um novo item de cardapio no sistema. Retorna 201 Created com header Location.\n\nCampos obrigatorios: nome, preco (> 0), restauranteId.\nCampos opcionais: descricao, apenasNoLocal (default false), caminhoFoto.\nRequer role DONO_RESTAURANTE ou MASTER."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Itens Cardapio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/cardapios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"cardapios"
+							]
+						},
+						"description": "Retorna todos os itens de cardapio cadastrados. Este endpoint e publico (GET)."
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Item Cardapio por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has expected fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"id\");",
+									"    pm.expect(jsonData).to.have.property(\"nome\");",
+									"    pm.expect(jsonData).to.have.property(\"preco\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/cardapios/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"cardapios",
+								"1"
+							]
+						},
+						"description": "Retorna um item de cardapio pelo seu identificador. Este endpoint e publico (GET)."
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Item Cardapio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Nome was updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.nome).to.include(\"Premium\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Feijoada Premium\",\n    \"descricao\": \"Feijoada premium completa\",\n    \"preco\": 55.90,\n    \"apenasNoLocal\": true,\n    \"caminhoFoto\": \"/fotos/feijoada-premium.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/cardapios/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"cardapios",
+								"1"
+							]
+						},
+						"description": "Atualiza um item de cardapio existente. Requer role DONO_RESTAURANTE ou MASTER."
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Item Cardapio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/cardapios/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"cardapios",
+								"1"
+							]
+						},
+						"description": "Desativa (soft delete) um item de cardapio. Retorna 204 No Content. Requer role DONO_RESTAURANTE ou MASTER."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

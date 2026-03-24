@@ -1,330 +1,180 @@
-# jilo-com-jurubeba - Documentacao Reescrita
+# jilo-com-jurubeba - Documentacao do Projeto
 
 ## Resumo
 
-O `jilo-com-jurubeba` e uma API REST em Java/Spring Boot para gestao de usuarios, tipos de usuario, restaurantes e itens de cardapio, com autenticacao JWT e separacao arquitetural por camadas (`domain`, `application`, `infrastructure`).
+O `jilo-com-jurubeba` e uma API REST em Java/Spring Boot para gestao de restaurantes, desenvolvida como Tech Challenge da Pos-Tech FIAP (Fase 2). O sistema permite cadastro de tipos de usuario, usuarios, restaurantes e itens de cardapio, com autenticacao JWT e Clean Architecture em 4 camadas.
 
-A implementacao aplica principios de Clean Architecture:
+## 1. Arquitetura - Clean Architecture (4 Camadas)
 
-- o dominio concentra regras de negocio
-- casos de uso ficam na camada de aplicacao
-- controllers, seguranca e persistencia ficam na infraestrutura
-- integracoes com banco sao feitas por adapters que implementam gateways do dominio
-
-## 1. Objetivo do projeto
-
-Entregar uma API para:
-
-- cadastrar e autenticar usuarios
-- gerenciar perfis/tipos de usuario
-- cadastrar restaurantes e seus dados operacionais
-- cadastrar itens de cardapio por restaurante
-- expor endpoints publicos para consulta e endpoints protegidos para escrita
-
-## 2. Arquitetura baseada nos pacotes
-
-Pacote raiz:
-
-- `com.grupo3.postech.jilocomjurubeba`
-
-### 2.1 Camada `domain`
-
-Responsavel por regras de negocio puras, sem dependencia de framework.
-
-Principais pacotes:
-
-- `domain.entity`
-  - `tipousuario.TipoUsuario`
-  - `usuario.Usuario`
-  - `restaurante.Restaurante`
-  - `cardapio.Cardapio`
-- `domain.valueobject`
-  - `Cpf`
-  - `Email`
-- `domain.gateway`
-  - `TipoUsuarioGateway`
-  - `UsuarioGateway`
-  - `RestauranteGateway`
-  - `CardapioGateway`
-- `domain.exception`
-  - `DominioException`
-  - `ValidacaoException`
-  - `RegraDeNegocioException`
-  - `EntidadeNaoEncontradaException`
-- `domain.enumroles`
-  - `TypeUsuario`
-  - `TypeCozinha`
-
-### 2.2 Camada `application`
-
-Contem orquestracao dos fluxos de negocio.
-
-Principais pacotes:
-
-- `application.dto` (inputs/outputs)
-- `application.usecase`
-  - CRUD de `usuario`
-  - CRUD de `tipousuario`
-  - CRUD de `restaurante`
-  - CRUD de `cardapio`
-  - `saude.VerificarSaudeUseCase`
-- `application.mapper` (transformacao entre dominio e DTOs)
-
-### 2.3 Camada `infrastructure`
-
-Responsavel por detalhes de framework, web, seguranca e banco.
-
-Principais pacotes:
-
-- `infrastructure.web.controller`
-  - `AuthController`
-  - `UsuarioController`
-  - `TipoUsuarioController`
-  - `RestauranteController`
-  - `CardapioController`
-  - `SaudeController`
-- `infrastructure.security`
-  - `SecurityConfig`
-  - `JwtService`
-  - `JwtAuthFilter`
-  - `UsuarioDetailsService`
-  - `AuthRequest` / `AuthResponse`
-- `infrastructure.persistence`
-  - entidades JPA
-  - repositories Spring Data
-  - adapters JPA para gateways do dominio
-- `infrastructure.config`
-  - configuracao de beans dos use cases
-- `infrastructure.web.exception`
-  - `GlobalExceptionHandler`
-
-## 3. Fluxo tecnico de uma requisicao
-
-1. O endpoint HTTP e recebido por um controller em `infrastructure.web.controller`.
-2. O controller converte body/path params para DTOs de `application.dto`.
-3. O use case em `application.usecase` executa a regra.
-4. O use case depende de um gateway do dominio (`domain.gateway`).
-5. O adapter JPA em `infrastructure.persistence.*` implementa o gateway.
-6. O repository Spring Data persiste/consulta dados.
-7. O retorno volta ao controller como DTO de saida.
-
-## 4. Endpoints da API
-
-Base local recomendada:
-
-- `http://127.0.0.1:8080`
-
-### 4.1 Autenticacao
-
-- `POST /auth/login` (publico)
-
-Request:
-
-```json
-{
-  "email": "master@jilo.com",
-  "senha": "jilocomjurubeba123"
-}
+```
+INTERFACES (REST)  --->  APPLICATION (Use Cases)  --->  DOMAIN (Core)  <---  INFRASTRUCTURE (DB, Config, Security)
 ```
 
-Response:
+| Camada         | Pacote base             | Responsabilidade                    | Depende de             |
+|----------------|-------------------------|-------------------------------------|------------------------|
+| Domain         | `domain`                | Entidades, VOs, Gateways, Excecoes  | Nada (nucleo puro)     |
+| Application    | `application`           | UseCases, DTOs Input/Output         | Domain                 |
+| Interfaces     | `interfaces.rest`       | Controllers, Request/Response DTOs, Mappers REST | Application, Domain |
+| Infrastructure | `infrastructure`        | JPA, Repositories, Security, Config | Application, Domain    |
 
-```json
-{
-  "token": "jwt-token"
-}
-```
+### Regras de Dependencia (validadas por ArchUnit)
 
-### 4.2 Saude
+- Domain **NAO** importa Spring, JPA, Hibernate ou qualquer framework
+- Application **NAO** importa Spring Web ou JPA
+- Interfaces **NAO** importa Infrastructure
+- Infrastructure **NAO** importa Interfaces
 
-- `GET /actuator/health` (publico)
+## 2. Entidades de Dominio
 
-### 4.3 Usuarios (`/usuarios`)
+### TipoUsuario
+Define o papel do usuario: MASTER, DONO_RESTAURANTE, CLIENTE.
+- Campos: `nome`, `descricao`, `ativo`
+- Soft delete via `desativar()`
 
-- `POST /usuarios` (publico)
-- `GET /usuarios` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `GET /usuarios/{id}` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `PUT /usuarios/{id}` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `DELETE /usuarios/{id}` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
+### Usuario
+Representa um usuario do sistema com autenticacao.
+- Campos: `nome`, `cpf` (VO), `email` (VO), `telefone`, `tipoUsuario`, `senha`, `ativo`
+- Associacao com TipoUsuario (obrigatorio)
+- Validacao de CPF e Email nos Value Objects
 
-### 4.4 Tipos de usuario (`/tipos-usuario`)
+### Restaurante
+Estabelecimento gerenciado por um usuario DONO_RESTAURANTE.
+- Campos: `nome`, `endereco`, `tipoCozinha` (enum), `horaAbertura`, `horaFechamento`, `dono` (Usuario), `ativo`
+- Regra de negocio: apenas o dono pode atualizar o restaurante
 
-- `POST /tipos-usuario` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `GET /tipos-usuario` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `GET /tipos-usuario/{id}` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `PUT /tipos-usuario/{id}` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `DELETE /tipos-usuario/{id}` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
+### Cardapio (Item do Menu)
+Item vendido em um restaurante.
+- Campos: `nome`, `descricao`, `preco`, `apenasNoLocal`, `caminhoFoto`, `restaurante`, `ativo`
+- Regra de negocio: apenas o dono do restaurante pode atualizar o item
 
-### 4.5 Restaurantes (`/restaurantes`)
+## 3. Endpoints da API
 
-- `GET /restaurantes` (publico)
-- `GET /restaurantes/{id}` (publico)
-- `POST /restaurantes` (autenticado)
-- `PUT /restaurantes/{id}` (autenticado)
-- `DELETE /restaurantes/{id}` (autenticado)
+Base: `http://localhost:8080`
 
-### 4.6 Cardapio
+### Autenticacao
+| Metodo | Endpoint        | Descricao           | Auth |
+|--------|-----------------|---------------------|------|
+| POST   | /auth/login     | Login (retorna JWT) | Nao  |
 
-Rotas suportadas:
+### Saude
+| Metodo | Endpoint   | Descricao       | Auth |
+|--------|------------|-----------------|------|
+| GET    | /v1/health | Health check    | Nao  |
 
-- `/cardapios`
-- `/restaurantes/{restauranteId}/cardapio`
+### Tipo de Usuario (`/v1/tipos-usuario`)
+| Metodo | Endpoint                   | Descricao              |
+|--------|----------------------------|------------------------|
+| POST   | /v1/tipos-usuario          | Criar tipo             |
+| GET    | /v1/tipos-usuario          | Listar todos           |
+| GET    | /v1/tipos-usuario/{id}     | Buscar por ID          |
+| PUT    | /v1/tipos-usuario/{id}     | Atualizar              |
+| DELETE | /v1/tipos-usuario/{id}     | Desativar (soft delete)|
 
-Endpoints:
+### Usuario (`/v1/usuarios`)
+| Metodo | Endpoint                   | Descricao              |
+|--------|----------------------------|------------------------|
+| POST   | /v1/usuarios               | Criar usuario          |
+| GET    | /v1/usuarios               | Listar todos           |
+| GET    | /v1/usuarios/{id}          | Buscar por ID          |
+| PUT    | /v1/usuarios/{id}          | Atualizar              |
+| DELETE | /v1/usuarios/{id}          | Desativar (soft delete)|
 
-- `GET /cardapios` (publico)
-- `GET /cardapios/{id}` (publico)
-- `POST /cardapios` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `PUT /cardapios/{id}` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `DELETE /cardapios/{id}` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `GET /restaurantes/{restauranteId}/cardapio` (publico)
-- `GET /restaurantes/{restauranteId}/cardapio/{id}` (publico)
-- `POST /restaurantes/{restauranteId}/cardapio` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `PUT /restaurantes/{restauranteId}/cardapio/{id}` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
-- `DELETE /restaurantes/{restauranteId}/cardapio/{id}` (ROLE_DONO_RESTAURANTE ou ROLE_MASTER)
+### Restaurante (`/v1/restaurantes`)
+| Metodo | Endpoint                          | Descricao                      |
+|--------|-----------------------------------|--------------------------------|
+| POST   | /v1/restaurantes                  | Criar restaurante              |
+| GET    | /v1/restaurantes                  | Listar todos                   |
+| GET    | /v1/restaurantes/{id}             | Buscar por ID                  |
+| PUT    | /v1/restaurantes/{id}?donoId={id} | Atualizar (somente o dono)     |
+| DELETE | /v1/restaurantes/{id}             | Desativar (soft delete)        |
 
-## 5. Contratos principais (DTOs)
+### Cardapio (`/v1/cardapios`)
+| Metodo | Endpoint                        | Descricao                              |
+|--------|---------------------------------|----------------------------------------|
+| POST   | /v1/cardapios                   | Criar item de cardapio                 |
+| GET    | /v1/cardapios                   | Listar todos                           |
+| GET    | /v1/cardapios/{id}              | Buscar por ID                          |
+| PUT    | /v1/cardapios/{id}?donoId={id}  | Atualizar (somente dono do restaurante)|
+| DELETE | /v1/cardapios/{id}              | Desativar (soft delete)                |
 
-### 5.1 Usuario
+## 4. DTOs (Contratos da API)
 
-- `CriarUsuarioInput(nome, cpf, email, telefone, tipoUsuarioId, senha)`
-- `AtualizarUsuarioInput(id, nome, cpf, email, telefone, tipoUsuarioId)`
-- `UsuarioOutput(id, nome, cpf, email, telefone, tipoUsuarioId, tipoUsuarioNome, ativo)`
+### Request DTOs (camada Interfaces)
+Usam `@Schema` (OpenAPI), `@NotBlank`, `@Size`, `@Valid` (Bean Validation).
 
-### 5.2 TipoUsuario
+### Application DTOs
+Java Records puros sem anotacoes de framework.
 
-- `CriarTipoUsuarioInput(nome, descricao)`
-- `AtualizarTipoUsuarioInput(id, nome, descricao)`
-- `TipoUsuarioOutput(id, nome, descricao, ativo)`
+| Entidade     | Input                              | Output                            |
+|--------------|------------------------------------|------------------------------------|
+| TipoUsuario  | CriarTipoUsuarioInput(nome, descricao) | TipoUsuarioOutput(id, nome, descricao, ativo) |
+| Usuario      | CriarUsuarioInput(nome, cpf, email, telefone, tipoUsuarioId, senha) | UsuarioOutput(id, nome, cpf, email, telefone, tipoUsuario, ativo) |
+| Restaurante  | CriarRestauranteInput(nome, endereco, tipoCozinha, horaAbertura, horaFechamento, donoId) | RestauranteOutput(id, nome, endereco, tipoCozinha, horaAbertura, horaFechamento, donoId, ativo) |
+| Cardapio     | CriarCardapioInput(nome, descricao, preco, apenasNoLocal, caminhoFoto, restauranteId) | CardapioOutput(id, nome, descricao, preco, apenasNoLocal, caminhoFoto, restauranteId, ativo) |
 
-### 5.3 Restaurante
+## 5. Seguranca
 
-- `CriarRestauranteInput(nome, endereco, typeCozinha, horaAbertura, horaFechamento, donoId)`
-- `AtualizarRestauranteInput(id, nome, endereco, typeCozinha, horaAbertura, horaFechamento, donoId)`
-- `RestauranteOutput(id, nome, endereco, typeCozinha, horaAbertura, horaFechamento, donoId, ativo)`
+- Autenticacao via **JWT** (JSON Web Token)
+- CSRF desabilitado (API stateless)
+- Endpoints publicos: `/auth/login`, `/v1/health`, `/actuator/**`, `/swagger-ui/**`
+- Demais endpoints requerem `Authorization: Bearer <token>`
+- Implementacao segue Clean Architecture: `AutenticacaoGateway` (domain) -> `JwtAutenticacaoGateway` (infrastructure)
 
-### 5.4 Cardapio
+## 6. Tratamento de Erros (RFC 7807)
 
-- `CriarCardapioInput(nome, descricao, preco, apenasNoLocal, caminhoFoto, restauranteId)`
-- `AtualizarCardapioInput(id, nome, descricao, preco, apenasNoLocal, caminhoFoto, restauranteId)`
-- `CardapioOutput(id, nome, descricao, preco, apenasNoLocal, caminhoFoto, restauranteId, ativo)`
+| Excecao                        | HTTP Status | Descricao                    |
+|--------------------------------|-------------|------------------------------|
+| `ValidacaoException`           | 400         | Dados de entrada invalidos   |
+| `EntidadeNaoEncontradaException`| 404        | Recurso nao encontrado       |
+| `RegraDeNegocioException`      | 422         | Violacao de regra de negocio |
+| `MethodArgumentNotValidException`| 400       | Falha de Bean Validation     |
+| `Exception` (generica)         | 500         | Erro interno                 |
 
-## 6. Seguranca
+## 7. Persistencia
 
-A seguranca e definida em `SecurityConfig`:
+- JPA/Hibernate com H2 (default) ou MySQL (profile `dev`)
+- Entidades JPA separadas das entidades de dominio (Clean Arch)
+- PersistenceMappers com MapStruct para conversao Domain <-> JPA
+- Tabelas: `tipos_usuario`, `usuarios`, `restaurantes`, `cardapios`
+- TipoUsuarioDataSeeder semeia dados iniciais (MASTER, DONO_RESTAURANTE, CLIENTE)
 
-- estrategia stateless com JWT
-- CSRF ignorado para as rotas mutaveis usadas pela API JWT (`/auth/**`, `/usuarios/**`, `/tipos-usuario/**`, `/cardapios/**`, `/restaurantes/**`)
-- filtro `JwtAuthFilter` antes de `UsernamePasswordAuthenticationFilter`
-- login por `AuthenticationManager` e `UsuarioDetailsService`
-- tratamento de erro de autenticacao/autorizacao com `ProblemDetail` em `UTF-8`
+## 8. Testes
 
-Header esperado para endpoints protegidos:
+- **193 testes** no total
+- Cobertura minima: **80%** (JaCoCo)
+- Testes unitarios: Domain (JUnit 5 + AssertJ) e Application (Mockito)
+- Testes de integracao: Controllers com MockMvc + H2
+- Testes de arquitetura: ArchUnit (35 regras validando Clean Architecture)
 
-- `Authorization: Bearer <token>`
+## 9. Execucao
 
-## 7. Tratamento de erros
-
-`GlobalExceptionHandler` converte excecoes para `application/problem+json`:
-
-- `EntidadeNaoEncontradaException` -> `404`
-- `ValidacaoException` -> `400`
-- `RegraDeNegocioException` -> `422`
-- erro inesperado -> `500`
-
-## 8. Persistencia e profiles
-
-Entidades JPA mapeadas:
-
-- `tipo_usuario`
-- `usuario`
-- `restaurante`
-- `cardapio`
-
-Arquivos de configuracao:
-
-- `src/main/resources/application.properties`
-- `src/main/resources/application-dev.properties`
-- `src/main/resources/application-postgres.properties`
-- `src/main/resources/application-mysql.properties`
-
-Variaveis de ambiente importantes:
-
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
-- `JWT_SECRET`
-- `MASTER_PASSWORD_HASH`
-
-## 9. Configuracao e execucao
-
-### 9.1 Requisitos
-
-- Java 21
-- Maven 3.9+ (ou Maven Wrapper)
-- Docker e Docker Compose (opcional)
-
-### 9.2 Execucao local
-
-Windows (PowerShell):
-
-```powershell
-.\mvnw.cmd spring-boot:run
-```
-
-Linux/macOS:
-
+### Local (H2)
 ```bash
 ./mvnw spring-boot:run
 ```
 
-### 9.3 Execucao por profile
-
-PostgreSQL:
-
-```powershell
-.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=postgres"
+### Docker (MySQL)
+```bash
+docker-compose up --build -d
 ```
 
-MySQL:
-
-```powershell
-.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=mysql"
+### Build completo
+```bash
+./mvnw clean verify
 ```
 
-### 9.4 Docker
+## 10. Documentacao da API
 
-Stack atual com MySQL + API:
-
-```powershell
-$env:MASTER_PASSWORD_HASH='<hash-bcrypt-do-master>'
-docker compose up -d --build
-```
-
-No `cmd`:
-
-```cmd
-set MASTER_PASSWORD_HASH=<hash-bcrypt-do-master>
-docker compose up -d --build
-```
-
-Observacoes:
-
-- o arquivo suportado atualmente e `docker-compose.yml`
-- `docker-compose.dev.yml` nao faz mais parte da stack ativa
-- a API sobe com profile `dev`
-- o banco MySQL fica exposto em `127.0.0.1:3307`
-- a API fica exposta em `127.0.0.1:8080`
-- se `MASTER_PASSWORD_HASH` nao estiver definido, o seed do usuario `master@jilo.com` pode ficar inconsistente
-
-## 10. Documentacao OpenAPI
-
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:8080/api-docs`
-- OpenAPI YAML: `http://localhost:8080/api-docs.yaml`
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- OpenAPI JSON: http://localhost:8080/api-docs
+- Postman Collection: `docs/postman/Jilo-com-Jurubeba-API.postman_collection.json`
 
 ## 11. Autores
 
-- Danilo Fernando
-- Gilmar da Costa Moraes Junior
-- Juliana Maria Dal Olio Braz
-- Luis Henrique Silveira Borges
-- Thiago de Jesus Cordeiro
+### Grupo 3 - Tech Challenge POSTECH FIAP - Fase 2 - Data Guardian
+
+- **Thiago de Jesus Cordeiro** - Desenvolvimento e Arquitetura
+- **Juliana Maria Dal Olio Braz** - Desenvolvimento e Arquitetura
+- **Luis Henrique Silveira Borges** - Desenvolvimento e Arquitetura
+- **Gilmar da Costa Moraes Junior** - Desenvolvimento e Arquitetura
+- **Danilo Fernando** - Desenvolvimento e Arquitetura

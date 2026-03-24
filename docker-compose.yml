@@ -44,13 +44,13 @@ services:
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-jilocomjurubeba}
-      MYSQL_USER: ${MYSQL_USER:-jilocomjurubeba}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-jilocomjurubeba123}
+      DB_NAME: ${MYSQL_DATABASE:-jilocomjurubeba}
+      DB_USER: ${MYSQL_USER:-jilocomjurubeba}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-jilocomjurubeba123}
 
       JWT_SECRET: ${JWT_SECRET:-change-me-in-dev}
-      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
-      MASTER_PASSWORD_HASH: ${MASTER_PASSWORD_HASH}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-1440}
+      MASTER_PASSWORD_HASH: ${MASTER_PASSWORD_HASH:-$$2a$$10$$defaulthashplaceholder}
 
       SERVER_PORT: 8080
 
@@ -65,6 +65,13 @@ services:
 
     ports:
       - "${SERVER_PORT:-8080}:8080"
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
     depends_on:
       mysql:

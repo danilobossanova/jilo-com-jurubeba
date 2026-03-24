@@ -2,82 +2,124 @@ package com.grupo3.postech.jilocomjurubeba.application.usecase.usuario;
 
 import com.grupo3.postech.jilocomjurubeba.application.dto.usuario.CriarUsuarioInput;
 import com.grupo3.postech.jilocomjurubeba.application.dto.usuario.UsuarioOutput;
-import com.grupo3.postech.jilocomjurubeba.application.mapper.usuario.UsuarioMapper;
 import com.grupo3.postech.jilocomjurubeba.application.usecase.UseCase;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.tipousuario.TipoUsuario;
 import com.grupo3.postech.jilocomjurubeba.domain.entity.usuario.Usuario;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.EntidadeNaoEncontradaException;
 import com.grupo3.postech.jilocomjurubeba.domain.exception.RegraDeNegocioException;
-import com.grupo3.postech.jilocomjurubeba.domain.exception.ValidacaoException;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.tipousuario.TipoUsuarioGateway;
-import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.PasswordHashGateway;
+import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.CriptografiaSenhaGateway;
 import com.grupo3.postech.jilocomjurubeba.domain.gateway.usuario.UsuarioGateway;
-import com.grupo3.postech.jilocomjurubeba.domain.valueobject.Cpf;
-import com.grupo3.postech.jilocomjurubeba.domain.valueobject.Email;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
+/**
+ * Caso de uso para criacao de um novo usuario no sistema.
+ *
+ * <p>Este caso de uso orquestra o fluxo completo de criacao de usuario:
+ *
+ * <ol>
+ *   <li>Verifica se ja existe usuario com o CPF informado
+ *   <li>Verifica se ja existe usuario com o email informado
+ *   <li>Busca o {@link TipoUsuario} pelo ID informado no input
+ *   <li>Criptografa a senha via {@link CriptografiaSenhaGateway}
+ *   <li>Cria a entidade de dominio {@link Usuario} (validacoes no construtor)
+ *   <li>Persiste via {@link UsuarioGateway#salvar(Usuario)}
+ *   <li>Retorna o {@link UsuarioOutput} com os dados do usuario criado
+ * </ol>
+ *
+ * <p>Na Clean Architecture, este caso de uso pertence a camada Application e depende apenas de
+ * interfaces do Domain (gateways). Nao possui dependencia de framework.
+ *
+ * @author Grupo 3 - Tech Challenge POSTECH FIAP - Fase 2 - Data Guardian
+ *     <ul>
+ *       <li>Thiago de Jesus Cordeiro - Desenvolvimento e Arquitetura
+ *       <li>Juliana Maria Dal Olio Braz - Desenvolvimento e Arquitetura
+ *       <li>Luis Henrique Silveira Borges - Desenvolvimento e Arquitetura
+ *       <li>Gilmar da Costa Moraes Junior - Desenvolvimento e Arquitetura
+ *       <li>Danilo Fernando - Desenvolvimento e Arquitetura
+ *     </ul>
+ */
 public class CriarUsuarioUseCase implements UseCase<CriarUsuarioInput, UsuarioOutput> {
 
-  private final UsuarioGateway usuarioGateway;
-  private final TipoUsuarioGateway tipoUsuarioGateway;
-  private final PasswordHashGateway passwordHashGateway;
+    private final UsuarioGateway usuarioGateway;
+    private final TipoUsuarioGateway tipoUsuarioGateway;
+    private final CriptografiaSenhaGateway criptografiaSenhaGateway;
 
-  public CriarUsuarioUseCase(
-      UsuarioGateway usuarioGateway,
-      TipoUsuarioGateway tipoUsuarioGateway,
-      PasswordHashGateway passwordHashGateway) {
-    this.usuarioGateway = usuarioGateway;
-    this.tipoUsuarioGateway = tipoUsuarioGateway;
-    this.passwordHashGateway = passwordHashGateway;
-  }
-
-  @Override
-  public UsuarioOutput executar(CriarUsuarioInput input) {
-    Map<String, String> erros = new HashMap<>();
-
-    if (input.cpf() == null || input.cpf().isBlank()) erros.put("cpf", "cpf é obrigatório");
-    if (input.email() == null || input.email().isBlank()) erros.put("email", "email é obrigatório");
-    if (input.nome() == null || input.nome().isBlank()) erros.put("nome", "nome é obrigatório");
-    if (input.senha() == null || input.senha().isBlank()) erros.put("senha", "senha é obrigatória");
-
-    if (!erros.isEmpty()) {
-      throw new ValidacaoException("Dados inválidos", erros);
+    /**
+     * Construtor com injecao de dependencias dos gateways necessarios.
+     *
+     * @param usuarioGateway gateway de persistencia de usuarios
+     * @param tipoUsuarioGateway gateway de persistencia de tipos de usuario
+     * @param criptografiaSenhaGateway gateway de criptografia de senhas
+     */
+    public CriarUsuarioUseCase(
+            UsuarioGateway usuarioGateway,
+            TipoUsuarioGateway tipoUsuarioGateway,
+            CriptografiaSenhaGateway criptografiaSenhaGateway) {
+        this.usuarioGateway = usuarioGateway;
+        this.tipoUsuarioGateway = tipoUsuarioGateway;
+        this.criptografiaSenhaGateway = criptografiaSenhaGateway;
     }
 
-    String cpfNormalizado = input.cpf().replaceAll("\\D", "");
-    String emailNormalizado = input.email().trim().toLowerCase();
+    /**
+     * Executa a criacao de um novo usuario.
+     *
+     * <p>Valida unicidade de CPF e email, busca o tipo de usuario associado, criptografa a senha e
+     * persiste a entidade de dominio.
+     *
+     * @param input dados de entrada contendo nome, CPF, email, telefone, tipo de usuario e senha
+     * @return {@link UsuarioOutput} com os dados do usuario criado
+     * @throws RegraDeNegocioException se ja existir usuario com o CPF ou email informado
+     * @throws EntidadeNaoEncontradaException se o tipo de usuario informado nao existir
+     */
+    @Override
+    public UsuarioOutput executar(CriarUsuarioInput input) {
 
-    if (cpfNormalizado.length() != 11) {
-      throw new ValidacaoException("Dados inválidos", Map.of("cpf", "cpf deve conter 11 dígitos"));
+        if (usuarioGateway.existePorCpf(input.cpf())) {
+            throw new RegraDeNegocioException("Ja existe um usuario com o CPF informado");
+        }
+
+        if (usuarioGateway.existePorEmail(input.email())) {
+            throw new RegraDeNegocioException("Ja existe um usuario com o email informado");
+        }
+
+        TipoUsuario tipoUsuario =
+                tipoUsuarioGateway
+                        .buscarPorId(input.tipoUsuarioId())
+                        .orElseThrow(
+                                () ->
+                                        new EntidadeNaoEncontradaException(
+                                                "TipoUsuario", input.tipoUsuarioId()));
+
+        String senhaHash = criptografiaSenhaGateway.criptografar(input.senha());
+
+        Usuario usuario =
+                new Usuario(
+                        input.nome(),
+                        input.cpf(),
+                        input.email(),
+                        input.telefone(),
+                        tipoUsuario,
+                        senhaHash);
+
+        Usuario salvo = usuarioGateway.salvar(usuario);
+
+        return toOutput(salvo);
     }
 
-    if (usuarioGateway.findByCpf(cpfNormalizado).isPresent()) {
-      throw new RegraDeNegocioException("Usuário já cadastrado");
+    /**
+     * Converte uma entidade de dominio {@link Usuario} para o DTO de saida.
+     *
+     * @param usuario entidade de dominio a ser convertida
+     * @return {@link UsuarioOutput} com os dados da entidade
+     */
+    private static UsuarioOutput toOutput(Usuario usuario) {
+        return new UsuarioOutput(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getCpf().getNumero(),
+                usuario.getEmail().getEndereco(),
+                usuario.getTelefone(),
+                usuario.getTipoUsuario() != null ? usuario.getTipoUsuario().getNome() : null,
+                usuario.isAtivo());
     }
-
-    if (usuarioGateway.findByEmail(emailNormalizado).isPresent()) {
-      throw new RegraDeNegocioException("Email já cadastrado");
-    }
-
-    TipoUsuario tipoUsuario =
-        tipoUsuarioGateway
-            .buscarPorId(input.tipoUsuarioId())
-            .orElseThrow(
-                () -> new EntidadeNaoEncontradaException("TipoUsuario", input.tipoUsuarioId()));
-
-    Usuario usuario =
-        new Usuario(
-            input.nome(),
-            new Cpf(cpfNormalizado),
-            new Email(emailNormalizado),
-            input.telefone(),
-            tipoUsuario,
-            new ArrayList<>(),
-            passwordHashGateway.hash(input.senha()));
-
-    Usuario salvo = usuarioGateway.saveUsuario(usuario);
-    return UsuarioMapper.toOutput(salvo);
-  }
 }
